@@ -1,12 +1,12 @@
 import unittest
-from PriorityQueue import PriorityQueue, priority_queue_map
+from server.PriorityQueue import PriorityQueue, priority_queue_map
 
 class TestPriorityQueue(unittest.TestCase):
   def runTest(self):
     q = PriorityQueue()
 
     for key in priority_queue_map.keys():
-      q.enqueue('foo' + str(key), key)
+      q.enqueue(('foo' + str(key), key))
       item = q.get_items()[priority_queue_map[key]]
       self.assertEqual(
         item if type(item) is str else item[-1],

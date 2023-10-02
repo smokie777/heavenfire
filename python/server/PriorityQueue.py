@@ -16,7 +16,8 @@ class PriorityQueue:
       'twitch_chat_queue': []
     }
 
-  def enqueue(self, prompt, priority):
+  def enqueue(self, promptAndPriority):
+    prompt, priority = promptAndPriority
     key = priority_queue_map[priority]
     if type(self.queue[key]) is str:
       self.queue[key] = prompt
@@ -38,6 +39,4 @@ class PriorityQueue:
 
 
 if __name__ == '__main__':
-  q = PriorityQueue()
-  q.enqueue('foo', 1)
-  print(q.get_items())
+  True
