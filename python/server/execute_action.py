@@ -2,7 +2,6 @@ import config
 from time import sleep
 
 def execute_or_enqueue_action(promptAndPriority):
-  print(config.priority_queue.get_items())
   if config.is_busy:
     enqueue_action(promptAndPriority)
   else:
