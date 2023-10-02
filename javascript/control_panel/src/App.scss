@@ -1,0 +1,51 @@
+.app_container {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  overflow: hidden;
+}
+
+.app {
+  height: 100%;
+  width: 50%;
+  background-color: #282c34;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: 18px;
+  color: white;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.responses {
+  max-width: 1000px;
+}
+
+.luna_portrait {
+  margin: 20px 0 20px 0;
+}
+
+textarea {
+  height: 100px;
+  width: 400px;
+  font-size: 24px;
+}
+
+.textbox_buttons {
+  display: flex;
+}
+
+.textbox_buttons button {
+  padding: 5px 10px;
+}
+
+hr {
+  width: 300px;
+}
+
+.toggles input {
+  height: 17px;
+  width: 17px;
+}

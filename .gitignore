@@ -1,4 +1,6 @@
 *.env
 
+node_modules
+
 __pycache__
 python/heavenfire_venv
