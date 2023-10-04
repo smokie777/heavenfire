@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Spacer } from './Spacer';
 import { fetch_post } from './fetch_functions';
+import { priority_queue_map } from './constants';
 
 // make channel point redeem for luna saying "im gonna punch you in the face"
 
@@ -10,7 +11,7 @@ export const App = () => {
   const lunaAnswerTextBox = () => {
     fetch_post('/receive_prompt', {
       prompt: textBoxInput,
-      priority: 5
+      priority: priority_queue_map['priority_twitch_chat_queue']
     });
     setTextBoxInput('');
   };
@@ -18,7 +19,7 @@ export const App = () => {
   // const lunaReadTextBox = () => {
   //   fetch_post('/receive_prompt', {
   //     prompt: textBoxInput,
-  //     priority: 2
+  //     priority: priority_queue_map['priority_mic_input']
   //   });
   //   setTextBoxInput('');
   // };

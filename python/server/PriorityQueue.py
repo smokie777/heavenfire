@@ -1,31 +1,30 @@
 priority_queue_map = {
-  1: 'pubsub_events_queue',
-  2: 'mic_input',
-  3: 'collab_mic_input',
-  4: 'image',
-  5: 'twitch_chat_queue'
+  'priority_pubsub_events_queue': 1,
+  'priority_mic_input': 2,
+  'priority_collab_mic_input': 3,
+  'priority_image': 4,
+  'priority_twitch_chat_queue': 5,
 }
 
 class PriorityQueue:
   def __init__(self):
     self.queue = {
-      'pubsub_events_queue': [],
-      'mic_input': '',
-      'collab_mic_input': '',
-      'image': '',
-      'twitch_chat_queue': []
+      'priority_pubsub_events_queue': [],
+      'priority_mic_input': '',
+      'priority_collab_mic_input': '',
+      'priority_image': '',
+      'priority_twitch_chat_queue': []
     }
 
   def enqueue(self, promptAndPriority):
     prompt, priority = promptAndPriority
-    key = priority_queue_map[priority]
-    if type(self.queue[key]) is str:
-      self.queue[key] = prompt
-    elif type(self.queue[key]) is list:
-      self.queue[key].append(prompt)
+    if type(self.queue[priority]) is str:
+      self.queue[priority] = prompt
+    elif type(self.queue[priority]) is list:
+      self.queue[priority].append(prompt)
 
   def dequeue(self):
-    for key in priority_queue_map.values():
+    for key in priority_queue_map.keys():
       if type(self.queue[key]) is str and self.queue[key] != '':
         ret = self.queue[key]
         self.queue[key] = ''

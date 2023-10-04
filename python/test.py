@@ -7,7 +7,7 @@ class TestPriorityQueue(unittest.TestCase):
 
     for key in priority_queue_map.keys():
       q.enqueue(('foo' + str(key), key))
-      item = q.get_items()[priority_queue_map[key]]
+      item = q.get_items()[key]
       self.assertEqual(
         item if type(item) is str else item[-1],
         'foo' + str(key),
