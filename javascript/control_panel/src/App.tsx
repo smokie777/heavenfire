@@ -34,6 +34,8 @@ export const App = () => {
         <div className='textbox_buttons'>
           <button onClick={lunaAnswerTextBox}>Answer</button>
           <Spacer width={20} />
+          <button onClick={() => fetch_post('/the_testing_endpoint')}>The Testing Button</button>
+          <Spacer width={20} />
           {/* <button onClick={() => lunaReadTextBox(false)}>Read</button>
           <Spacer width={20} />
           <button onClick={() => lunaReadTextBox(true)}>Generate audio file</button>

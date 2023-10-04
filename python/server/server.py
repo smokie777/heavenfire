@@ -6,15 +6,7 @@ from pytwitchapi import run_pytwitchapi, terminate_pytwitchapi
 from threading import Thread, Event
 import signal
 import asyncio
-
-shutdown_event = Event()
-
-def sigint_handler(signum, frame):
-  print("SIGINT (CTRL+C) detected!")
-  shutdown_event.set()
-  terminate_pytwitchapi()
-
-signal.signal(signal.SIGINT, sigint_handler)
+import os
 
 app = Flask(__name__)
 
@@ -28,6 +20,18 @@ def _receive_prompt():
     execute_or_enqueue_action((prompt, priority))
   except Exception as e:
     log_error(e, '/receive_prompt')
+
+  return {}
+
+@app.route('/the_testing_endpoint', methods=['POST'])
+def _the_testing_endpoint():
+  data = request.get_json()
+
+  try:
+    terminate_pytwitchapi()
+    os.kill(os.getpid(), signal.SIGINT)
+  except Exception as e:
+    log_error(e, '/the_testing_endpoint')
 
   return {}
 

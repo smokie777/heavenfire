@@ -14,9 +14,9 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
+    "scss": "^0.2.4",
     "typescript": "^4.9.5",
-    "web-vitals": "^2.1.4",
-    "scss": "^0.2.4"
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "set PORT=3001 && react-scripts start",
@@ -43,6 +43,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "sass": "^1.63.6"
   }
 }
