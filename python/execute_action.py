@@ -15,7 +15,7 @@ def execute_action(promptAndPriority):
 
   prompt = promptAndPriority[0]
   while prompt != "":
-    # gen_ai_response()
+    # gen_llm_response()
     # gen_audio_file_and_subtitles()
     # play_audio_file()
     sleep(3)

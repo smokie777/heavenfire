@@ -5,7 +5,7 @@ from dotenv import load_dotenv; load_dotenv()
 
 openai.api_key = os.environ['OPENAI_KEY']
 
-def gen_ai_response(prompt):
+def gen_llm_response(prompt):
   if not prompt:
     return ''
 
@@ -46,9 +46,9 @@ def gen_ai_response(prompt):
   
 
 if __name__ == '__main__':
-  gen_ai_response('Hey, this is a test message.')
-  gen_ai_response('Hey, this is a test message.')
-  gen_ai_response('Hey, this is a test message.')
-  gen_ai_response('Hey, this is a test message.')
-  gen_ai_response('Hey, this is a test message.')
-  gen_ai_response('Hey, this is a test message.')
+  gen_llm_response('Hey, this is a test message.')
+  gen_llm_response('Hey, this is a test message.')
+  gen_llm_response('Hey, this is a test message.')
+  gen_llm_response('Hey, this is a test message.')
+  gen_llm_response('Hey, this is a test message.')
+  gen_llm_response('Hey, this is a test message.')
