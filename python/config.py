@@ -1,4 +1,3 @@
-import sys; sys.path.append('../llm')
 from PriorityQueue import PriorityQueue
 from LLMShortTermMemory import LLMShortTermMemory
 
@@ -8,3 +7,5 @@ is_busy = False
 priority_queue = PriorityQueue()
 # llm short term memory
 llm_short_term_memory = LLMShortTermMemory()
+# llm fuzzy token limit
+llm_fuzzy_token_limit = 100

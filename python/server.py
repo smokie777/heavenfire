@@ -1,4 +1,3 @@
-import sys; sys.path.append('../pytwitchapi')
 from flask import Flask, request
 from log_error import log_error
 from execute_action import execute_or_enqueue_action
