@@ -7,7 +7,7 @@ from uuid import UUID
 import asyncio
 import os
 import config
-from PriorityQueue import priority_queue_map
+from PriorityQueue import PRIORITY_QUEUE_MAP
 from time import sleep
 from execute_action import execute_or_enqueue_action
 from dotenv import load_dotenv; load_dotenv()
@@ -37,7 +37,7 @@ async def pubsub_callback_listen_bits_v1(uuid: UUID, data: dict) -> None:
   bits = data.get('bits_used')
   chat_message = data.get('chat_message')
   prompt = f'{user_name} just cheered {bits} bits! Their message: {chat_message}'
-  execute_or_enqueue_action((prompt, priority_queue_map['priority_pubsub_events_queue']))
+  execute_or_enqueue_action((prompt, PRIORITY_QUEUE_MAP['priority_pubsub_events_queue']))
 
 async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -> None:
   prompt = ''
@@ -61,7 +61,7 @@ async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -
     else:
       prompt = f'{display_name} just subscribed' if tier == 1 else f'{display_name} just subscribed at tier {tier}'
   prompt = prompt.replace('tier 1 sub', 'sub')
-  execute_or_enqueue_action((prompt, priority_queue_map['priority_pubsub_events_queue']))
+  execute_or_enqueue_action((prompt, PRIORITY_QUEUE_MAP['priority_pubsub_events_queue']))
 
 async def chat_on_ready(ready_event: EventData):
   print('pytwitchapi chat connected')
@@ -69,7 +69,7 @@ async def chat_on_ready(ready_event: EventData):
 
 async def chat_on_message(msg: ChatMessage):
   prompt = f'{msg.user.name}: {msg.text}'
-  execute_or_enqueue_action((prompt, priority_queue_map['priority_twitch_chat_queue']))
+  execute_or_enqueue_action((prompt, PRIORITY_QUEUE_MAP['priority_twitch_chat_queue']))
 
 async def chat_on_command_discord(cmd: ChatCommand):
   await cmd.reply('https://discord.gg/cxTHwepMTb')

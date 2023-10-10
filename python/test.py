@@ -1,13 +1,13 @@
 import unittest
 from utils import move_emojis_to_end, remove_text_inside_parentheses
-from PriorityQueue import PriorityQueue, priority_queue_map
+from PriorityQueue import PriorityQueue, PRIORITY_QUEUE_MAP
 from LLMShortTermMemory import LLMShortTermMemory
 
 class TestPriorityQueue(unittest.TestCase):
   def runTest(self):
     q = PriorityQueue()
 
-    for key in priority_queue_map.keys():
+    for key in PRIORITY_QUEUE_MAP.keys():
       q.enqueue(('foo' + str(key), key))
       item = q.get_items()[key]
       self.assertEqual(
@@ -16,7 +16,7 @@ class TestPriorityQueue(unittest.TestCase):
         'priority queue cant enqueue'
       )
 
-    for key in priority_queue_map.keys():
+    for key in PRIORITY_QUEUE_MAP.keys():
       item = q.dequeue()
       self.assertEqual(
         item,

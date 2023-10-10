@@ -1,4 +1,4 @@
-priority_queue_map = {
+PRIORITY_QUEUE_MAP = {
   'priority_pubsub_events_queue': 1,
   'priority_mic_input': 2,
   'priority_collab_mic_input': 3,
@@ -24,7 +24,7 @@ class PriorityQueue:
       self.queue[priority].append(prompt)
 
   def dequeue(self):
-    for key in priority_queue_map.keys():
+    for key in PRIORITY_QUEUE_MAP.keys():
       if type(self.queue[key]) is str and self.queue[key] != '':
         ret = self.queue[key]
         self.queue[key] = ''

@@ -37,5 +37,6 @@ def move_emojis_to_end(s):
     text_with_emojis_moved_to_end = text_with_emojis_moved_to_end.replace(old, new)
   return text_with_emojis_moved_to_end.strip()
 
+
 if __name__ == '__main__':
   print(move_emojis_to_end('Foo. 🖤. Bar.'))
