@@ -19,10 +19,6 @@ class LLMShortTermMemory:
   def add_assistant_message(self, content):
     raw = content
     edited = move_emojis_to_end(content)
-
-    print('Raw: ', raw)
-    print('Edited: ', edited)
-    
     self.messages.append({
       'role': 'assistant',
       'content': edited

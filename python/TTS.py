@@ -119,7 +119,7 @@ def gen_audio_file_and_subtitles(text, speaking_style = '', skipGeneratingSubtit
   [t.start() for t in threads]
   [t.join() for t in threads]
 
-  return store
+  return (store['output_filename'], store['subtitles'])
 
 def speak(output_filename):
   wf = wave.open(output_filename, 'rb')
