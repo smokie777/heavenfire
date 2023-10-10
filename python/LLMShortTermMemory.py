@@ -17,15 +17,18 @@ class LLMShortTermMemory:
     self.messages.append({ 'role': 'user', 'content': content })
 
   def add_assistant_message(self, content):
+    raw = content
     edited = move_emojis_to_end(content)
 
-    print('Raw: ', content)
+    print('Raw: ', raw)
     print('Edited: ', edited)
     
     self.messages.append({
       'role': 'assistant',
       'content': edited
     })
+
+    return (raw, edited)
 
   def clean_parentheses(self):
     # remove all parentheses-wrapped content in user messages, which are meant to be

@@ -33,7 +33,7 @@ def gen_llm_response(prompt):
   print('-> TOTAL TOKENS: ', total_tokens)
   
   print('Prompt: ', prompt)
-  config.llm_short_term_memory.add_assistant_message(reply)
+  raw, edited = config.llm_short_term_memory.add_assistant_message(reply)
 
   config.llm_short_term_memory.clean_parentheses()
 
@@ -42,7 +42,7 @@ def gen_llm_response(prompt):
 
   print('-> MESSAGES: ', config.llm_short_term_memory.messages[1:])
 
-  return edited
+  return (prompt, raw, edited)
   
 
 if __name__ == '__main__':

@@ -8,4 +8,6 @@ priority_queue = PriorityQueue()
 # llm short term memory
 llm_short_term_memory = LLMShortTermMemory()
 # llm fuzzy token limit
-llm_fuzzy_token_limit = 100
+llm_fuzzy_token_limit = 750
+# make this false for a couple seconds to terminate the audio playing loop.
+tts_green_light = True
