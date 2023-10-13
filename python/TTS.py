@@ -169,5 +169,4 @@ def print_wav_length(filename):
 
 if __name__ == '__main__':
   s = "Luna's streams are like a wild rollercoaster ride 🎢🔥, filled with laughter 😂, surprises ✨, and moments that will make your heart skip a beat 💖."
-  store = gen_audio_file_and_subtitles(s)
-  print(store)
+  speak('./output_audio_files/hq.wav')

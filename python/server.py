@@ -38,7 +38,7 @@ def _the_testing_endpoint():
 if __name__ == '__main__':
   threads = [
     Thread(target=lambda: app.run(debug=False, port=5001)),
-    Thread(target=lambda: asyncio.run(run_pytwitchapi()))
+    # Thread(target=lambda: asyncio.run(run_pytwitchapi()))
   ]
   [t.start() for t in threads]
   [t.join() for t in threads]

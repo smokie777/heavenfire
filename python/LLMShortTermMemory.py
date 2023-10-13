@@ -1,5 +1,6 @@
 from prompts import system, system_extra
 from utils import remove_text_inside_parentheses, move_emojis_to_end
+from gen_edited_luna_response import gen_edited_luna_response
 
 def generate_base_messages():
   return [
@@ -18,7 +19,7 @@ class LLMShortTermMemory:
 
   def add_assistant_message(self, content):
     raw = content
-    edited = move_emojis_to_end(content)
+    edited = move_emojis_to_end(gen_edited_luna_response(content))
     self.messages.append({
       'role': 'assistant',
       'content': edited
