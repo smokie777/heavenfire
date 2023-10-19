@@ -16,7 +16,7 @@ def _receive_prompt():
   priority = data['priority']
 
   try:
-    execute_or_enqueue_action((prompt, priority))
+    execute_or_enqueue_action(prompt, priority)
   except Exception as e:
     log_error(e, '/receive_prompt')
 

@@ -18,8 +18,7 @@ class PriorityQueue:
       'priority_twitch_chat_queue': []
     }
 
-  def enqueue(self, promptAndPriority):
-    prompt, priority = promptAndPriority
+  def enqueue(self, prompt, priority):
     if type(self.queue[priority]) is str:
       self.queue[priority] = prompt
     elif type(self.queue[priority]) is list:
@@ -32,8 +31,16 @@ class PriorityQueue:
         self.queue[key] = ''
         return ret;
       elif type(self.queue[key]) is list and len(self.queue[key]) != 0:
+        if key == 'priority_twitch_chat_queue' and len(self.queue[key]) > 3:
+          self.queue[key] = self.queue[key][len(self.queue[key])-3:]
         return self.queue[key].pop(0)
     return ''
+  
+  def has_items(self):
+    for key in PRIORITY_QUEUE_MAP.keys():
+      if not (self.queue[key] == '' or self.queue[key] == []):
+        return True
+    return False
 
   def get_items(self):
     return self.queue

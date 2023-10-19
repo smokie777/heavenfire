@@ -7,8 +7,11 @@ class TestPriorityQueue(unittest.TestCase):
   def runTest(self):
     q = PriorityQueue()
 
+    self.assertFalse(q.has_items(), 'priority queue has_items isnt working - false positive 1')
+
     for key in PRIORITY_QUEUE_MAP.keys():
       q.enqueue(('foo' + str(key), key))
+      self.assertTrue(q.has_items(), 'priority queue has_items isnt working - false negative')
       item = q.get_items()[key]
       self.assertEqual(
         item if type(item) is str else item[-1],
@@ -23,6 +26,8 @@ class TestPriorityQueue(unittest.TestCase):
         'foo' + str(key),
         'priority queue cant dequeue'
       )
+    
+    self.assertFalse(q.has_items(), 'priority queue has_items isnt working - false positive 2')
 
 class TestRemoveTextInsideParentheses(unittest.TestCase):
   def runTest(self):

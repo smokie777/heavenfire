@@ -1,24 +1,50 @@
 import { useEffect, useRef } from 'react';
 import { MIC_INPUT_DELAY } from './constants';
+import { fetch_post } from './fetch_functions';
 
 let mediaRecorder:MediaRecorder;
 
 export const DeepgramSTT = ({
-  lunaAnswerMicInput,
-  micInputRef,
-  lunaNextActionTimeoutRef,
-  isSmokieTalkingRef,
-  isLunaBusyRef,
-  isLunaRespondingToMic
+  isBusyRef,
+  setIsBusy
 }:{
-  lunaAnswerMicInput: () => void;
-  micInputRef: React.RefObject<string[]>;
-  lunaNextActionTimeoutRef: React.MutableRefObject<number | NodeJS.Timer>;
-  isSmokieTalkingRef: React.MutableRefObject<boolean>;
-  isLunaBusyRef: React.RefObject<boolean>;
-  isLunaRespondingToMic: boolean;
+  isBusyRef: React.MutableRefObject<boolean>;
+  setIsBusy: (i: boolean) => void;
 }) => {
   const deepgramKeepAliveIntervalRef = useRef<number | NodeJS.Timer>();
+  const micInputRef = useRef<string[]>([]);
+  const sendSpeechTimeoutRef = useRef<number | NodeJS.Timer>();
+
+  const socketOnMessage = (message:MessageEvent) => {
+    if (isBusyRef.current) {
+      return;
+    }
+
+    const received = JSON.parse(message.data);
+    const transcript = received.channel.alternatives[0].transcript;
+    
+    if (transcript) {
+      clearTimeout(sendSpeechTimeoutRef.current);
+      if (received.is_final) {
+        micInputRef.current.push(transcript);
+        sendSpeechTimeoutRef.current = setTimeout(() => {
+          const cleanedMicInput = micInputRef.current
+            .join(' ')
+            .split(' ')
+            .map(i => ['lin', 'lena', 'linda', 'elena', 'lana'].includes(i) ? 'luna' : i)
+            .map(i => ['smoky', 'smokey'].includes(i) ? 'smokie' : i)
+            .join(' ');
+          setIsBusy(true);
+          console.log('sending: ', `Smokie: ${cleanedMicInput}`);
+          fetch_post('/receive_prompt', {
+            prompt: `Smokie: ${cleanedMicInput}`,
+            priority: 'priority_mic_input'
+          });
+          micInputRef.current = [];
+        }, MIC_INPUT_DELAY);
+      }
+    }
+  };
 
   useEffect(() => {
     const socket = new WebSocket(
@@ -36,7 +62,6 @@ export const DeepgramSTT = ({
           }
         });
         mediaRecorder.start(250);
-        mediaRecorder.pause();
         
         deepgramKeepAliveIntervalRef.current = setInterval(() => {
           socket.send(JSON.stringify({ 'type': 'KeepAlive' }));
@@ -45,39 +70,7 @@ export const DeepgramSTT = ({
         console.log('Initialized: Deepgram STT Websocket');
       };
 
-      socket.onmessage = (message) => {
-        // the ideal behavior is to stop recording mic input when luna is busy
-        // however, the microphone hardware picks up a few seconds of audio transcripts at a time.
-        // this means that luna will "hear herself speak" towards the end of her speech. it's annoying, but unavoidable.
-        // some work-arounds are:
-        // 1. wearing headphones
-        // 2. disabling audio preview in VTube Studio/Streamlabs
-        // 3. adding an artificial cooldown period, where luna cannot take input for x seconds after speaking.
-        if (isLunaBusyRef.current) {
-          return;
-        }
-
-        // the try catch is for if you disable "luna responding to mic"
-        try {
-          const received = JSON.parse(message.data);
-          const transcript = received.channel.alternatives[0].transcript;
-          
-          if (transcript) {
-            if (lunaNextActionTimeoutRef.current) {
-              clearTimeout(lunaNextActionTimeoutRef.current);
-            }
-            isSmokieTalkingRef.current = true;
-            if (received.is_final) {
-              if (micInputRef.current) {
-                micInputRef.current.push(transcript);
-              }
-              lunaNextActionTimeoutRef.current = setTimeout(() => {
-                lunaAnswerMicInput();
-              }, MIC_INPUT_DELAY);
-            }
-          }
-        } catch {}
-      };
+      socket.onmessage = socketOnMessage;
 
       socket.onclose = () => {
         console.log('Closed: Deepgram STT Websocket');
@@ -88,24 +81,12 @@ export const DeepgramSTT = ({
     });
 
     return () => {
-      if (lunaNextActionTimeoutRef.current) {
-        clearTimeout(lunaNextActionTimeoutRef.current);
-      }
+      clearTimeout(sendSpeechTimeoutRef.current);
       clearInterval(deepgramKeepAliveIntervalRef.current);
       socket.close(); 
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (mediaRecorder) {
-      if (isLunaRespondingToMic) {
-        mediaRecorder.resume();
-      } else {
-        mediaRecorder.pause();
-      }
-    }
-  }, [isLunaRespondingToMic])
 
   return null;
 };

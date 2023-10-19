@@ -36,8 +36,8 @@ AZURE_POST_URL = 'https://{0}.tts.speech.microsoft.com/cognitiveservices/v1'.for
 AZURE_POST_HEADERS = {
   'Ocp-Apim-Subscription-Key': os.environ['SPEECH_KEY'],
   'Content-Type': 'application/ssml+xml; charset=utf-8',
-  'X-Microsoft-OutputFormat': 'audio-48khz-192kbitrate-mono-mp3'
-  # 'X-Microsoft-OutputFormat': 'audio-48khz-96kbitrate-mono-mp3'
+  # 'X-Microsoft-OutputFormat': 'audio-48khz-192kbitrate-mono-mp3'
+  'X-Microsoft-OutputFormat': 'audio-48khz-96kbitrate-mono-mp3'
 }
 SPEECHSDK_SPEECH_CONFIG = speechsdk.SpeechConfig(
   subscription=os.environ.get('SPEECH_KEY'),

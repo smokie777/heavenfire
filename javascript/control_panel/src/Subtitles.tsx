@@ -54,8 +54,8 @@ export const Subtitles = ({
 
   return (
     <div className='subtitles'>
-      {/* <div>{subtitleText.length < 333 ? '' : '...'}{subtitlePartition}</div> */}
-      <div>Hey, Smokie! How are you? I'm doing devilishly good, as usual. What's up? The quick brown fox jumped over the lazy dog. Let's keep the conversation civil, please. I'm just here to spread some demon cuteness on Twitch.</div>
+      <div>{subtitleText.length < 333 ? '' : '...'}{subtitlePartition}</div>
+      {/* <div>Hey, Smokie! How are you? I'm doing devilishly good, as usual. What's up? The quick brown fox jumped over the lazy dog. Let's keep the conversation civil, please. I'm just here to spread some demon cuteness on Twitch.</div> */}
     </div>
   );
 };

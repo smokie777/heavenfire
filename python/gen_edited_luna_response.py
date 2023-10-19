@@ -90,8 +90,6 @@ replacements = [
 ]
 
 def gen_edited_luna_response(s):
-  s = s.replace('Yee-haw', 'Yeehaw')
-  s = s.replace('yee-haw', 'yeehaw')
   words = (process_text_emojis(s)).replace('...', '... ').split()
   processed_words = []
   
@@ -178,6 +176,10 @@ def gen_edited_luna_response(s):
       replacement_word = 'Urgh'
     elif text[0] == 'y' and text[1] == 'e' and is_mouth_sound(text[2:], 'a', 'h'):
       replacement_word = 'Yea'
+    elif is_mouth_sound(
+      strip_leading_letters(strip_leading_letters(strip_leading_letters(text, 'y'), 'e'),  'h'), 'a', 'w'
+    ):
+      replacement_word = 'yeehaw'
 
     if replacement_word:
       original_case_text, _ = split_punctuation(word)

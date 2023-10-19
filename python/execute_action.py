@@ -2,35 +2,36 @@ import config
 from time import sleep
 from gen_llm_response import gen_llm_response
 from tts import gen_audio_file_and_subtitles, speak
+from websocket import create_connection
+import json
+from time import sleep
 
-def execute_or_enqueue_action(promptAndPriority):
+ws = create_connection('ws://localhost:4000')
+
+def execute_or_enqueue_action(prompt, priority):
   if config.is_busy:
-    enqueue_action(promptAndPriority)
+    config.priority_queue.enqueue(prompt, priority)
   else:
-    execute_action(promptAndPriority)
+    config.priority_queue.enqueue(prompt, priority)
+    execute_action()
 
-def enqueue_action(promptAndPriority):
-  config.priority_queue.enqueue(promptAndPriority)
-
-def execute_action(promptAndPriority):
+def execute_action():
   config.is_busy = True
 
-  prompt = promptAndPriority[0]
-  while prompt != '':
-    print(1)
-    (prompt, raw, edited) = gen_llm_response(prompt)
+  while config.priority_queue.has_items():
+    (prompt, raw, edited) = gen_llm_response(config.priority_queue.dequeue())
     print('Prompt: ', prompt)
     print('Raw: ', raw)
     print('Edited: ', edited)
-    # send (prompt, raw, edited) to websocket
+    ws.send(json.dumps({ 'prompt': prompt, 'raw': raw, 'edited': edited }))
     (output_filename, subtitles) = gen_audio_file_and_subtitles(edited)
-    # send subtitles to websocket
+    ws.send(json.dumps({ 'subtitles': subtitles }))
     speak(output_filename)
-    
-    prompt = config.priority_queue.dequeue()
 
+  sleep(config.ai_response_delay)
+
+  ws.send(json.dumps({ 'is_busy': False }))
   config.is_busy = False
-
 
 if __name__ == '__main__':
   execute_action(('test prompt.', 1))
