@@ -1,13 +1,14 @@
-import './App.scss';
+import './ControlPanel.scss';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Spacer } from './Spacer';
 import { fetch_post } from './fetch_functions';
 import { Subtitles } from './Subtitles';
 import { DeepgramSTT } from './DeepgramSTT';
+import { Helmet } from 'react-helmet';
 
 // make channel point redeem for luna saying "im gonna punch you in the face"
 
-export const App = () => {
+export const ControlPanel = () => {
   const [textBoxInput, setTextBoxInput] = useState('');
   const [prompt, setPrompt] = useState('');
   const [raw, setRaw] = useState('');
@@ -87,6 +88,8 @@ export const App = () => {
 
   return (
     <div className='app_container'>
+      <Helmet><title>Heavenfire Control Panel</title></Helmet>
+
       {isSTTActive && (
         <DeepgramSTT isBusyRef={isBusyRef} setIsBusy={setIsBusy} />
       )}
