@@ -25,7 +25,7 @@ def execute_action():
     print('Edited: ', edited)
     ws.send(json.dumps({ 'prompt': prompt, 'raw': raw, 'edited': edited }))
     (output_filename, subtitles) = gen_audio_file_and_subtitles(edited)
-    ws.send(json.dumps({ 'subtitles': subtitles }))
+    ws.send(json.dumps({ 'edited': edited, 'subtitles': subtitles }))
     speak(output_filename)
 
   sleep(config.ai_response_delay)

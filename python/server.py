@@ -6,6 +6,8 @@ from threading import Thread, Event
 import signal
 import asyncio
 import os
+import config
+from time import sleep
 
 app = Flask(__name__)
 
@@ -22,15 +24,28 @@ def _receive_prompt():
 
   return {}
 
-@app.route('/the_testing_endpoint', methods=['POST'])
-def _the_testing_endpoint():
+@app.route('/cancel_speech', methods=['POST'])
+def _cancel_speech():
+  data = request.get_json()
+
+  try:
+    config.tts_green_light = False
+    sleep(0.25);
+    config.tts_green_light = True
+  except Exception as e:
+    log_error(e, '/cancel_speech')
+
+  return {}
+
+@app.route('/shut_down_server', methods=['POST'])
+def _shut_down_server():
   data = request.get_json()
 
   try:
     terminate_pytwitchapi()
     os.kill(os.getpid(), signal.SIGINT)
   except Exception as e:
-    log_error(e, '/the_testing_endpoint')
+    log_error(e, '/shut_down_server')
 
   return {}
 

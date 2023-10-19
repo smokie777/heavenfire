@@ -27,12 +27,26 @@ export const App = () => {
     );
   }, []);
 
-  const lunaAnswerTextBox = () => {
+  const answerTextBox = () => {
+    setIsBusy(true);
     fetch_post('/receive_prompt', {
       prompt: textBoxInput,
       priority: 'priority_twitch_chat_queue'
     });
     setTextBoxInput('');
+  };
+
+  const shutDownServer = () => {
+    setIsBusy(false);
+    fetch_post('/shut_down_server');
+  };
+
+  const cancelSpeech = () => {
+    fetch_post('/cancel_speech');
+    setSubtitlesState({
+      text: '',
+      subtitles: []
+    });
   };
 
   // const lunaReadTextBox = () => {
@@ -69,7 +83,7 @@ export const App = () => {
         setIsBusy(false);
       }
     });
-  }, []);
+  }, [setIsBusy]);
 
   return (
     <div className='app_container'>
@@ -104,15 +118,16 @@ export const App = () => {
         />
         <Spacer height={10} />
         <div className='textbox_buttons'>
-          <button onClick={lunaAnswerTextBox}>Answer</button>
+          <button onClick={answerTextBox}>Answer</button>
           <Spacer width={20} />
-          <button onClick={() => fetch_post('/the_testing_endpoint')}>The Testing Button</button>
+          <button onClick={cancelSpeech}>Cancel speech</button>
+          <Spacer width={20} />
+          <button onClick={shutDownServer}>Shut down server</button>
           <Spacer width={20} />
           {/* <button onClick={() => lunaReadTextBox(false)}>Read</button>
           <Spacer width={20} />
           <button onClick={() => lunaReadTextBox(true)}>Generate audio file</button>
           <Spacer width={20} /> */}
-          {/* <button onClick={lunaCancelSpeech}>Cancel speech</button> */}
         </div>
       </div>
 
