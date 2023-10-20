@@ -39,7 +39,7 @@ def gen_llm_response(prompt):
   if total_tokens > config.llm_fuzzy_token_limit:
     config.llm_short_term_memory.trim()
 
-  print('-> MESSAGES: ', config.llm_short_term_memory.messages[1:])
+  # print('-> MESSAGES: ', config.llm_short_term_memory.messages[1:])
 
   return (prompt, raw, edited)
   

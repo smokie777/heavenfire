@@ -6,10 +6,11 @@ from twitchAPI.pubsub import PubSub
 from uuid import UUID
 import asyncio
 import os
-import config
 from PriorityQueue import PRIORITY_QUEUE_MAP
 from time import sleep
+from constants import AZURE_SPEAKING_STYLE_TAGS, VTS_EXPRESSIONS
 from execute_action import execute_or_enqueue_action
+from vts_set_expression import vts_set_expression
 from dotenv import load_dotenv; load_dotenv()
 
 twitch = None
@@ -30,7 +31,21 @@ USER_SCOPE = [
 TARGET_CHANNEL = 'smokie_777'
 
 async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
-  True
+  title = data['data']['redemption']['reward']['title']
+  display_name = data['data']['redemption']['user']['display_name']
+
+  if title == 'luna whisper':
+    vts_set_expression(VTS_EXPRESSIONS['flushed'])
+    user_input = data['data']['redemption']['user_input']
+    prompt = f'{AZURE_SPEAKING_STYLE_TAGS["whispering"]}(Luna, please give a longer response than usual!) {display_name}: {user_input}'
+    execute_or_enqueue_action(prompt, 'priority_pubsub_events_queue')
+  elif title == 'luna rant':
+    vts_set_expression(VTS_EXPRESSIONS['angry'])
+    user_input = data['data']['redemption']['user_input']
+    prompt = f'Luna, please go on a really long and angry rant about the following topic: {user_input}'     
+    execute_or_enqueue_action(prompt, 'priority_pubsub_events_queue')
+  elif title == 'Luna brown hair':
+    vts_set_expression(VTS_EXPRESSIONS['brown_hair'])
 
 async def pubsub_callback_listen_bits_v1(uuid: UUID, data: dict) -> None:
   user_name = data.get('user_name')
