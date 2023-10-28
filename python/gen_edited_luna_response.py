@@ -90,6 +90,7 @@ replacements = [
 ]
 
 def gen_edited_luna_response(s):
+  s = s.replace('..', '...')
   words = (process_text_emojis(s)).replace('...', '... ').split()
   processed_words = []
   
@@ -174,7 +175,7 @@ def gen_edited_luna_response(s):
       replacement_word = 'Be quiet'
     elif is_mouth_sound(text, 'e', 'w') or is_mouth_sound(strip_leading_letters(text, 'u'), 'g', 'h'):
       replacement_word = 'Urgh'
-    elif text[0] == 'y' and text[1] == 'e' and is_mouth_sound(text[2:], 'a', 'h'):
+    elif is_mouth_sound(strip_leading_letters(strip_leading_letters(text, 'y'), 'e'), 'a', 'h'):
       replacement_word = 'Yea'
     elif is_mouth_sound(
       strip_leading_letters(strip_leading_letters(strip_leading_letters(text, 'y'), 'e'),  'h'), 'a', 'w'
@@ -183,11 +184,14 @@ def gen_edited_luna_response(s):
 
     if replacement_word:
       original_case_text, _ = split_punctuation(word)
-      processed_words.append(
-        (replacement_word[0].upper() if original_case_text[0].isupper() else replacement_word[0].lower())
-        + replacement_word[1:]
-        + (punctuation if punctuation == '...' else (punctuation[-1] if punctuation else ''))
-      )
+      if original_case_text:
+        processed_words.append(
+          (replacement_word[0].upper() if original_case_text[0].isupper() else replacement_word[0].lower())
+          + replacement_word[1:]
+          + (punctuation if punctuation == '...' else (punctuation[-1] if punctuation else ''))
+        )
+      else:
+        processed_words.append(word)  
     else:    
       processed_words.append(word)
 

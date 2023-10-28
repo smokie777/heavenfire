@@ -24,6 +24,17 @@ def _receive_prompt():
 
   return {}
 
+@app.route('/erase_memory', methods=['POST'])
+def _erase_memory():
+  data = request.get_json()
+
+  try:
+    config.llm_short_term_memory.erase_memory()
+  except Exception as e:
+    log_error(e, '/erase_memory')
+
+  return {}
+
 @app.route('/cancel_speech', methods=['POST'])
 def _cancel_speech():
   data = request.get_json()

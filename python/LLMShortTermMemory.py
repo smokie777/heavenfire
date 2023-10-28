@@ -6,7 +6,7 @@ def generate_base_messages():
   return [
     {
       'role': 'system',
-      'content': system + ' ' + system_extra
+      'content': (system + ' ' + system_extra).strip()
     }
   ]
 
@@ -30,7 +30,7 @@ class LLMShortTermMemory:
       # there is an annoying IndexError here that I just can't quite figure out Madge
       self.messages.pop() # remove the last user message
       error_speech = 'I just threw an IndexError! Smokie, go look at my logs now.';
-      return (error_speech, error_speech)
+      return (raw, error_speech)
     
   def clean_parentheses(self):
     # remove all parentheses-wrapped content in user messages, which are meant to be

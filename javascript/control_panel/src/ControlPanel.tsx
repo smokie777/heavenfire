@@ -50,6 +50,10 @@ export const ControlPanel = () => {
     });
   };
 
+  const eraseMemory = () => {
+    fetch_post('/erase_memory');
+  };
+
   // const lunaReadTextBox = () => {
   //   fetch_post('/receive_prompt', {
   //     prompt: textBoxInput,
@@ -122,6 +126,8 @@ export const ControlPanel = () => {
         <Spacer height={10} />
         <div className='textbox_buttons'>
           <button onClick={answerTextBox}>Answer</button>
+          <Spacer width={20} />
+          <button onClick={eraseMemory}>Clear memory</button>
           <Spacer width={20} />
           <button onClick={cancelSpeech}>Cancel speech</button>
           <Spacer width={20} />

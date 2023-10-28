@@ -5,7 +5,8 @@ export const Overlay = () => {
   return (
     <div className='overlay'>
       <Helmet><title>Heavenfire Overlay</title></Helmet>
-      overlay
+      
+
     </div>
   );
 };

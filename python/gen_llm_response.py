@@ -17,7 +17,8 @@ def gen_llm_response(prompt):
   chat = openai.ChatCompletion.create(
     # model = os.environ['LUNA_GPT_MODEL_CHEAP'],
     # model = os.environ['LUNA_GPT_MODEL_EXPENSIVE'],
-    model = os.environ['LUNA_GPT_MODEL_FINETUNED'],
+    # model = os.environ['LUNA_GPT_MODEL_FINETUNED'],
+    model = os.environ['LUNA_GPT_MODEL_FINETUNED_2'],
     messages=config.llm_short_term_memory.messages,
     temperature=float(os.environ['LUNA_GPT_TEMPERATURE']),
     presence_penalty=float(os.environ['LUNA_GPT_PRESENCE_PENALTY']),
