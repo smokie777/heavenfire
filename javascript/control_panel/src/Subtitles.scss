@@ -15,10 +15,11 @@
   background: #00b140;
   box-sizing: border-box;
   color: hotpink;
-  text-shadow: 2px 2px 16px black, 4px 4px 14px black;
+  text-shadow: 2px 2px 16px black;
   text-align: center;
   // line-height: 1.2;
   padding: 10px;
   -webkit-text-stroke: 1px black;
   // -webkit-text-fill-color: white;
+  line-height: 60px;
 }

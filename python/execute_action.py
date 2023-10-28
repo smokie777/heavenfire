@@ -5,7 +5,7 @@ from tts import gen_audio_file_and_subtitles, speak
 from websocket import create_connection
 import json
 from constants import AZURE_SPEAKING_STYLE_TAGS
-from time import sleep
+from time import sleep, time
 
 ws = create_connection('ws://localhost:4000')
 
@@ -28,17 +28,23 @@ def execute_action():
         prompt = prompt.replace(tag, '')
         speaking_style = style
     
+    start_time = time()
     (prompt, raw, edited) = gen_llm_response(prompt)
+    latency_llm = f'{round((time() - start_time), 3)}s'
 
     print('Prompt: ', prompt)
     print('Raw: ', raw)
     print('Edited: ', edited)
 
-    ws.send(json.dumps({ 'prompt': prompt, 'raw': raw, 'edited': edited }))
+    ws.send(json.dumps({ 'prompt': prompt, 'raw': raw, 'edited': edited, 'latency_llm': latency_llm }))
 
+    start_time = time()
     (output_filename, subtitles) = gen_audio_file_and_subtitles(edited, speaking_style)
+    latency_tts = f'{round((time() - start_time), 3)}s'
 
-    ws.send(json.dumps({ 'edited': edited, 'subtitles': subtitles }))
+    print(f'LLM: {latency_llm} | TTS: {latency_tts}')
+
+    ws.send(json.dumps({ 'edited': edited, 'subtitles': subtitles, 'latency_tts': latency_tts }))
 
     speak(output_filename)
 
