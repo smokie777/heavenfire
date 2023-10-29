@@ -1,9 +1,9 @@
 PRIORITY_QUEUE_MAP = {
   'priority_game_input': 1,
-  'priority_pubsub_events_queue': 2,
-  'priority_mic_input': 3,
-  'priority_collab_mic_input': 4,
-  'priority_image': 5,
+  'priority_image': 2,
+  'priority_pubsub_events_queue': 3,
+  'priority_mic_input': 4,
+  'priority_collab_mic_input': 5,
   'priority_twitch_chat_queue': 6,
 }
 
@@ -11,10 +11,10 @@ class PriorityQueue:
   def __init__(self):
     self.queue = {
       'priority_game_input': '',
+      'priority_image': '',
       'priority_pubsub_events_queue': [],
       'priority_mic_input': '',
       'priority_collab_mic_input': '',
-      'priority_image': '',
       'priority_twitch_chat_queue': []
     }
 

@@ -2,6 +2,7 @@ import unittest
 from utils import move_emojis_to_end, remove_text_inside_parentheses
 from PriorityQueue import PriorityQueue, PRIORITY_QUEUE_MAP
 from LLMShortTermMemory import LLMShortTermMemory
+from gen_image_captions import gen_image_react_prompt
 
 class TestPriorityQueue(unittest.TestCase):
   def runTest(self):
@@ -10,7 +11,7 @@ class TestPriorityQueue(unittest.TestCase):
     self.assertFalse(q.has_items(), 'priority queue has_items isnt working - false positive 1')
 
     for key in PRIORITY_QUEUE_MAP.keys():
-      q.enqueue(('foo' + str(key), key))
+      q.enqueue('foo' + str(key), key)
       self.assertTrue(q.has_items(), 'priority queue has_items isnt working - false negative')
       item = q.get_items()[key]
       self.assertEqual(
@@ -76,6 +77,12 @@ class TestMoveEmojisToEnd(unittest.TestCase):
       move_emojis_to_end(i[0]),
       i[1]
     ) for i in test_cases]
+
+class TestImageReacts(unittest.TestCase):
+  def runTest(self):
+    azure_captions = [{'text': 'a computer screen shot of a cartoon animal', 'confidence': 0.7418550252914429, 'boundingBox': {'x': 0, 'y': 0, 'w': 2560, 'h': 1440}}, {'text': 'a cartoon of a cat woman', 'confidence': 0.6461490392684937, 'boundingBox': {'x': 262, 'y': 50, 'w': 1829, 'h': 1318}}, {'text': 'a screenshot of a computer game', 'confidence': 0.7590510249137878, 'boundingBox': {'x': 333, 'y': 382, 'w': 1036, 'h': 1012}}, {'text': 'a close-up of a blue string', 'confidence': 0.6619687676429749, 'boundingBox': {'x': 1049, 'y': 800, 'w': 128, 'h': 179}}, {'text': 'a close up of an eye', 'confidence': 0.8309906721115112, 'boundingBox': {'x': 1303, 'y': 366, 'w': 103, 'h': 108}}, {'text': 'a cartoon of a cat with yellow eyes', 'confidence': 0.6563021540641785, 'boundingBox': {'x': 1088, 'y': 125, 'w': 536, 'h': 560}}]
+    prompt = "You've just seen a picture with the following image recognition tags. Give it your best react! Tags: a cartoon of a cat woman, a close-up of a blue string, a close up of an eye, a cartoon of a cat with yellow eyes"
+    self.assertEqual(gen_image_react_prompt(azure_captions, 'picture'), prompt)
 
 
 if __name__ == '__main__':

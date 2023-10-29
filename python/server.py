@@ -7,6 +7,7 @@ import signal
 import asyncio
 import os
 import config
+from gen_image_captions import take_screenshot, gen_image_captions, gen_image_react_prompt
 from time import sleep
 
 app = Flask(__name__)
@@ -21,6 +22,21 @@ def _receive_prompt():
     execute_or_enqueue_action(prompt, priority)
   except Exception as e:
     log_error(e, '/receive_prompt')
+
+  return {}
+
+@app.route('/react_to_screen', methods=['POST'])
+def _react_to_screen():
+  data = request.get_json()
+
+  try:
+    take_screenshot()
+    image_captions = gen_image_captions()
+    print('Captions: ', image_captions)
+    prompt = gen_image_react_prompt(image_captions, 'picture')
+    execute_or_enqueue_action(prompt, 'priority_image')
+  except Exception as e:
+    log_error(e, '/react_to_screen')
 
   return {}
 

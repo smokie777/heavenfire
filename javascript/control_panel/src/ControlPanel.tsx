@@ -37,9 +37,13 @@ export const ControlPanel = () => {
     setTextBoxInput('');
   };
 
-  const shutDownServer = () => {
-    setIsBusy(false);
-    fetch_post('/shut_down_server');
+  const reactToScreen = () => {
+    setIsBusy(true);
+    fetch_post('/react_to_screen', {});
+  };
+
+  const eraseMemory = () => {
+    fetch_post('/erase_memory');
   };
 
   const cancelSpeech = () => {
@@ -50,8 +54,9 @@ export const ControlPanel = () => {
     });
   };
 
-  const eraseMemory = () => {
-    fetch_post('/erase_memory');
+  const shutDownServer = () => {
+    setIsBusy(false);
+    fetch_post('/shut_down_server');
   };
 
   // const lunaReadTextBox = () => {
@@ -126,6 +131,8 @@ export const ControlPanel = () => {
         <Spacer height={10} />
         <div className='textbox_buttons'>
           <button onClick={answerTextBox}>Answer</button>
+          <Spacer width={20} />
+          <button onClick={reactToScreen}>React to screen</button>
           <Spacer width={20} />
           <button onClick={eraseMemory}>Clear memory</button>
           <Spacer width={20} />
