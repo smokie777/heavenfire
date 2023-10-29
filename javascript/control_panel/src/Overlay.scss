@@ -15,14 +15,14 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 10px;
+    gap: 13px;
 
     .live_dot {
       background: red;
       border-radius: 50%;
       height: 20px;
       width: 20px;
-      animation: blink 7s infinite;
+      animation: blink 10s infinite;
     }
   }
 
@@ -102,7 +102,7 @@
 
 @keyframes blink {
   0% { opacity: 1; }
-  92% { opacity: 1; }
-  93% { opacity: 0; }
+  94% { opacity: 1; }
+  95% { opacity: 0; }
   100% { opacity: 0; }
 }
