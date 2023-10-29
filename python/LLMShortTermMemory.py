@@ -1,18 +1,19 @@
-from prompts import system, system_extra
+from prompts import system
 from utils import remove_text_inside_parentheses, move_emojis_to_end
 from gen_edited_luna_response import gen_edited_luna_response
 
-def generate_base_messages():
+def generate_base_messages(context):
   return [
-    {
-      'role': 'system',
-      'content': (system + ' ' + system_extra).strip()
-    }
+    { 'role': 'system', 'content': system },
+    { 'role': 'user', 'content': f'Today\'s context: {context}' },
+    { 'role': 'assistant', 'content': 'Got it!' },
   ]
 
+memory_trim_index = len(generate_base_messages(''))
+
 class LLMShortTermMemory:
-  def __init__(self):
-    self.messages = generate_base_messages()
+  def __init__(self, context):
+    self.messages = generate_base_messages(context)
 
   def add_user_message(self, content):
     self.messages.append({ 'role': 'user', 'content': content })
@@ -43,11 +44,11 @@ class LLMShortTermMemory:
   def trim(self):
     # delete a fixed number of messages, to help appease token limits
     for i in range(4):
-      if len(self.messages) > 1:
-        del self.messages[1]
+      if len(self.messages) > memory_trim_index:
+        del self.messages[memory_trim_index]
 
   def erase_memory(self):
-    self.messages = generate_base_messages()
+    self.messages = self.messages[:memory_trim_index]
 
 
 if __name__ == '__main__':

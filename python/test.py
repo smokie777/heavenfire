@@ -1,7 +1,7 @@
 import unittest
 from utils import move_emojis_to_end, remove_text_inside_parentheses
 from PriorityQueue import PriorityQueue, PRIORITY_QUEUE_MAP
-from LLMShortTermMemory import LLMShortTermMemory
+from LLMShortTermMemory import LLMShortTermMemory, memory_trim_index
 from gen_image_captions import gen_image_react_prompt
 
 class TestPriorityQueue(unittest.TestCase):
@@ -45,7 +45,7 @@ class TestRemoveTextInsideParentheses(unittest.TestCase):
 
 class TestLLMShortTermMemory(unittest.TestCase):
   def runTest(self):
-    m = LLMShortTermMemory()
+    m = LLMShortTermMemory('test context')
     self.assertEqual(m.messages[0]['role'], 'system')
     m.add_user_message('foo1')
     m.add_assistant_message('foo2')
@@ -53,14 +53,15 @@ class TestLLMShortTermMemory(unittest.TestCase):
     m.add_assistant_message('foo4')
     m.clean_parentheses()
     m.trim()
-    self.assertEqual(m.messages[-1]['role'], 'system')
+    self.assertEqual(m.messages[0]['role'], 'system')
+    self.assertEqual(len(m.messages), memory_trim_index)
     m.add_user_message('(foo) bar (baz)')
     m.add_assistant_message('(foo)')
     m.clean_parentheses()
-    self.assertEqual(m.messages[1]['content'], 'bar')
-    self.assertEqual(m.messages[2]['content'], '(foo)')
+    self.assertEqual(m.messages[memory_trim_index + 0]['content'], 'bar')
+    self.assertEqual(m.messages[memory_trim_index + 1]['content'], '(foo)')
     m.erase_memory()
-    self.assertEqual(len(m.messages), 1)
+    self.assertEqual(len(m.messages), memory_trim_index)
 
 class TestMoveEmojisToEnd(unittest.TestCase):
   def runTest(self):
