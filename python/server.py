@@ -6,9 +6,14 @@ from threading import Thread, Event
 import signal
 import asyncio
 import os
+import json
 import config
 from gen_image_captions import take_screenshot, gen_image_captions, gen_image_react_prompt
 from time import sleep
+from utils import move_emojis_to_end
+from gen_edited_luna_response import gen_edited_luna_response
+from tts import gen_audio_file_and_subtitles, speak
+from sing import sing
 
 app = Flask(__name__)
 
@@ -22,6 +27,25 @@ def _receive_prompt():
     execute_or_enqueue_action(prompt, priority)
   except Exception as e:
     log_error(e, '/receive_prompt')
+
+  return {}
+
+# speak_text bypasses most of the app flow, so it should be used sparingly
+@app.route('/speak_text', methods=['POST'])
+def _speak_text():
+  data = request.get_json()
+  text = data['text']
+
+  try:
+    config.is_busy = True
+    edited = move_emojis_to_end(gen_edited_luna_response(text))
+    # todo: should we send latency to websocket here?
+    (output_filename, subtitles) = gen_audio_file_and_subtitles(edited)
+    config.ws.send(json.dumps({ 'edited': edited, 'subtitles': subtitles }))
+    speak(output_filename)
+    config.is_busy = False
+  except Exception as e:
+    log_error(e, '/speak_text')
 
   return {}
 
@@ -61,6 +85,34 @@ def _cancel_speech():
     config.tts_green_light = True
   except Exception as e:
     log_error(e, '/cancel_speech')
+
+  return {}
+
+@app.route('/sing', methods=['POST'])
+def _sing():
+  data = request.get_json()
+  song = data['song']
+
+  try:
+    config.is_busy = True
+    sing(song)
+    config.is_busy = False
+  except Exception as e:
+    log_error(e, '/sing')
+
+  return {}
+
+@app.route('/set_config_variable', methods=['POST'])
+def _set_config_variable():
+  data = request.get_json()
+  name = data['name']
+  value = data['value']
+
+  try:
+    setattr(config, name, value)
+    print(f'{name} -> {getattr(config, name)}')
+  except Exception as e:
+    log_error(e, '/set_config_variable')
 
   return {}
 

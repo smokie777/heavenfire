@@ -1,6 +1,7 @@
 from PriorityQueue import PriorityQueue
 from LLMShortTermMemory import LLMShortTermMemory
 from context import context
+from websocket import create_connection
 
 # the vtuber can't perform any actions while is_busy is True.
 is_busy = False
@@ -14,3 +15,9 @@ llm_fuzzy_token_limit = 750
 tts_green_light = True
 # seconds of delay bewteen ai responses
 ai_response_delay = 1
+# websocket connection instance
+ws = create_connection('ws://localhost:4000')
+# is the vtuber responding to twitch chat?
+is_twitch_chat_react_on = True
+# is the vtuber responding to twitch chat, but only if @ mentioned?
+is_quiet_mode_on = True

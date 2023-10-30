@@ -5,7 +5,7 @@ from gen_edited_luna_response import gen_edited_luna_response
 def generate_base_messages(context):
   return [
     { 'role': 'system', 'content': system },
-    { 'role': 'user', 'content': f'Today\'s context: {context}' },
+    { 'role': 'user', 'content': context },
     { 'role': 'assistant', 'content': 'Got it!' },
   ]
 

@@ -18,7 +18,38 @@ export const ControlPanel = () => {
     subtitles: []
   });
   const [isSTTActive, setIsSTTActive] = useState(false);
+  const [isTwitchChatReactOn, setIsTwitchChatReactOn] = useState(true);
+  const [isQuietModeOn, setIsQuietModeOn] = useState(true);
   const isBusyRef = useRef(false);
+
+  useEffect(() => {
+    const ws = new WebSocket('ws://localhost:4000');
+    ws.addEventListener('open', () => {
+      console.log('Connected to WebSocket server!');
+    });
+    ws.addEventListener('message', (_data) => {
+      const data = JSON.parse(_data.data);
+      if (data.hasOwnProperty('prompt')) {
+        setPrompt(data.prompt);
+      }
+      if (data.hasOwnProperty('raw')) {
+        setRaw(data.raw);
+      }
+      if (data.hasOwnProperty('edited')) {
+        setEdited(data.edited);
+      }
+      if (data.hasOwnProperty('edited') && data.hasOwnProperty('subtitles')) {
+        setSubtitlesState({
+          text: data.edited,
+          subtitles: data.subtitles
+        });
+      }
+      if (data.hasOwnProperty('is_busy')) {
+        setIsBusy(data.is_busy);
+      }
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // the deepgram websocket doesn't play well with react state, so we have to use a ref here.
   const setIsBusy = useCallback((i:boolean) => {
@@ -54,6 +85,21 @@ export const ControlPanel = () => {
     });
   };
 
+  const sing = async() => {
+    // TODO: implement a dropdown with all possible songs
+    const songs = ['edamame', 'ringer', 'newcrack', 'iwantitthatway', 'yesterday'];
+    const song = textBoxInput;
+    if (!songs.includes(song)) {
+      return;
+    }
+    setTextBoxInput('');
+    setIsBusy(true);
+    await fetch_post('/sing', {
+      song,
+    });
+    setIsBusy(false);
+  };
+
   const shutDownServer = () => {
     setIsBusy(false);
     fetch_post('/shut_down_server');
@@ -67,33 +113,23 @@ export const ControlPanel = () => {
   //   setTextBoxInput('');
   // };
 
-  useEffect(() => {
-    const ws = new WebSocket('ws://localhost:4000');
-    ws.addEventListener('open', () => {
-      console.log('Connected to WebSocket server!');
+  const toggleIsTwitchChatReactOn = () => {
+    const newValue = !isTwitchChatReactOn;
+    setIsTwitchChatReactOn(newValue);
+    fetch_post('/set_config_variable', {
+      name: 'is_twitch_chat_react_on',
+      value: newValue
     });
-    ws.addEventListener('message', (_data) => {
-      const data = JSON.parse(_data.data);
-      if (data.hasOwnProperty('prompt')) {
-        setPrompt(data.prompt);
-      }
-      if (data.hasOwnProperty('raw')) {
-        setRaw(data.raw);
-      }
-      if (data.hasOwnProperty('edited')) {
-        setEdited(data.edited);
-      }
-      if (data.hasOwnProperty('edited') && data.hasOwnProperty('subtitles')) {
-        setSubtitlesState({
-          text: data.edited,
-          subtitles: data.subtitles
-        });
-      }
-      if (data.hasOwnProperty('is_busy')) {
-        setIsBusy(false);
-      }
+  };
+
+  const toggleIsQuietModeOn = () => {
+    const newValue = !isQuietModeOn;
+    setIsQuietModeOn(newValue);
+    fetch_post('/set_config_variable', {
+      name: 'is_quiet_mode_on',
+      value: newValue
     });
-  }, [setIsBusy]);
+  };
 
   return (
     <div className='app_container'>
@@ -117,6 +153,22 @@ export const ControlPanel = () => {
           <button onClick={() => setIsSTTActive(prevIsSTTActive => !prevIsSTTActive)}>
             Turn {isSTTActive ? 'off' : 'on'} mic
           </button>
+          <Spacer height={3} />
+
+          <input
+            type='checkbox'
+            checked={isTwitchChatReactOn}
+            onChange={toggleIsTwitchChatReactOn}
+          />
+          Reading twitch chat?
+          <Spacer height={3} />
+
+          <input
+            type='checkbox'
+            checked={isQuietModeOn}
+            onChange={toggleIsQuietModeOn}
+          />
+          Quiet mode?
         </div>
         <div className='responses'>
           <p>PROMPT: {prompt}</p>
@@ -137,6 +189,8 @@ export const ControlPanel = () => {
           <button onClick={eraseMemory}>Clear memory</button>
           <Spacer width={20} />
           <button onClick={cancelSpeech}>Cancel speech</button>
+          <Spacer width={20} />
+          <button onClick={sing}>Sing</button>
           <Spacer width={20} />
           <button onClick={shutDownServer}>Shut down server</button>
           <Spacer width={20} />

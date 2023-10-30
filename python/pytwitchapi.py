@@ -12,6 +12,7 @@ from constants import AZURE_SPEAKING_STYLE_TAGS, VTS_EXPRESSIONS
 from execute_action import execute_or_enqueue_action
 from vts_set_expression import vts_set_expression
 from dotenv import load_dotenv; load_dotenv()
+import config
 
 twitch = None
 chat = None
@@ -84,11 +85,15 @@ async def chat_on_ready(ready_event: EventData):
 
 async def chat_on_message(msg: ChatMessage):
   prompt = f'{msg.user.name}: {msg.text}'
+
   if (
-    # twitch chat react mode is on
-    msg.text[0] != '!'
+    config.is_twitch_chat_react_on
+    and msg.text[0] != '!'
     and msg.user.name != 'Streamlabs'
-    and ('@luna' in msg.text.lower() or '@hellfire' in msg.text.lower()) 
+    and (
+      (config.is_quiet_mode_on and ('@luna' in msg.text.lower() or '@hellfire' in msg.text.lower()))
+      or not config.is_quiet_mode_on
+    )
   ):
     execute_or_enqueue_action(prompt, 'priority_twitch_chat_queue')
 

@@ -8,3 +8,4 @@ python/output_audio_files/
 python/prompts.py
 python/screenshot.png
 python/datasets/*
+python/songs/*
