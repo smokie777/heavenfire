@@ -1,6 +1,6 @@
 import config
 from time import sleep
-from gen_llm_response import gen_llm_response
+from llm_openai import gen_llm_response
 from tts import gen_audio_file_and_subtitles, speak
 import json
 from constants import AZURE_SPEAKING_STYLE_TAGS

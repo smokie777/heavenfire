@@ -32,6 +32,11 @@ export const Overlay = () => {
         <div className='live_dot' />
         <div className='live_text neon_text'>live</div>
       </div>
+
+      <div className='logo_container'>
+        <div className='logo neon_text'>L.U.N.A.</div>
+        <div className='logo_sub neon_text'>Livestreaming Undercover Neural AI</div>
+      </div>
       
       <div className='chat_widget'>
         <div className='chat_widget_top'>

@@ -86,10 +86,10 @@ replacements = [
   (':o', ':0'),
   (';)', '*wink*'),
   ('Duuude', 'Dude'),
-  ('Duude', 'Dude')
+  ('Duude', 'Dude'),
 ]
 
-def gen_edited_luna_response(s):
+def gen_edited_luna_response_1(s):
   s = s.replace('..', '...')
   words = (process_text_emojis(s)).replace('...', '... ').split()
   processed_words = []
@@ -151,6 +151,8 @@ def gen_edited_luna_response(s):
       replacement_word = 'You'
     elif is_mouth_sound(strip_leading_letters(text, 'h'), 'e', 'y'):
       replacement_word = 'Hey'
+    elif is_mouth_sound(text, 'y', 'a'):
+      replacement_word = 'Ya'
     elif is_mouth_sound(strip_leading_letters(text, 'p'), 'f', 't'):
       replacement_word = 'Wow'
     elif is_mouth_sound(strip_leading_letters(text, 'y'), 'a', 's', ['yas', 'as', 'ass']):
@@ -159,6 +161,8 @@ def gen_edited_luna_response(s):
       replacement_word = 'Yes'
     elif is_mouth_sound(text, 'd', 'o', ['do']):
       replacement_word = 'Do'
+    elif is_mouth_sound(strip_leading_letters(text, 'e'), 'r', 'm', ['erm']):
+      replacement_word = 'Erm'
     elif is_mouth_sound(text, 'y', 'o', ['yo']):
       replacement_word = 'Yo'
     elif is_mouth_sound(text, 'g', 'o', ['go']):
@@ -173,7 +177,11 @@ def gen_edited_luna_response(s):
       replacement_word = 'Ye'
     elif is_mouth_sound(text, 's', 'h', []):
       replacement_word = 'Be quiet'
-    elif is_mouth_sound(text, 'e', 'w') or is_mouth_sound(strip_leading_letters(text, 'u'), 'g', 'h'):
+    elif (
+      is_mouth_sound(text, 'e', 'w')
+      or is_mouth_sound(strip_leading_letters(strip_leading_letters(text, 'u'), 'r'), 'g', 'h')
+      or is_mouth_sound(strip_leading_letters(strip_leading_letters(text, 'a'), 'r'), 'g', 'h')
+    ):
       replacement_word = 'Urgh'
     elif is_mouth_sound(strip_leading_letters(strip_leading_letters(text, 'y'), 'e'), 'a', 'h'):
       replacement_word = 'Yea'
@@ -204,6 +212,62 @@ def gen_edited_luna_response(s):
     ret = ret[1:-1]
 
   return ret.replace('... ', '...')
+
+def gen_edited_luna_response(s):
+  s = s.replace('..', '...')
+  words = (process_text_emojis(s)).replace('...', '... ').split()
+  processed_words = []
+  
+  
+  for word in words:
+    text, punctuation = split_punctuation(word.lower())
+    replacement_word = ''
+
+    if (
+      is_mouth_sound(text, 'e', 'r')
+      or is_mouth_sound(text, 'u', 'm')
+      or is_mouth_sound(text, 'u', 'h')
+      or 'uhuh' in text
+      or is_mouth_sound(strip_leading_letters(text, 'e'), 'r', 'm', ['erm'])
+    ):
+      replacement_word = 'Erm'
+    elif is_mouth_sound(text, 'm', 'm') or is_mouth_sound(text, 'h', 'm'):
+      replacement_word = 'Mm'
+    elif (
+      is_mouth_sound(text, 'e', 'w')
+      or is_mouth_sound(strip_leading_letters(strip_leading_letters(text, 'u'), 'r'), 'g', 'h')
+      or is_mouth_sound(strip_leading_letters(strip_leading_letters(text, 'a'), 'r'), 'g', 'h')
+    ):
+      replacement_word = 'Urgh'
+    elif text == 'ahaha':
+      replacement_word = 'Haha'
+
+    if replacement_word:
+      original_case_text, _ = split_punctuation(word)
+      if original_case_text:
+        processed_words.append(
+          (replacement_word[0].upper() if original_case_text[0].isupper() else replacement_word[0].lower())
+          + replacement_word[1:]
+          + (punctuation if punctuation == '...' else (punctuation[-1] if punctuation else ''))
+        )
+      else:
+        processed_words.append(word)  
+    else:    
+      processed_words.append(word)
+
+  ret = ' '.join(processed_words)
+
+  for old, new in replacements:
+    ret = ret.replace(old, new)
+  
+  if ret.startswith('"') and ret.endswith('"'):
+    ret = ret[1:-1]
+
+  if ret[-1] not in punctuation_characters:
+    ret += '.' # get rid of weird sound bytes with say-as=message
+
+  return ret.replace('... ', '...')
+
 
 if __name__ == '__main__':
   print(gen_edited_luna_response('Umm...Smokie? Testing?'))

@@ -68,6 +68,15 @@ export const ControlPanel = () => {
     setTextBoxInput('');
   };
 
+  const lunaReadTextBox = () => {
+    fetch_post('/speak_text', {
+      text: textBoxInput,
+      priority: 'priority_mic_input'
+    });
+    setTextBoxInput('');
+  };
+
+
   const reactToScreen = () => {
     setIsBusy(true);
     fetch_post('/react_to_screen', {});
@@ -104,14 +113,6 @@ export const ControlPanel = () => {
     setIsBusy(false);
     fetch_post('/shut_down_server');
   };
-
-  // const lunaReadTextBox = () => {
-  //   fetch_post('/receive_prompt', {
-  //     prompt: textBoxInput,
-  //     priority: PRIORITY_QUEUE_MAP['priority_mic_input']
-  //   });
-  //   setTextBoxInput('');
-  // };
 
   const toggleIsTwitchChatReactOn = () => {
     const newValue = !isTwitchChatReactOn;
@@ -184,6 +185,8 @@ export const ControlPanel = () => {
         <div className='textbox_buttons'>
           <button onClick={answerTextBox}>Answer</button>
           <Spacer width={20} />
+          <button onClick={lunaReadTextBox}>Read</button>
+          <Spacer width={20} />
           <button onClick={reactToScreen}>React to screen</button>
           <Spacer width={20} />
           <button onClick={eraseMemory}>Clear memory</button>
@@ -194,10 +197,6 @@ export const ControlPanel = () => {
           <Spacer width={20} />
           <button onClick={shutDownServer}>Shut down server</button>
           <Spacer width={20} />
-          {/* <button onClick={() => lunaReadTextBox(false)}>Read</button>
-          <Spacer width={20} />
-          <button onClick={() => lunaReadTextBox(true)}>Generate audio file</button>
-          <Spacer width={20} /> */}
         </div>
       </div>
 

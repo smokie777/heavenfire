@@ -12,6 +12,7 @@ from constants import AZURE_SPEAKING_STYLE_TAGS, VTS_EXPRESSIONS
 from execute_action import execute_or_enqueue_action
 from vts_set_expression import vts_set_expression
 from dotenv import load_dotenv; load_dotenv()
+from utils import does_one_word_start_with_at
 import config
 
 twitch = None
@@ -32,6 +33,7 @@ USER_SCOPE = [
 TARGET_CHANNEL = 'smokie_777'
 
 async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
+  print(data)
   title = data['data']['redemption']['reward']['title']
   display_name = data['data']['redemption']['user']['display_name']
 
@@ -49,26 +51,28 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
     vts_set_expression(VTS_EXPRESSIONS['brown_hair'])
 
 async def pubsub_callback_listen_bits_v1(uuid: UUID, data: dict) -> None:
+  print(data)
+  data = data.get('data')
   user_name = data.get('user_name')
   bits = data.get('bits_used')
   chat_message = data.get('chat_message')
-  prompt = f'{user_name} just cheered {bits} bits! Their message: {chat_message}'
-  execute_or_enqueue_action(prompt, PRIORITY_QUEUE_MAP['priority_pubsub_events_queue'])
+  prompt = f'{user_name} just cheered {bits} bits! Say a nice and witty thank you message! Their message: {chat_message}'
+  execute_or_enqueue_action(prompt, 'priority_pubsub_events_queue')
 
 async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -> None:
+  print(data)
   prompt = ''
-  display_name = data.get('display_name')
+  display_name = data.get('display_name') if data.get('display_name') else 'An anonymous gifter'
   tier = '"Prime"' if data.get('sub_plan') == 'Prime' else str((int(data.get('sub_plan')) // 1000))
   is_gift = data.get('is_gift')
   recipient_display_name = data.get('recipient_display_name')
   multi_month_duration = data.get('multi_month_duration')
   cumulative_months = data.get('cumulative_months')
   if is_gift:
-    gifter_name = display_name if display_name else 'An anonymous gifter'
     if multi_month_duration:
-      prompt = f'{gifter_name} just gifted a {multi_month_duration}-month tier {tier} sub to {recipient_display_name}'
+      prompt = f'{display_name} just gifted a {multi_month_duration}-month tier {tier} sub to {recipient_display_name}'
     else:
-        prompt = f'{gifter_name} just gifted a tier {tier} sub to {recipient_display_name}'
+        prompt = f'{display_name} just gifted a tier {tier} sub to {recipient_display_name}'
   else:
     if multi_month_duration:
       prompt = f'{display_name} just bought a {multi_month_duration}-month tier {tier} sub'
@@ -77,7 +81,7 @@ async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -
     else:
       prompt = f'{display_name} just subscribed' if tier == 1 else f'{display_name} just subscribed at tier {tier}'
   prompt = prompt.replace('tier 1 sub', 'sub')
-  execute_or_enqueue_action(prompt, 'priority_pubsub_events_queue')
+  execute_or_enqueue_action(f'{prompt}. Say thank you, and make a fun remark on their username: {display_name}!', 'priority_pubsub_events_queue')
 
 async def chat_on_ready(ready_event: EventData):
   print('pytwitchapi chat connected')
@@ -85,20 +89,30 @@ async def chat_on_ready(ready_event: EventData):
 
 async def chat_on_message(msg: ChatMessage):
   prompt = f'{msg.user.name}: {msg.text}'
+  is_at_luna = '@luna' in msg.text.lower() or '@hellfire' in msg.text.lower()
 
   if (
     config.is_twitch_chat_react_on
     and msg.text[0] != '!'
     and msg.user.name != 'Streamlabs'
     and (
-      (config.is_quiet_mode_on and ('@luna' in msg.text.lower() or '@hellfire' in msg.text.lower()))
-      or not config.is_quiet_mode_on
+      (config.is_quiet_mode_on and is_at_luna)
+      or (not config.is_quiet_mode_on and (is_at_luna or not does_one_word_start_with_at(msg.text.lower().split(' '))))
     )
   ):
     execute_or_enqueue_action(prompt, 'priority_twitch_chat_queue')
 
 async def chat_on_command_discord(cmd: ChatCommand):
   await cmd.reply('https://discord.gg/cxTHwepMTb')
+
+async def chat_on_command_profile(cmd: ChatCommand):
+  await cmd.reply('https://www.pathofexile.com/account/view-profile/smokie_777/characters')
+
+async def chat_on_command_pob(cmd: ChatCommand):
+  await cmd.reply('pob -> click import/export build -> search for smokie_777 -> click start -> import passive tree & items and skills')
+
+async def chat_on_command_video(cmd: ChatCommand):
+  await cmd.reply('https://www.youtube.com/watch?v=in7lM9aoEn8')
 
 async def terminate_pytwitchapi():
   chat.stop()
@@ -118,6 +132,9 @@ async def run_pytwitchapi():
   chat.register_event(ChatEvent.READY, chat_on_ready)
   chat.register_event(ChatEvent.MESSAGE, chat_on_message)
   chat.register_command('discord', chat_on_command_discord)
+  chat.register_command('profile', chat_on_command_profile)
+  chat.register_command('pob', chat_on_command_pob)
+  chat.register_command('video', chat_on_command_video)
   chat.start()
 
   pubsub = PubSub(twitch)

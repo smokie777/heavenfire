@@ -2,6 +2,7 @@ import os
 import config
 import openai
 from dotenv import load_dotenv; load_dotenv()
+from LLMShortTermMemory import generate_base_messages
 
 openai.api_key = os.environ['OPENAI_KEY']
 
@@ -17,8 +18,8 @@ def gen_llm_response(prompt):
   chat = openai.ChatCompletion.create(
     # model = os.environ['LUNA_GPT_MODEL_CHEAP'],
     # model = os.environ['LUNA_GPT_MODEL_EXPENSIVE'],
-    # model = os.environ['LUNA_GPT_MODEL_FINETUNED'],
-    model = os.environ['LUNA_GPT_MODEL_FINETUNED_2'],
+    model = os.environ['LUNA_GPT_MODEL_FINETUNED'],
+    # model = os.environ['LUNA_GPT_MODEL_FINETUNED_2'],
     messages=config.llm_short_term_memory.messages,
     temperature=float(os.environ['LUNA_GPT_TEMPERATURE']),
     presence_penalty=float(os.environ['LUNA_GPT_PRESENCE_PENALTY']),
@@ -46,9 +47,23 @@ def gen_llm_response(prompt):
   
 
 if __name__ == '__main__':
-  gen_llm_response('Hey, this is a test message.')
-  gen_llm_response('Hey, this is a test message.')
-  gen_llm_response('Hey, this is a test message.')
-  gen_llm_response('Hey, this is a test message.')
-  gen_llm_response('Hey, this is a test message.')
-  gen_llm_response('Hey, this is a test message.')
+  m = messages = [{ 'role': 'system', 'content': '' }]
+  m.append(
+    { 'role': 'user', 'content': 'In one line, list 1-3 random keywords that could be used to start a conversation. For example: "Bagels", "The other day", "Don\'t you hate it when"' }
+  )
+  chat = openai.ChatCompletion.create(
+    # model = os.environ['LUNA_GPT_MODEL_CHEAP'],
+    # model = os.environ['LUNA_GPT_MODEL_EXPENSIVE'],
+    # model = os.environ['LUNA_GPT_MODEL_FINETUNED'],
+    model = os.environ['LUNA_GPT_MODEL_FINETUNED_2'],
+    messages=m,
+    temperature=float(1),
+    presence_penalty=float(0),
+    frequency_penalty=float(0),
+    max_tokens=int(os.environ['LUNA_GPT_MAX_TOKENS'])
+    # ^parameters explained: https://platform.openai.com/docs/api-reference/chat/create
+  )
+
+  reply = chat.choices[0].message.content
+
+  print(reply)

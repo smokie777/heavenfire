@@ -59,6 +59,20 @@
     }
   }
 
+  .logo_container {
+    position: absolute;
+    right: 100px;
+    top: 200px;
+
+    .logo {
+      font-size: 80px;
+    }
+
+    .logo_sub {
+      font-size: 24px;
+    }
+  }
+
   .latency {
     position: absolute;
     bottom: 30px;

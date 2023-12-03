@@ -1,6 +1,6 @@
 import discord
 import os
-from gen_llm_response import gen_llm_response
+from llm_openai import gen_llm_response
 import random
 import datetime
 from log_error import log_error
@@ -53,7 +53,7 @@ async def on_message(message):
   is_luna_busy = True
 
   # only respond to messages if BOTH message is from Alluring Lunar Haven AND @LUnA was mentioned
-  if str(message.guild) == 'Alluring Lunar Haven':
+  if str(message.guild) == 'Alluring Luna Abyss':
     if int(os.environ['LUNA_DISCORD_BOT_ID']) in [m.id for m in message.mentions]:
       # print('message.activity: ', message.activity)
       # print('message.application: ', message.application)

@@ -37,6 +37,12 @@ def move_emojis_to_end(s):
     text_with_emojis_moved_to_end = text_with_emojis_moved_to_end.replace(old, new)
   return text_with_emojis_moved_to_end.strip()
 
+def does_one_word_start_with_at(strings):
+  for string in strings:
+    if string.startswith('@'):
+      return True
+  return False
+
 
 if __name__ == '__main__':
   print(move_emojis_to_end('Foo. 🖤. Bar.'))

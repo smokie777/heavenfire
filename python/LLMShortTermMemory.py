@@ -2,12 +2,12 @@ from prompts import system
 from utils import remove_text_inside_parentheses, move_emojis_to_end
 from gen_edited_luna_response import gen_edited_luna_response
 
-def generate_base_messages(context):
-  return [
-    { 'role': 'system', 'content': system },
-    { 'role': 'user', 'content': context },
-    { 'role': 'assistant', 'content': 'Got it!' },
-  ]
+def generate_base_messages(context = None):
+  messages = [{ 'role': 'system', 'content': system }]
+  if context:
+    messages.append({ 'role': 'user', 'content': context })
+    messages.append({ 'role': 'assistant', 'content': 'Got it!' })
+  return messages
 
 memory_trim_index = len(generate_base_messages(''))
 

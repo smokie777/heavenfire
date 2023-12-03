@@ -70,6 +70,8 @@ def _erase_memory():
 
   try:
     config.llm_short_term_memory.erase_memory()
+    setattr(config, 'is_busy', False)
+    print(f'is_busy -> {getattr(config, "is_busy")}')
   except Exception as e:
     log_error(e, '/erase_memory')
 
