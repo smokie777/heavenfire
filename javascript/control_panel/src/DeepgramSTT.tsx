@@ -35,9 +35,9 @@ export const DeepgramSTT = ({
             .map(i => ['smoky', 'smokey'].includes(i) ? 'smokie' : i)
             .join(' ');
           setIsBusy(true);
-          console.log('sending: ', `Smokie: ${cleanedMicInput}`);
           fetch_post('/receive_prompt', {
             prompt: `Smokie: ${cleanedMicInput}`,
+            // prompt: `(paraphrase and repeat): ${cleanedMicInput}`,
             priority: 'priority_mic_input'
           });
           micInputRef.current = [];

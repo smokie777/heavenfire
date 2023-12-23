@@ -263,9 +263,6 @@ def gen_edited_luna_response(s):
   if ret.startswith('"') and ret.endswith('"'):
     ret = ret[1:-1]
 
-  if ret[-1] not in punctuation_characters:
-    ret += '.' # get rid of weird sound bytes with say-as=message
-
   return ret.replace('... ', '...')
 
 

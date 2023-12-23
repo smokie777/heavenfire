@@ -7,6 +7,23 @@
   padding: 100px;
   box-sizing: border-box;
 
+  .timer_container {
+    position: absolute;
+    text-align: center;
+    left: 0;
+    top: 160px;
+    width: 100%;
+    
+    .timer_text {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .timer_numbers {
+      font-size: 120px;
+    }
+  }
+
   .live_container {
     position: absolute;
     top: 30px;
@@ -69,7 +86,12 @@
     }
 
     .logo_sub {
-      font-size: 24px;
+      font-size: 36px;
+    }
+
+    .logo_sub_sub {
+      margin-top: 250px;
+      font-size: 30px;
     }
   }
 

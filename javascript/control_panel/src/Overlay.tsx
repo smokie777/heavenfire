@@ -1,9 +1,59 @@
 import './Overlay.scss';
 import { Helmet } from 'react-helmet';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Spacer } from './Spacer';
+import { convertMsToHms } from './utils';
+import { useNavigate } from 'react-router-dom';
 
-export const Overlay = () => {
+export const OverlayTimer = ({
+  ms
+}:{
+  ms: number
+}) => {
+  const redirectTimeoutRef = useRef<number | NodeJS.Timer>();
+  const tickIntervalRef = useRef<number | NodeJS.Timer>();
+  const [timerMs, setTimerMs] = useState(ms);
+  const navigate = useNavigate();
+  
+  const hms = convertMsToHms(timerMs);
+
+  useEffect(() => {
+    tickIntervalRef.current = setInterval(() => {
+      setTimerMs((timerMs) => {
+        const newTimerMs = timerMs - 1000;
+        if (!newTimerMs) {
+          clearInterval(tickIntervalRef.current);
+          redirectTimeoutRef.current = setTimeout(() => {
+            navigate('/overlay');
+          }, 5000);
+        }
+        return newTimerMs;
+      });
+    }, 1000);
+
+    return () => {
+      clearInterval(tickIntervalRef.current);
+      clearTimeout(redirectTimeoutRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const h = `${hms.h.toString().length === 1 ? '0' : ''}${hms.h.toString()}`;
+  const m = `${hms.m.toString().length === 1 ? '0' : ''}${hms.m.toString()}`;
+  const s = `${hms.s.toString().length === 1 ? '0' : ''}${hms.s.toString()}`;
+  
+  return (
+    <div className='timer_numbers neon_text'>
+      {!!hms.h && `${h}:`}{m}:{s}
+    </div>
+  )
+};
+
+export const Overlay = ({
+  timerMs
+}:{
+  timerMs?: number
+}) => {
   const [latencyLLM, setLatencyLLM] = useState('');
   const [latencyTTS, setLatencyTTS] = useState('');
 
@@ -28,14 +78,22 @@ export const Overlay = () => {
     <div className='overlay'>
       <Helmet><title>Heavenfire Overlay</title></Helmet>
 
+      {!!timerMs && (
+        <div className='timer_container'>        
+          <div className='timer_text neon_text'>Stream starting soon!</div>
+          <OverlayTimer ms={timerMs} />
+        </div>
+      )}
+
       <div className='live_container'>
         <div className='live_dot' />
         <div className='live_text neon_text'>live</div>
       </div>
 
       <div className='logo_container'>
-        <div className='logo neon_text'>L.U.N.A.</div>
-        <div className='logo_sub neon_text'>Livestreaming Undercover Neural AI</div>
+        <div className='logo neon_text'>&nbsp;Welcome</div>
+        <div className='logo_sub neon_text'>to the Smokie n Luna stream! 🖤✨</div>
+        <div className='logo_sub_sub neon_text'>← Luna, an AI</div> 
       </div>
       
       <div className='chat_widget'>
@@ -50,7 +108,7 @@ export const Overlay = () => {
       </div>
 
       <div className='latency'>
-        <div className='latency_title neon_text'>Latency</div>
+        <div className='latency_title neon_text'>Luna latency</div>
         <div className='neon_underline neon_box' />
         <Spacer height={10} />
         <div className='latency_item neon_text'>LLM: {latencyLLM || '-'}</div>

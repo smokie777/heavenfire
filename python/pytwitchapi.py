@@ -109,7 +109,10 @@ async def chat_on_command_profile(cmd: ChatCommand):
   await cmd.reply('https://www.pathofexile.com/account/view-profile/smokie_777/characters')
 
 async def chat_on_command_pob(cmd: ChatCommand):
-  await cmd.reply('pob -> click import/export build -> search for smokie_777 -> click start -> import passive tree & items and skills')
+  await cmd.reply('https://pobb.in/rBu7TCkUjiRY')
+
+async def chat_on_command_filter(cmd: ChatCommand):
+  await cmd.reply('https://www.filterblade.xyz/Profile?name=kiteezy&platform=pc')
 
 async def chat_on_command_video(cmd: ChatCommand):
   await cmd.reply('https://www.youtube.com/watch?v=in7lM9aoEn8')
@@ -134,6 +137,7 @@ async def run_pytwitchapi():
   chat.register_command('discord', chat_on_command_discord)
   chat.register_command('profile', chat_on_command_profile)
   chat.register_command('pob', chat_on_command_pob)
+  chat.register_command('filter', chat_on_command_filter)
   chat.register_command('video', chat_on_command_video)
   chat.start()
 

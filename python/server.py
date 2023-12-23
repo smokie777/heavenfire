@@ -10,7 +10,7 @@ import json
 import config
 from gen_image_captions import take_screenshot, gen_image_captions, gen_image_react_prompt
 from time import sleep
-from utils import move_emojis_to_end
+from utils import move_emojis_to_end, conditionally_add_period
 from gen_edited_luna_response import gen_edited_luna_response
 from tts import gen_audio_file_and_subtitles, speak
 from sing import sing
@@ -38,7 +38,7 @@ def _speak_text():
 
   try:
     config.is_busy = True
-    edited = move_emojis_to_end(gen_edited_luna_response(text))
+    edited = conditionally_add_period(move_emojis_to_end(gen_edited_luna_response(text)))
     # todo: should we send latency to websocket here?
     (output_filename, subtitles) = gen_audio_file_and_subtitles(edited)
     config.ws.send(json.dumps({ 'edited': edited, 'subtitles': subtitles }))

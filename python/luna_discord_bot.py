@@ -52,7 +52,7 @@ async def on_message(message):
 
   is_luna_busy = True
 
-  # only respond to messages if BOTH message is from Alluring Lunar Haven AND @LUnA was mentioned
+  # only respond to messages if BOTH message is from Alluring Lunar Haven AND @Luna was mentioned
   if str(message.guild) == 'Alluring Luna Abyss':
     if int(os.environ['LUNA_DISCORD_BOT_ID']) in [m.id for m in message.mentions]:
       # print('message.activity: ', message.activity)
@@ -107,14 +107,14 @@ async def on_message(message):
           prompt = ''
 
           # ban functionality
-          if (str(message.author) == 'smokie_777' and '@LUnA ban' in str(message.clean_content)):
+          if (str(message.author) == 'smokie_777' and '@Luna ban' in str(message.clean_content)):
             await message.mentions[1].ban()
             (_, _, edited) = gen_llm_response('Smokie: luna, announce that you\'ve just banned ' + message.mentions[1].display_name + ' out of your discord server. feel free to include some spice :)')
             async with message.channel.typing():
               await asyncio.sleep(random.uniform(2, 4))
             await message.reply(edited)
           # timeout functionality
-          elif (str(message.author) == 'smokie_777' and '@LUnA timeout' in str(message.clean_content)):
+          elif (str(message.author) == 'smokie_777' and '@Luna timeout' in str(message.clean_content)):
             delta = timedelta(days=0, seconds=777, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0)
             await message.mentions[1].timeout(delta)
             (_, _, edited) = gen_llm_response('Smokie: luna, announce that you\'ve just timed out ' + message.mentions[1].display_name + ' for 777 seconds. feel free to include some spice :)')
@@ -122,10 +122,10 @@ async def on_message(message):
               await asyncio.sleep(random.uniform(2, 4))
             await message.reply(edited)
           # remote shut down functionality
-          elif (str(message.author) == 'smokie_777' and '@LUnA sleep' in str(message.clean_content)):
+          elif (str(message.author) == 'smokie_777' and '@Luna sleep' in str(message.clean_content)):
             await client.close()
           # bot join voice channel
-          elif (str(message.author) == 'smokie_777' and '@LUnA vc' in str(message.clean_content)):
+          elif (str(message.author) == 'smokie_777' and '@Luna vc' in str(message.clean_content)):
             channel = message.author.voice.channel
             # channel = message.guild.get_channel(1139810743471063053)
             if vc is not None:
