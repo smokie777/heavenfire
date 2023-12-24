@@ -2,7 +2,6 @@ import os
 import config
 import openai
 from dotenv import load_dotenv; load_dotenv()
-from LLMShortTermMemory import generate_base_messages
 
 openai.api_key = os.environ['OPENAI_KEY']
 
