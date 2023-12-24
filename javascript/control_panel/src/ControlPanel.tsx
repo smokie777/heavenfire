@@ -76,6 +76,12 @@ export const ControlPanel = () => {
     setTextBoxInput('');
   };
 
+  const setContext = () => {
+    fetch_post('/set_context', {
+      context: textBoxInput,
+    });
+    setTextBoxInput('');
+  };
 
   const reactToScreen = () => {
     setIsBusy(true);
@@ -194,6 +200,8 @@ export const ControlPanel = () => {
           <button onClick={cancelSpeech}>Cancel speech</button>
           <Spacer width={20} />
           <button onClick={sing}>Sing</button>
+          <Spacer width={20} />
+          <button onClick={setContext}>Set context</button>
           <Spacer width={20} />
           <button onClick={shutDownServer}>Shut down server</button>
           <Spacer width={20} />

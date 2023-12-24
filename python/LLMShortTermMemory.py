@@ -2,20 +2,15 @@ from prompts import system
 from utils import remove_text_inside_parentheses, move_emojis_to_end, conditionally_add_period
 from gen_edited_luna_response import gen_edited_luna_response
 
-def generate_base_messages(context = None):
-  messages = [{ 'role': 'system', 'content': system }]
-  if context:
-    # todo: add context directly to system prompt
-    # messages.append({ 'role': 'user', 'content': context })
-    # messages.append({ 'role': 'assistant', 'content': 'Got it!' })
-    None
-  return messages
-
-memory_trim_index = len(generate_base_messages(''))
+# if the "default" messages is ever more than the system message, need to edit this variable accordingly
+memory_trim_index = 1
 
 class LLMShortTermMemory:
-  def __init__(self, context):
-    self.messages = generate_base_messages(context)
+  def __init__(self):
+    self.messages = [{ 'role': 'system', 'content': system }]
+
+  def set_context(self, context):
+    self.messages[0]['content'] = f'{system} {context}'
 
   def add_user_message(self, content):
     self.messages.append({ 'role': 'user', 'content': content })

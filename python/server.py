@@ -104,6 +104,18 @@ def _sing():
 
   return {}
 
+@app.route('/set_context', methods=['POST'])
+def _set_context():
+  data = request.get_json()
+  context = data['context']
+
+  try:
+    config.llm_short_term_memory.set_context(context)
+  except Exception as e:
+    log_error(e, '/set_context')
+
+  return {}
+
 @app.route('/set_config_variable', methods=['POST'])
 def _set_config_variable():
   data = request.get_json()

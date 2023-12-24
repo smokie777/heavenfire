@@ -3,6 +3,7 @@ from utils import move_emojis_to_end, remove_text_inside_parentheses
 from PriorityQueue import PriorityQueue, PRIORITY_QUEUE_MAP
 from LLMShortTermMemory import LLMShortTermMemory, memory_trim_index
 from gen_image_captions import gen_image_react_prompt
+from prompts import system
 
 class TestPriorityQueue(unittest.TestCase):
   def runTest(self):
@@ -50,7 +51,7 @@ class TestRemoveTextInsideParentheses(unittest.TestCase):
 
 class TestLLMShortTermMemory(unittest.TestCase):
   def runTest(self):
-    m = LLMShortTermMemory('test context')
+    m = LLMShortTermMemory()
     self.assertEqual(m.messages[0]['role'], 'system')
     m.add_user_message('foo1')
     m.add_assistant_message('foo2')
@@ -67,6 +68,8 @@ class TestLLMShortTermMemory(unittest.TestCase):
     self.assertEqual(m.messages[memory_trim_index + 1]['content'], '(foo)')
     m.erase_memory()
     self.assertEqual(len(m.messages), memory_trim_index)
+    m.set_context('Today, we are playing Path of Exile.')
+    self.assertEqual(m.messages[0]['content'], f'{system} Today, we are playing Path of Exile.')
 
 class TestMoveEmojisToEnd(unittest.TestCase):
   def runTest(self):
