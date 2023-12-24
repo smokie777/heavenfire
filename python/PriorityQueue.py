@@ -1,10 +1,12 @@
 PRIORITY_QUEUE_MAP = {
+  # highest priority
   'priority_game_input': 1,
   'priority_image': 2,
   'priority_pubsub_events_queue': 3,
   'priority_mic_input': 4,
   'priority_collab_mic_input': 5,
   'priority_twitch_chat_queue': 6,
+  # lowest priority
 }
 
 class PriorityQueue:
@@ -18,23 +20,24 @@ class PriorityQueue:
       'priority_twitch_chat_queue': []
     }
 
-  def enqueue(self, prompt, priority):
+  def enqueue(self, item, priority):
     if type(self.queue[priority]) is str:
-      self.queue[priority] = prompt
+      self.queue[priority] = item
     elif type(self.queue[priority]) is list:
-      self.queue[priority].append(prompt)
+      self.queue[priority].append(item)
 
   def dequeue(self):
+    # returns tuple (item, priority)
     for key in PRIORITY_QUEUE_MAP.keys():
       if type(self.queue[key]) is str and self.queue[key] != '':
         ret = self.queue[key]
         self.queue[key] = ''
-        return ret;
+        return (ret, key);
       elif type(self.queue[key]) is list and len(self.queue[key]) != 0:
         if key == 'priority_twitch_chat_queue' and len(self.queue[key]) > 3:
           self.queue[key] = self.queue[key][len(self.queue[key])-3:]
-        return self.queue[key].pop(0)
-    return ''
+        return (self.queue[key].pop(0), key)
+    return None
   
   def has_items(self):
     for key in PRIORITY_QUEUE_MAP.keys():
@@ -47,4 +50,9 @@ class PriorityQueue:
 
 
 if __name__ == '__main__':
-  True
+  priority_queue = PriorityQueue()
+  priority_queue.enqueue('blah', 'priority_game_input')
+  (prompt, priority) = priority_queue.dequeue()
+  print(prompt)
+  print(priority)
+  

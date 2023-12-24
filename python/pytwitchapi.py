@@ -6,8 +6,6 @@ from twitchAPI.pubsub import PubSub
 from uuid import UUID
 import asyncio
 import os
-from PriorityQueue import PRIORITY_QUEUE_MAP
-from time import sleep
 from constants import AZURE_SPEAKING_STYLE_TAGS, VTS_EXPRESSIONS
 from execute_action import execute_or_enqueue_action
 from vts_set_expression import vts_set_expression

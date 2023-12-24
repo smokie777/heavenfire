@@ -7,17 +7,15 @@ from constants import AZURE_SPEAKING_STYLE_TAGS
 from time import sleep, time
 
 def execute_or_enqueue_action(prompt, priority):
-  if config.is_busy:
-    config.priority_queue.enqueue(prompt, priority)
-  else:
-    config.priority_queue.enqueue(prompt, priority)
+  config.priority_queue.enqueue(prompt, priority)
+  if not config.is_busy:
     execute_action()
 
 def execute_action():
   config.is_busy = True
   config.ws.send(json.dumps({ 'is_busy': True }))
 
-  prompt = config.priority_queue.dequeue()
+  (prompt, priority) = config.priority_queue.dequeue()
   while prompt:
     speaking_style = ''
 
@@ -46,9 +44,10 @@ def execute_action():
 
     speak(output_filename)
 
-    prompt = config.priority_queue.dequeue()
+    if priority != 'priority_mic_input' and priority != 'priority_collab_mic_input':
+      sleep(config.ai_response_delay)
 
-  sleep(config.ai_response_delay)
+    (prompt, priority) = config.priority_queue.dequeue()
 
   config.ws.send(json.dumps({ 'is_busy': False }))
   config.is_busy = False
