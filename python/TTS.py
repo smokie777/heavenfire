@@ -20,10 +20,11 @@ from dotenv import load_dotenv; load_dotenv()
 
 def get_output_audio_index():
   p = pyaudio.PyAudio()
-  output_device_name = 'CABLE Input' # for production
+  # output_device_name = 'CABLE Input' # for production
   # output_device_name = 'Speakers' # for development
   # output_device_name = 'Headphones' # for development
-  devices = [p.get_device_info_by_index(i).get('name') for i in range(p.get_device_count())] 
+  output_device_name = 'Built-in Output' # for development on macbook
+  devices = [p.get_device_info_by_index(i).get('name') for i in range(p.get_device_count())]
   output_device_index = [i for i, s in enumerate(devices) if output_device_name in s][0]
   return output_device_index
 
@@ -168,5 +169,6 @@ def print_wav_length(filename):
     print('--> ' + str(duration) + 's')
 
 if __name__ == '__main__':
-  s = "Luna's streams are like a wild rollercoaster ride 🎢🔥, filled with laughter 😂, surprises ✨, and moments that will make your heart skip a beat 💖."
-  speak('./output_audio_files/hq.wav')
+  # s = "Luna's streams are like a wild rollercoaster ride 🎢🔥, filled with laughter 😂, surprises ✨, and moments that will make your heart skip a beat 💖."
+  # speak('./output_audio_files/hq.wav')
+  print(get_output_audio_index())

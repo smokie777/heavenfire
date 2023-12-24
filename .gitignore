@@ -2,8 +2,11 @@
 
 node_modules
 
+.DS_Store
+
 __pycache__
 python/heavenfire_venv
+python/.venv
 python/output_audio_files/
 python/prompts.py
 python/screenshot.png

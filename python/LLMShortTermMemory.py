@@ -5,8 +5,10 @@ from gen_edited_luna_response import gen_edited_luna_response
 def generate_base_messages(context = None):
   messages = [{ 'role': 'system', 'content': system }]
   if context:
-    messages.append({ 'role': 'user', 'content': context })
-    messages.append({ 'role': 'assistant', 'content': 'Got it!' })
+    # todo: add context directly to system prompt
+    # messages.append({ 'role': 'user', 'content': context })
+    # messages.append({ 'role': 'assistant', 'content': 'Got it!' })
+    None
   return messages
 
 memory_trim_index = len(generate_base_messages(''))
