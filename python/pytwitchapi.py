@@ -19,6 +19,8 @@ pubsub = None
 
 APP_ID = os.environ['TWITCH_APP_ID']
 APP_SECRET = os.environ['TWITCH_APP_SECRET']
+# APP_ID = os.environ['TWITCH_APP_ID_LUNA']
+# APP_SECRET = os.environ['TWITCH_APP_SECRET_LUNA']
 USER_SCOPE = [
   # chat
   AuthScope.CHAT_READ,
@@ -79,7 +81,7 @@ async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -
     else:
       prompt = f'{display_name} just subscribed' if tier == 1 else f'{display_name} just subscribed at tier {tier}'
   prompt = prompt.replace('tier 1 sub', 'sub')
-  execute_or_enqueue_action(f'{prompt}. Say thank you, and make a fun remark on their username: {display_name}!', 'priority_pubsub_events_queue')
+  execute_or_enqueue_action(f'{prompt}. Say thank you, and make a witty remark on their username: {display_name}!', 'priority_pubsub_events_queue')
 
 async def chat_on_ready(ready_event: EventData):
   print('pytwitchapi chat connected')
@@ -101,19 +103,19 @@ async def chat_on_message(msg: ChatMessage):
     execute_or_enqueue_action(prompt, 'priority_twitch_chat_queue')
 
 async def chat_on_command_discord(cmd: ChatCommand):
-  await cmd.reply('https://discord.gg/cxTHwepMTb')
+  await cmd.reply('https://discord.gg/cxTHwepMTb 🖤✨')
 
 async def chat_on_command_profile(cmd: ChatCommand):
-  await cmd.reply('https://www.pathofexile.com/account/view-profile/smokie_777/characters')
+  await cmd.reply('https://www.pathofexile.com/account/view-profile/smokie_777/characters 🖤✨')
 
 async def chat_on_command_pob(cmd: ChatCommand):
-  await cmd.reply('https://pobb.in/rBu7TCkUjiRY')
+  await cmd.reply('https://pobb.in/rBu7TCkUjiRY 🖤✨')
 
 async def chat_on_command_filter(cmd: ChatCommand):
-  await cmd.reply('https://www.filterblade.xyz/Profile?name=kiteezy&platform=pc')
+  await cmd.reply('https://www.filterblade.xyz/Profile?name=kiteezy&platform=pc 🖤✨')
 
 async def chat_on_command_video(cmd: ChatCommand):
-  await cmd.reply('https://www.youtube.com/watch?v=in7lM9aoEn8')
+  await cmd.reply('https://www.youtube.com/watch?v=in7lM9aoEn8 🖤✨')
 
 async def terminate_pytwitchapi():
   chat.stop()

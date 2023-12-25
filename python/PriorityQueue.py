@@ -37,7 +37,7 @@ class PriorityQueue:
         if key == 'priority_twitch_chat_queue' and len(self.queue[key]) > 3:
           self.queue[key] = self.queue[key][len(self.queue[key])-3:]
         return (self.queue[key].pop(0), key)
-    return None
+    return (None, None)
   
   def has_items(self):
     for key in PRIORITY_QUEUE_MAP.keys():
