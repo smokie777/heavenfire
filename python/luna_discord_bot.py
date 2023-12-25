@@ -107,14 +107,14 @@ async def on_message(message):
           prompt = ''
 
           # ban functionality
-          if (str(message.author) == 'smokie_777' and '@Luna ban' in str(message.clean_content)):
+          if (str(message.author) == 'smokie_777' and '@Luna ban ' in str(message.clean_content)):
             await message.mentions[1].ban()
             (_, _, edited) = gen_llm_response('Smokie: luna, announce that you\'ve just banned ' + message.mentions[1].display_name + ' out of your discord server. feel free to include some spice :)')
             async with message.channel.typing():
               await asyncio.sleep(random.uniform(2, 4))
             await message.reply(edited)
           # timeout functionality
-          elif (str(message.author) == 'smokie_777' and '@Luna timeout' in str(message.clean_content)):
+          elif (str(message.author) == 'smokie_777' and '@Luna timeout ' in str(message.clean_content)):
             delta = timedelta(days=0, seconds=777, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0)
             await message.mentions[1].timeout(delta)
             (_, _, edited) = gen_llm_response('Smokie: luna, announce that you\'ve just timed out ' + message.mentions[1].display_name + ' for 777 seconds. feel free to include some spice :)')
@@ -133,6 +133,14 @@ async def on_message(message):
               vc = None
             else:
               vc = await channel.connect()
+          elif (str(message.author) == 'smokie_777' and '@Luna reply ' in str(message.clean_content)):
+            message_id = str(message.clean_content).replace('@Luna reply ', '')
+            target_messsage = await message.channel.fetch_message(message_id)
+            prompt = str(target_messsage.author.display_name) + ': ' + str(target_messsage.clean_content)
+            (_, _, edited) = gen_llm_response(prompt)
+            async with target_messsage.channel.typing():
+              await asyncio.sleep(random.uniform(2, 4))
+            await target_messsage.reply(edited)
           # general message response function
           else:
             messages_per_minute_counter += 1
