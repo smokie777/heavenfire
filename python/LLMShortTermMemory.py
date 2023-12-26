@@ -10,7 +10,7 @@ class LLMShortTermMemory:
     self.messages = [{ 'role': 'system', 'content': system }]
 
   def set_context(self, context):
-    self.messages[0]['content'] = f'{system} {context}'
+    self.messages[0]['content'] = f'{system} {context}'.trim()
 
   def add_user_message(self, content):
     self.messages.append({ 'role': 'user', 'content': content })
