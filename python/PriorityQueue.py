@@ -36,7 +36,12 @@ class PriorityQueue:
       elif type(self.queue[key]) is list and len(self.queue[key]) != 0:
         if key == 'priority_twitch_chat_queue' and len(self.queue[key]) > 3:
           self.queue[key] = self.queue[key][len(self.queue[key])-3:]
-        return (self.queue[key].pop(0), key)
+          return (self.queue[key].pop(0), key)
+        elif key == 'priority_pubsub_events_queue' and len(self.queue[key]) != 0:
+          # combine all events in queue into one prompt, in case many bits/subs come in at once.
+          ret = ' '.join(self.queue[key])
+          self.queue[key] = []
+          return (ret, key)
     return (None, None)
   
   def has_items(self):

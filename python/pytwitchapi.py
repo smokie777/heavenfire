@@ -45,7 +45,7 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
   elif title == 'luna rant':
     vts_set_expression(VTS_EXPRESSIONS['angry'])
     user_input = data['data']['redemption']['user_input']
-    prompt = f'Luna, please go on a really long and angry rant about the following topic: {user_input}'     
+    prompt = f'Luna, please go on a really long and angry rant about the following topic: {user_input}!'
     execute_or_enqueue_action(prompt, 'priority_pubsub_events_queue')
   elif title == 'Luna brown hair':
     vts_set_expression(VTS_EXPRESSIONS['brown_hair'])
@@ -56,7 +56,7 @@ async def pubsub_callback_listen_bits_v1(uuid: UUID, data: dict) -> None:
   user_name = data.get('user_name')
   bits = data.get('bits_used')
   chat_message = data.get('chat_message')
-  prompt = f'{user_name} just cheered {bits} bits! Say a nice and witty thank you message! Their message: {chat_message}'
+  prompt = f'{user_name} just cheered {bits} bits! Their message: {chat_message}'
   execute_or_enqueue_action(prompt, 'priority_pubsub_events_queue')
 
 async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -> None:
@@ -70,18 +70,17 @@ async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -
   cumulative_months = data.get('cumulative_months')
   if is_gift:
     if multi_month_duration:
-      prompt = f'{display_name} just gifted a {multi_month_duration}-month tier {tier} sub to {recipient_display_name}'
+      prompt = f'{display_name} just gifted a {multi_month_duration}-month tier {tier} sub to {recipient_display_name}!'
     else:
-        prompt = f'{display_name} just gifted a tier {tier} sub to {recipient_display_name}'
+        prompt = f'{display_name} just gifted a tier {tier} sub to {recipient_display_name}!'
   else:
     if multi_month_duration:
-      prompt = f'{display_name} just bought a {multi_month_duration}-month tier {tier} sub'
+      prompt = f'{display_name} just bought a {multi_month_duration}-month tier {tier} sub!'
     elif cumulative_months > 1:
       prompt = f'{display_name} just subscribed for {cumulative_months} months!'
     else:
-      prompt = f'{display_name} just subscribed' if tier == 1 else f'{display_name} just subscribed at tier {tier}'
-  prompt = prompt.replace('tier 1 sub', 'sub')
-  execute_or_enqueue_action(f'{prompt}. Say thank you, and make a witty remark on their username: {display_name}!', 'priority_pubsub_events_queue')
+      prompt = f'{display_name} just subscribed at tier {tier}!'
+  execute_or_enqueue_action(prompt, 'priority_pubsub_events_queue')
 
 async def chat_on_ready(ready_event: EventData):
   print('pytwitchapi chat connected')
