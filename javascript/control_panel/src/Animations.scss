@@ -1,0 +1,102 @@
+.animations {
+  font-family: 'BubblegumSans-Regular';
+  position: relative;
+
+  .stream_background_sample {
+    position: absolute;
+    background-size: cover;
+  }
+
+  .text_container {
+    position: absolute;
+    z-index: 1;
+    padding: 100px 0;
+    width: 100%;
+
+    .neon_text {
+      font-size: 24px;
+      margin: 12px 0;
+      width: 100%;
+      text-align: center;
+    }
+
+    .event_text_top {
+      display: flex;
+      justify-content: center;
+      font-weight: bold;
+      animation: slideLeftToRight 7s linear;
+      animation-fill-mode: forwards;
+      animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+      .ratjam-gif {
+        margin: 0 12px;
+        background: url('../public/ratjam.GIF') no-repeat center center / contain;
+        width: 24px;
+        height: 24px;
+        animation: flashIn 7s linear;
+        animation-fill-mode: forwards;
+        animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+      }
+    }
+
+    .event_text_middle {
+      animation: flashIn 7s linear;
+      animation-fill-mode: forwards;
+      animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    .event_text_bottom {
+      animation: slideRightToLeft 7s linear;
+      animation-fill-mode: forwards;
+      animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+  }
+}
+
+@keyframes slideLeftToRight {
+  0% {
+    transform: translateX(-100%);
+  }
+  20% {
+    transform: translateX(0);
+  }
+  80% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes slideRightToLeft {
+  0% {
+    transform: translateX(100%);
+  }
+  20% {
+    transform: translateX(0);
+  }
+  80% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes flashIn {
+  0% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

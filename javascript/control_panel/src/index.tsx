@@ -6,6 +6,7 @@ import {
 } from 'react-router-dom';
 import { ControlPanel } from './ControlPanel';
 import { Overlay } from './Overlay';
+import { Animations } from './Animations';
 import { convertTimeHmsStringToMs } from './utils';
 
 const router = createBrowserRouter([
@@ -20,6 +21,10 @@ const router = createBrowserRouter([
   {
     path: '/overlaywithtimer',
     element: <Overlay timerMs={convertTimeHmsStringToMs('5m')} />
+  },
+  {
+    path: '/animations',
+    element: <Animations />
   }
 ]);
 
