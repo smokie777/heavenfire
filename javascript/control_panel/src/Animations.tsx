@@ -44,7 +44,7 @@ export const Animations = ({
 
       <div className='text_container'>
         <div className='neon_text event_text_top'>
-          <div className='ratjam-gif' />NEW SUBSCRIBER<div className='ratjam-gif' />
+          NEW SUBSCRIBER<div className='ratjam-gif' />
         </div>
         <div className='neon_text event_text_middle'>Tier 3</div>
         <div className='neon_text event_text_bottom'>coption1</div>
