@@ -64,7 +64,6 @@ export const Overlay = ({
     });
     ws.addEventListener('message', (_data) => {
       const data = JSON.parse(_data.data);
-      console.log(data);
       if (data.hasOwnProperty('latency_llm')) {
         setLatencyLLM(data.latency_llm);
       }

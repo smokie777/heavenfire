@@ -1,13 +1,17 @@
 import './Subtitles.scss';
 import { useEffect, useState } from 'react';
-import { azureTTSSubtitles } from './types';
+
+type azureTTSSubtitle = {
+  audio_offset: number;
+  text_offset: number;
+};
 
 export const Subtitles = ({
   text = '',
   subtitles = []
 }:{
   text: string,
-  subtitles:azureTTSSubtitles
+  subtitles:azureTTSSubtitle[]
 }) => {
   const [subtitleText, setSubtitleText] = useState('');
 
