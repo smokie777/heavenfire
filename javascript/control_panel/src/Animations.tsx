@@ -5,11 +5,19 @@ import { Spacer } from './Spacer';
 import { convertMsToHms } from './utils';
 import { useNavigate } from 'react-router-dom';
 
+enum ANIMATION_EVENTS {
+  SUB = 'SUB',
+  BITS = 'BITS',
+  BAN = 'BAN'
+}
+
 export const Animations = ({
   // timerMs
 }:{
   // timerMs?: number
 }) => {
+  const [animation, setAnimation] = useState(ANIMATION_EVENTS.BAN);
+
   // const [latencyLLM, setLatencyLLM] = useState('');
   // const [latencyTTS, setLatencyTTS] = useState('');
 
@@ -30,6 +38,41 @@ export const Animations = ({
   //   });
   // }, []);
 
+  let event = null;
+  switch (animation) {
+    case ANIMATION_EVENTS.SUB:
+      event = (
+        <div className='sub'>
+          <div className='neon_text event_text_top'>
+            NEW SUBSCRIBER&nbsp;&nbsp;<div className='ratjam-gif' />
+          </div>
+          <div className='neon_text event_text_middle'>Tier 3</div>
+          <div className='neon_text event_text_bottom'>username</div>
+        </div>
+      );
+      break;
+      case ANIMATION_EVENTS.BITS:
+        event = (
+          <div className='bits'>
+            <div className='neon_text event_text_top'>
+              username just donated 100 bits!
+            </div>
+            <div className='rathole-gif' />
+          </div>
+        );
+        break;
+        case ANIMATION_EVENTS.BAN:
+          event = (
+            <div className='ban'>
+              <div className='neon_text event_text_top'>
+                username has been ejected into outer space!
+              </div>
+              <div className='ejection-gif' />
+            </div>
+            );
+          break;
+  }
+
   return (
     <div className='animations'>
       <Helmet><title>Heavenfire Animations</title></Helmet>
@@ -42,12 +85,8 @@ export const Animations = ({
           height='800px'
         />
 
-      <div className='text_container'>
-        <div className='neon_text event_text_top'>
-          NEW SUBSCRIBER<div className='ratjam-gif' />
-        </div>
-        <div className='neon_text event_text_middle'>Tier 3</div>
-        <div className='neon_text event_text_bottom'>coption1</div>
+      <div className='event_container'>
+        {event}
       </div>
     </div>
   );

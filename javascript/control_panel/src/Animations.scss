@@ -7,7 +7,7 @@
     background-size: cover;
   }
 
-  .text_container {
+  .event_container {
     position: absolute;
     z-index: 1;
     padding: 100px 0;
@@ -19,7 +19,9 @@
       width: 100%;
       text-align: center;
     }
+  }
 
+  .sub {
     .event_text_top {
       display: flex;
       justify-content: center;
@@ -29,7 +31,6 @@
       animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
 
       .ratjam-gif {
-        margin: 0 12px;
         background: url('../public/ratjam.GIF') no-repeat center center / contain;
         width: 24px;
         height: 24px;
@@ -47,6 +48,54 @@
 
     .event_text_bottom {
       animation: slideRightToLeft 7s linear;
+      animation-fill-mode: forwards;
+      animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+  }
+
+  .bits {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .event_text_top {
+      font-weight: bold;
+      animation: flashIn 10s linear;
+      animation-fill-mode: forwards;
+      animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    .rathole-gif {
+      margin-top: -50px;
+      opacity: 0;
+      background: url('../public/rathole.gif') no-repeat center center / contain;
+      width: 250px;
+      height: 250px;
+      animation: flashIn 9s linear 1s;
+      animation-fill-mode: forwards;
+      animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+  }
+
+  .ban {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .event_text_top {
+      font-weight: bold;
+      animation: flashIn 10s linear;
+      animation-fill-mode: forwards;
+      animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    .ejection-gif {
+      margin-top: -50px;
+      opacity: 0;
+      background: url('../public/ejection.gif') no-repeat center center / contain;
+      width: 250px;
+      height: 250px;
+      animation: flashIn 9s linear 1s;
       animation-fill-mode: forwards;
       animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
     }
