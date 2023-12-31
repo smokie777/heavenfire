@@ -19,13 +19,13 @@ from enums import PRIORITY_QUEUE_PRIORITIES
 app = Flask(__name__)
 
 @app.route('/receive_prompt', methods=['POST'])
-def _receive_prompt():
+async def _receive_prompt():
   data = request.get_json()
   prompt = data['prompt']
   priority = data['priority']
 
   try:
-    execute_or_enqueue_action(prompt, priority)
+    await execute_or_enqueue_action(prompt, priority)
   except Exception as e:
     log_error(e, '/receive_prompt')
 
@@ -51,7 +51,7 @@ def _speak_text():
   return {}
 
 @app.route('/react_to_screen', methods=['POST'])
-def _react_to_screen():
+async def _react_to_screen():
   data = request.get_json()
 
   try:
@@ -59,7 +59,7 @@ def _react_to_screen():
     image_captions = gen_image_captions()
     print('Captions: ', image_captions)
     prompt = gen_image_react_prompt(image_captions, 'picture')
-    execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_IMAGE'])
+    await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_IMAGE'])
   except Exception as e:
     log_error(e, '/react_to_screen')
 

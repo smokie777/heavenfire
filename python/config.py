@@ -20,3 +20,7 @@ ws = create_connection('ws://localhost:4000')
 is_twitch_chat_react_on = True
 # is the vtuber responding to twitch chat, but only if @ mentioned?
 is_quiet_mode_on = True
+# pytwitchapi instances
+twitch = None
+chat = None
+pubsub = None

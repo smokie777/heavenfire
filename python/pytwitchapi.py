@@ -11,18 +11,17 @@ from execute_action import execute_or_enqueue_action
 from vts_set_expression import vts_set_expression
 from dotenv import load_dotenv; load_dotenv()
 from utils import does_one_word_start_with_at
+from pytwitchapi_helpers import ban_user_via_username
 import json
 import config
-
-twitch = None
-chat = None
-pubsub = None
 
 APP_ID = os.environ['TWITCH_APP_ID']
 APP_SECRET = os.environ['TWITCH_APP_SECRET']
 # APP_ID = os.environ['TWITCH_APP_ID_LUNA']
 # APP_SECRET = os.environ['TWITCH_APP_SECRET_LUNA']
 USER_SCOPE = [
+  # twitch
+  AuthScope.MODERATOR_MANAGE_BANNED_USERS,
   # chat
   AuthScope.CHAT_READ,
   AuthScope.CHAT_EDIT,
@@ -42,13 +41,13 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
     vts_set_expression(VTS_EXPRESSIONS['FLUSHED'])
     user_input = data['data']['redemption']['user_input']
     prompt = f'{AZURE_SPEAKING_STYLE_TAGS["WHISPERING"]}(Luna, please give a longer response than usual!) {display_name}: {user_input}'
-    execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'
+    await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'
     ])
   elif title == 'luna rant':
     vts_set_expression(VTS_EXPRESSIONS['ANGRY'])
     user_input = data['data']['redemption']['user_input']
     prompt = f'Luna, please go on a really long and angry rant about the following topic: {user_input}!'
-    execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'
+    await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'
     ])
   elif title == 'Luna brown hair':
     vts_set_expression(VTS_EXPRESSIONS['BROWN_HAIR'])
@@ -68,7 +67,7 @@ async def pubsub_callback_listen_bits_v1(uuid: UUID, data: dict) -> None:
       'value': str(bits)
     }
   }))
-  execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'
+  await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'
   ])
 
 async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -> None:
@@ -111,7 +110,7 @@ async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -
       'value': ws_message
     }
   }))
-  execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'
+  await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'
   ])
 
 async def chat_on_ready(ready_event: EventData):
@@ -131,8 +130,7 @@ async def chat_on_message(msg: ChatMessage):
       or (not config.is_quiet_mode_on and (is_at_luna or not does_one_word_start_with_at(msg.text.lower().split(' '))))
     )
   ):
-    execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_TWITCH_CHAT_QUEUE'
-    ])
+    await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_TWITCH_CHAT_QUEUE'])
 
 async def chat_on_command_discord(cmd: ChatCommand):
   await cmd.reply('https://discord.gg/cxTHwepMTb 🖤✨')
@@ -149,56 +147,62 @@ async def chat_on_command_filter(cmd: ChatCommand):
 async def chat_on_command_video(cmd: ChatCommand):
   await cmd.reply('https://www.youtube.com/watch?v=in7lM9aoEn8 🖤✨')
 
+async def chat_on_command_ban(cmd: ChatCommand):
+  if cmd.user.name == 'smokie_777':
+    username_to_ban = cmd.text.replace('!ban ', '')
+    if username_to_ban:
+      prompt = f'Announce to everyone that {username_to_ban} has just been permanently banned from the channel! Feel free to add some spice :)'
+      await ban_user_via_username(username_to_ban, None, 'banned via !ban')
+      await execute_or_enqueue_action(f'{username_to_ban}|{prompt}', PRIORITY_QUEUE_PRIORITIES['PRIORITY_BAN_USER'])
+
 async def terminate_pytwitchapi():
-  chat.stop()
-  pubsub.stop()
-  await twitch.close()
+  config.chat.stop()
+  config.pubsub.stop()
+  await config.twitch.close()
     
 async def run_pytwitchapi():
-  global twitch
-  global chat
-
-  twitch = await Twitch(APP_ID, APP_SECRET)
-  auth = UserAuthenticator(twitch, USER_SCOPE, force_verify=False)
+  config.twitch = await Twitch(APP_ID, APP_SECRET)
+  auth = UserAuthenticator(config.twitch, USER_SCOPE, force_verify=False)
   token, refresh_token = await auth.authenticate()
-  await twitch.set_user_authentication(token, USER_SCOPE, refresh_token)
+  await config.twitch.set_user_authentication(token, USER_SCOPE, refresh_token)
 
-  chat = await Chat(twitch)
-  chat.register_event(ChatEvent.READY, chat_on_ready)
-  chat.register_event(ChatEvent.MESSAGE, chat_on_message)
-  chat.register_command('discord', chat_on_command_discord)
-  chat.register_command('profile', chat_on_command_profile)
-  chat.register_command('pob', chat_on_command_pob)
-  chat.register_command('filter', chat_on_command_filter)
-  chat.register_command('video', chat_on_command_video)
-  chat.start()
+  config.chat = await Chat(config.twitch)
+  config.chat.register_event(ChatEvent.READY, chat_on_ready)
+  config.chat.register_event(ChatEvent.MESSAGE, chat_on_message)
+  config.chat.register_command('discord', chat_on_command_discord)
+  config.chat.register_command('profile', chat_on_command_profile)
+  config.chat.register_command('pob', chat_on_command_pob)
+  config.chat.register_command('filter', chat_on_command_filter)
+  config.chat.register_command('video', chat_on_command_video)
+  config.chat.register_command('ban', chat_on_command_ban)
+  config.chat.start()
 
-  pubsub = PubSub(twitch)
-  pubsub.start()
-  await pubsub.listen_channel_points(
+  config.pubsub = PubSub(config.twitch)
+  config.pubsub.start()
+  await config.pubsub.listen_channel_points(
     str(os.environ['TWITCH_CHANNEL_ID']),
     pubsub_callback_listen_channel_points
   )
-  await pubsub.listen_bits_v1(
+  await config.pubsub.listen_bits_v1(
     str(os.environ['TWITCH_CHANNEL_ID']),
     pubsub_callback_listen_bits_v1
   )
-  await pubsub.listen_channel_subscriptions(
+  await config.pubsub.listen_channel_subscriptions(
     str(os.environ['TWITCH_CHANNEL_ID']),
     pubsub_callback_listen_channel_subscriptions
   )
 
 
 if __name__ == '__main__':
-  # asyncio.run(run_pytwitchapi())
+  asyncio.run(run_pytwitchapi())
 
-  config.ws.send(json.dumps({
-    'twitch_event': {
-      'event': TWITCH_EVENTS['BITS'],
-      'username': 'username1',
-      'value': str(200)
-    }
-  }))
+  # config.ws.send(json.dumps({
+  #   'twitch_event': {
+  #     'event': TWITCH_EVENTS['BITS'],
+  #     'username': 'username1',
+  #     'value': str(200)
+  #   }
+  # }))
   # config.ws.send(json.dumps({
   #   'twitch_event': {
   #     'event': TWITCH_EVENTS['SUB'],

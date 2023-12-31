@@ -1,5 +1,5 @@
 import unittest
-from utils import move_emojis_to_end, remove_text_inside_parentheses
+from utils import move_emojis_to_end, remove_text_inside_parentheses, extract_username_to_timeout_from_string
 from PriorityQueue import PriorityQueue
 from enums import PRIORITY_QUEUE_PRIORITY_MAP
 from LLMShortTermMemory import LLMShortTermMemory, memory_trim_index
@@ -13,6 +13,7 @@ class TestPriorityQueue(unittest.TestCase):
     self.assertFalse(q.has_items(), 'priority queue has_items: empty queue should not have items')
 
     for priority in [
+      'PRIORITY_BAN_USER',
       'PRIORITY_GAME_INPUT',
       'PRIORITY_IMAGE',
       'PRIORITY_MIC_INPUT',
@@ -60,6 +61,7 @@ class TestPriorityQueue(unittest.TestCase):
       item_result = ''
       (item, priority) = q.dequeue()
       if priority in [
+        'PRIORITY_BAN_USER',
         'PRIORITY_GAME_INPUT',
         'PRIORITY_IMAGE',
         'PRIORITY_MIC_INPUT',
@@ -167,6 +169,18 @@ class TestImageReacts(unittest.TestCase):
         .replace('(ask a question somewhere in the response.) ', ''),
       prompt
     )
+
+class TestExtractUsernameToTimeoutFromString(unittest.TestCase):
+  def runTest(self):
+    test_cases = [
+      '!timeout spam_username_333',
+      '!timeout spam_username_333.',
+      '!timeout spam_username_333!!!'
+    ]
+    [self.assertEqual(
+      extract_username_to_timeout_from_string(test_case),
+      'spam_username_333'
+    ) for test_case in test_cases]
 
 
 if __name__ == '__main__':

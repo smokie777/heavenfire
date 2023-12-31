@@ -8,6 +8,7 @@ class PriorityQueue:
 
   def enqueue(self, item, priority):
     if priority in [
+      'PRIORITY_BAN_USER',
       'PRIORITY_GAME_INPUT',
       'PRIORITY_IMAGE',
       'PRIORITY_MIC_INPUT',

@@ -49,6 +49,12 @@ def conditionally_add_period(s):
     return f'{s}.' # get rid of weird sound bytes with say-as=message
   return s
 
+def extract_username_to_timeout_from_string(s):
+  # example string: 'blah blah !timeout username blah blah'
+  match = re.search(r'!timeout (\w+)', s)
 
-if __name__ == '__main__':
-  print(move_emojis_to_end('Foo. 🖤. Bar.'))
+  if match:
+    word_after_timeout = match.group(1)
+    return word_after_timeout
+  else:
+    return ''
