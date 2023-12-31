@@ -3,8 +3,9 @@ from time import sleep
 from llm_openai import gen_llm_response
 from tts import gen_audio_file_and_subtitles, speak
 import json
-from constants import AZURE_SPEAKING_STYLE_TAGS
+from enums import AZURE_SPEAKING_STYLE_TAGS
 from time import sleep, time
+from enums import PRIORITY_QUEUE_PRIORITIES
 
 def execute_or_enqueue_action(prompt, priority):
   config.priority_queue.enqueue(prompt, priority)
@@ -44,7 +45,10 @@ def execute_action():
 
     speak(output_filename)
 
-    if priority != 'priority_mic_input' and priority != 'priority_collab_mic_input':
+    if (
+      priority != PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT']
+      and priority != PRIORITY_QUEUE_PRIORITIES['PRIORITY_COLLAB_MIC_INPUT']
+    ):
       sleep(config.ai_response_delay)
 
     (prompt, priority) = config.priority_queue.dequeue()

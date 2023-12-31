@@ -38,7 +38,7 @@ export const DeepgramSTT = ({
           fetch_post('/receive_prompt', {
             prompt: `Smokie: ${cleanedMicInput}`,
             // prompt: `(paraphrase and repeat): ${cleanedMicInput}`,
-            priority: 'priority_mic_input'
+            priority: 'PRIORITY_MIC_INPUT'
           });
           micInputRef.current = [];
         }, MIC_INPUT_DELAY);

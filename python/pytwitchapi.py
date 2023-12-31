@@ -6,7 +6,7 @@ from twitchAPI.pubsub import PubSub
 from uuid import UUID
 import asyncio
 import os
-from constants import AZURE_SPEAKING_STYLE_TAGS, VTS_EXPRESSIONS
+from enums import AZURE_SPEAKING_STYLE_TAGS, VTS_EXPRESSIONS, PRIORITY_QUEUE_PRIORITIES, TWITCH_EVENTS
 from execute_action import execute_or_enqueue_action
 from vts_set_expression import vts_set_expression
 from dotenv import load_dotenv; load_dotenv()
@@ -39,17 +39,19 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
   display_name = data['data']['redemption']['user']['display_name']
 
   if title == 'luna whisper':
-    vts_set_expression(VTS_EXPRESSIONS['flushed'])
+    vts_set_expression(VTS_EXPRESSIONS['FLUSHED'])
     user_input = data['data']['redemption']['user_input']
-    prompt = f'{AZURE_SPEAKING_STYLE_TAGS["whispering"]}(Luna, please give a longer response than usual!) {display_name}: {user_input}'
-    execute_or_enqueue_action(prompt, 'priority_pubsub_events_queue')
+    prompt = f'{AZURE_SPEAKING_STYLE_TAGS["WHISPERING"]}(Luna, please give a longer response than usual!) {display_name}: {user_input}'
+    execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'
+    ])
   elif title == 'luna rant':
-    vts_set_expression(VTS_EXPRESSIONS['angry'])
+    vts_set_expression(VTS_EXPRESSIONS['ANGRY'])
     user_input = data['data']['redemption']['user_input']
     prompt = f'Luna, please go on a really long and angry rant about the following topic: {user_input}!'
-    execute_or_enqueue_action(prompt, 'priority_pubsub_events_queue')
+    execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'
+    ])
   elif title == 'Luna brown hair':
-    vts_set_expression(VTS_EXPRESSIONS['brown_hair'])
+    vts_set_expression(VTS_EXPRESSIONS['BROWN_HAIR'])
 
 async def pubsub_callback_listen_bits_v1(uuid: UUID, data: dict) -> None:
   print(data)
@@ -61,17 +63,18 @@ async def pubsub_callback_listen_bits_v1(uuid: UUID, data: dict) -> None:
   # send bits data to websocket
   config.ws.send(json.dumps({
     'twitch_event': {
-      'event': 'BITS',
+      'event': TWITCH_EVENTS['BITS'],
       'username': user_name,
       'value': str(bits)
     }
   }))
-  execute_or_enqueue_action(prompt, 'priority_pubsub_events_queue')
+  execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'
+  ])
 
 async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -> None:
   print(data)
   prompt = ''
-  ws_username = ''
+  ws_sub_name = ''
   ws_message = ''
   display_name = data.get('display_name') if data.get('display_name') else 'An anonymous gifter'
   tier = 'Prime' if data.get('sub_plan') == 'Prime' else f'Tier {str((int(data.get("sub_plan")) // 1000))}'
@@ -103,12 +106,13 @@ async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -
       ws_message = f'{tier} sub'
   config.ws.send(json.dumps({
     'twitch_event': {
-      'event': 'SUB',
-      'username': display_name,
+      'event': TWITCH_EVENTS['SUB'],
+      'username': ws_sub_name,
       'value': ws_message
     }
   }))
-  execute_or_enqueue_action(prompt, 'priority_pubsub_events_queue')
+  execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'
+  ])
 
 async def chat_on_ready(ready_event: EventData):
   print('pytwitchapi chat connected')
@@ -127,7 +131,8 @@ async def chat_on_message(msg: ChatMessage):
       or (not config.is_quiet_mode_on and (is_at_luna or not does_one_word_start_with_at(msg.text.lower().split(' '))))
     )
   ):
-    execute_or_enqueue_action(prompt, 'priority_twitch_chat_queue')
+    execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_TWITCH_CHAT_QUEUE'
+    ])
 
 async def chat_on_command_discord(cmd: ChatCommand):
   await cmd.reply('https://discord.gg/cxTHwepMTb 🖤✨')
@@ -189,21 +194,21 @@ if __name__ == '__main__':
 
   # config.ws.send(json.dumps({
   #   'twitch_event': {
-  #     'event': 'BITS',
+  #     'event': TWITCH_EVENTS['BITS'],
   #     'username': 'username1',
   #     'value': str(200)
   #   }
   # }))
   # config.ws.send(json.dumps({
   #   'twitch_event': {
-  #     'event': 'SUB',
+  #     'event': TWITCH_EVENTS['SUB'],
   #     'username': 'username2',
   #     'value': 'x3 resub'
   #   }
   # }))
   config.ws.send(json.dumps({
     'twitch_event': {
-      'event': 'BAN',
+      'event': TWITCH_EVENTS['BAN'],
       'username': 'username3',
       'value': None
     }

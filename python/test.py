@@ -1,6 +1,7 @@
 import unittest
 from utils import move_emojis_to_end, remove_text_inside_parentheses
-from PriorityQueue import PriorityQueue, PRIORITY_QUEUE_MAP
+from PriorityQueue import PriorityQueue
+from enums import PRIORITY_QUEUE_PRIORITY_MAP
 from LLMShortTermMemory import LLMShortTermMemory, memory_trim_index
 from gen_image_captions import gen_image_react_prompt
 from prompts import system
@@ -9,32 +10,102 @@ class TestPriorityQueue(unittest.TestCase):
   def runTest(self):
     q = PriorityQueue()
 
-    self.assertFalse(q.has_items(), 'priority queue has_items isnt working - false positive 1')
+    self.assertFalse(q.has_items(), 'priority queue has_items: empty queue should not have items')
 
-    for key in PRIORITY_QUEUE_MAP.keys():
-      q.enqueue('foo' + str(key), key)
-      self.assertTrue(q.has_items(), 'priority queue has_items isnt working - false negative')
-      item = q.get_items()[key]
+    for priority in [
+      'PRIORITY_GAME_INPUT',
+      'PRIORITY_IMAGE',
+      'PRIORITY_MIC_INPUT',
+      'PRIORITY_COLLAB_MIC_INPUT'
+    ]:
+      q.enqueue('foo', priority)
+      q.enqueue('foo1', priority)
       self.assertEqual(
-        item if type(item) is str else item[-1],
-        'foo' + str(key),
-        'priority queue cant enqueue'
+        q.get_items()[priority][0],
+        'foo1',
+        f'cant enqueue {priority}'
       )
 
-    for key in PRIORITY_QUEUE_MAP.keys():
+    q.enqueue('foo', 'PRIORITY_PUBSUB_EVENTS_QUEUE')
+    q.enqueue('foo1', 'PRIORITY_PUBSUB_EVENTS_QUEUE')
+    self.assertEqual(
+      q.get_items()['PRIORITY_PUBSUB_EVENTS_QUEUE'][0],
+      'foo foo1',
+      'cant enqueue PRIORITY_PUBSUB_EVENTS_QUEUE'
+    )
+
+    q.enqueue('foo', 'PRIORITY_TWITCH_CHAT_QUEUE')
+    q.enqueue('foo1', 'PRIORITY_TWITCH_CHAT_QUEUE')
+    q.enqueue('foo2', 'PRIORITY_TWITCH_CHAT_QUEUE')
+    self.assertEqual(
+      len(q.get_items()['PRIORITY_TWITCH_CHAT_QUEUE']),
+      3,
+      'cant enqueue PRIORITY_TWITCH_CHAT_QUEUE'
+    )
+    q.enqueue('foo3', 'PRIORITY_TWITCH_CHAT_QUEUE')
+    self.assertEqual(
+      len(q.get_items()['PRIORITY_TWITCH_CHAT_QUEUE']),
+      3,
+      'cant enqueue PRIORITY_TWITCH_CHAT_QUEUE'
+    )
+    self.assertEqual(
+      q.get_items()['PRIORITY_TWITCH_CHAT_QUEUE'][0],
+      'foo1',
+      'cant enqueue PRIORITY_TWITCH_CHAT_QUEUE'
+    )
+
+    self.assertTrue(q.has_items(), 'priority queue has_items: non-empty queue should have items')
+
+    for _priority in PRIORITY_QUEUE_PRIORITY_MAP.keys():
+      item_result = ''
       (item, priority) = q.dequeue()
+      if priority in [
+        'PRIORITY_GAME_INPUT',
+        'PRIORITY_IMAGE',
+        'PRIORITY_MIC_INPUT',
+        'PRIORITY_COLLAB_MIC_INPUT'
+      ]:
+        item_result = 'foo1'
+      elif priority == 'PRIORITY_PUBSUB_EVENTS_QUEUE':
+        item_result = 'foo foo1'
+      elif priority == 'PRIORITY_TWITCH_CHAT_QUEUE':
+        item_result = 'foo1'
       self.assertEqual(
         item,
-        'foo' + str(key),
-        'priority queue cant dequeue (incorrect returned item)'
+        item_result,
+        f'priority queue cant dequeue {priority} (incorrect returned item)'
       )
       self.assertEqual(
+        _priority,
         priority,
-        str(key),
-        'priority queue cant dequeue (incorrect returned priority)'
+        f'priority queue cant dequeue {priority} (incorrect returned priority)'
       )
-    
-    self.assertFalse(q.has_items(), 'priority queue has_items isnt working - false positive 2')
+
+    (item, priority) = q.dequeue()
+    self.assertEqual(
+      item,
+      'foo2',
+      f'priority queue cant dequeue {priority} (incorrect returned item)'
+    )
+    (item, priority) = q.dequeue()
+    self.assertEqual(
+      item,
+      'foo3',
+      f'priority queue cant dequeue {priority} (incorrect returned item)'
+    )
+    (item, priority) = q.dequeue()
+    self.assertEqual(
+      item,
+      None,
+      'priority queue cant correctly dequeue while empty'
+    )
+    self.assertEqual(
+      priority,
+      None,
+      'priority queue cant correctly dequeue while empty'
+    )
+
+    self.assertFalse(q.has_items(), 'priority queue has_items: empty queue should not have items')
 
 class TestRemoveTextInsideParentheses(unittest.TestCase):
   def runTest(self):
@@ -69,7 +140,7 @@ class TestLLMShortTermMemory(unittest.TestCase):
     m.erase_memory()
     self.assertEqual(len(m.messages), memory_trim_index)
     m.set_context('Today, we are playing Path of Exile.')
-    self.assertEqual(m.messages[0]['content'], f'{system} Today, we are playing Path of Exile.')
+    self.assertEqual(m.messages[0]['content'], f'{system} [Context description] Today, we are playing Path of Exile.')
 
 class TestMoveEmojisToEnd(unittest.TestCase):
   def runTest(self):

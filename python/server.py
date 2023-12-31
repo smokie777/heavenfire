@@ -14,6 +14,7 @@ from utils import move_emojis_to_end, conditionally_add_period
 from gen_edited_luna_response import gen_edited_luna_response
 from tts import gen_audio_file_and_subtitles, speak
 from sing import sing
+from enums import PRIORITY_QUEUE_PRIORITIES
 
 app = Flask(__name__)
 
@@ -58,7 +59,7 @@ def _react_to_screen():
     image_captions = gen_image_captions()
     print('Captions: ', image_captions)
     prompt = gen_image_react_prompt(image_captions, 'picture')
-    execute_or_enqueue_action(prompt, 'priority_image')
+    execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_IMAGE'])
   except Exception as e:
     log_error(e, '/react_to_screen')
 

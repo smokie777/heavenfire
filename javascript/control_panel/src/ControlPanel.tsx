@@ -63,7 +63,7 @@ export const ControlPanel = () => {
     setIsBusy(true);
     fetch_post('/receive_prompt', {
       prompt: textBoxInput,
-      priority: 'priority_twitch_chat_queue'
+      priority: 'PRIORITY_TWITCH_CHAT_QUEUE'
     });
     setTextBoxInput('');
   };
@@ -71,7 +71,7 @@ export const ControlPanel = () => {
   const lunaReadTextBox = () => {
     fetch_post('/speak_text', {
       text: textBoxInput,
-      priority: 'priority_mic_input'
+      priority: 'PRIORITY_MIC_INPUT'
     });
     setTextBoxInput('');
   };
