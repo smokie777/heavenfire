@@ -92,7 +92,7 @@ export const Animations = () => {
           className='ban'
           items={[
             <div className='neon_text event_text_top'>
-              {twitchEvent.username} has been ejected into outer space!
+              <b>{twitchEvent.username}</b> has been <b>ejected</b> into outer space!
             </div>,
             <div className='ejection-gif' />
           ]}
