@@ -199,18 +199,18 @@ if __name__ == '__main__':
   #     'value': str(200)
   #   }
   # }))
-  # config.ws.send(json.dumps({
-  #   'twitch_event': {
-  #     'event': TWITCH_EVENTS['SUB'],
-  #     'username': 'username2',
-  #     'value': 'x3 resub'
-  #   }
-  # }))
   config.ws.send(json.dumps({
     'twitch_event': {
-      'event': TWITCH_EVENTS['BAN'],
-      'username': 'username3',
-      'value': None
+      'event': TWITCH_EVENTS['SUB'],
+      'username': 'username2',
+      'value': 'x3 resub'
     }
   }))
+  # config.ws.send(json.dumps({
+  #   'twitch_event': {
+  #     'event': TWITCH_EVENTS['BAN'],
+  #     'username': 'username3',
+  #     'value': None
+  #   }
+  # }))
   
