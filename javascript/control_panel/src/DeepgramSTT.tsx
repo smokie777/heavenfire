@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { fetch_post } from './fetch_functions';
+import { PRIORITY_QUEUE_PRIORITIES } from './enums';
 
 const MIC_INPUT_DELAY = 1500;
 
@@ -39,7 +40,7 @@ export const DeepgramSTT = ({
           fetch_post('/receive_prompt', {
             prompt: `Smokie: ${cleanedMicInput}`,
             // prompt: `(paraphrase and repeat): ${cleanedMicInput}`,
-            priority: 'PRIORITY_MIC_INPUT'
+            priority: PRIORITY_QUEUE_PRIORITIES.PRIORITY_MIC_INPUT
           });
           micInputRef.current = [];
         }, MIC_INPUT_DELAY);

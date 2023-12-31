@@ -5,6 +5,7 @@ import { fetch_post } from './fetch_functions';
 import { Subtitles } from './Subtitles';
 import { DeepgramSTT } from './DeepgramSTT';
 import { Helmet } from 'react-helmet';
+import { PRIORITY_QUEUE_PRIORITIES } from './enums';
 
 // make channel point redeem for luna saying "im gonna punch you in the face"
 
@@ -63,7 +64,7 @@ export const ControlPanel = () => {
     setIsBusy(true);
     fetch_post('/receive_prompt', {
       prompt: textBoxInput,
-      priority: 'PRIORITY_TWITCH_CHAT_QUEUE'
+      priority: PRIORITY_QUEUE_PRIORITIES.PRIORITY_TWITCH_CHAT_QUEUE
     });
     setTextBoxInput('');
   };
@@ -71,7 +72,7 @@ export const ControlPanel = () => {
   const lunaReadTextBox = () => {
     fetch_post('/speak_text', {
       text: textBoxInput,
-      priority: 'PRIORITY_MIC_INPUT'
+      priority: PRIORITY_QUEUE_PRIORITIES.PRIORITY_MIC_INPUT
     });
     setTextBoxInput('');
   };
