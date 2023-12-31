@@ -1,9 +1,7 @@
 import './Animations.scss';
 import { Helmet } from 'react-helmet';
 import { useEffect, useState, useRef } from 'react';
-import { Spacer } from './Spacer';
-import { convertMsToHms } from './utils';
-import { useNavigate } from 'react-router-dom';
+import { AnimationCascadingFadeInOut } from './AnimationCascadingFadeInOut';
 
 enum ANIMATION_EVENTS {
   SUB = 'SUB',
@@ -20,6 +18,21 @@ interface twitchEvent {
 export const Animations = () => {
   const clearAnimationTimeoutRef = useRef<number | NodeJS.Timer>();
   const [twitchEvent, setTwitchEvent] = useState<twitchEvent | null>(null);
+  // const [twitchEvent, setTwitchEvent] = useState<twitchEvent | null>({
+  //   event: 'BITS',
+  //   username: 'test-username-for-bits',
+  //   value: '2000'
+  // });
+  // const [twitchEvent, setTwitchEvent] = useState<twitchEvent | null>({
+  //   event: 'SUB',
+  //   username: 'test-username-for-sub',
+  //   value: 'Prime'
+  // });
+  // const [twitchEvent, setTwitchEvent] = useState<twitchEvent | null>({
+  //   event: 'BAN',
+  //   username: 'test-username-for-ban',
+  //   value: ''
+  // });
 
   useEffect(() => {
     const ws = new WebSocket('ws://localhost:4000');
@@ -49,32 +62,42 @@ export const Animations = () => {
   switch (twitchEvent?.event) {
     case ANIMATION_EVENTS.SUB:
       event = (
-        <div className='sub'>
-          <div className='neon_text event_text_top'>{twitchEvent.username}</div>
-          <div className='neon_text event_text_bottom'>{twitchEvent.value}</div>
-          <div className='ratsenteringhole-gif' />
-        </div>
+        <AnimationCascadingFadeInOut
+          className='sub'
+          items={[
+            <div className='neon_text event_text_top'>{twitchEvent.username}</div>,
+            <div className='neon_text event_text_bottom'>{twitchEvent.value}</div>,
+            <div className='ratsenteringhole-gif' />
+          ]}
+        />
       );
       break;
     case ANIMATION_EVENTS.BITS:
       event = (
-        <div className='bits'>
-          <div className='neon_text event_text_top'>
-            {twitchEvent.username} just donated {twitchEvent.value} bits!
-          </div>
-          <div className='rathole-gif' />
-        </div>
+        <AnimationCascadingFadeInOut
+          className='bits'
+          items={[
+            <div className='neon_text event_text_top'>{twitchEvent.username}</div>,
+            <div className='neon_text event_text_bottom'>
+              <b>+</b>&nbsp;{twitchEvent.value}<div className='bits-png' />
+            </div>,
+            <div className='rathole-gif' />
+          ]}
+        />
       );
       break;
     case ANIMATION_EVENTS.BAN:
       event = (
-        <div className='ban'>
-          <div className='neon_text event_text_top'>
-            {twitchEvent.username} has been ejected into outer space!
-          </div>
-          <div className='ejection-gif' />
-        </div>
-        );
+        <AnimationCascadingFadeInOut
+          className='ban'
+          items={[
+            <div className='neon_text event_text_top'>
+              {twitchEvent.username} has been ejected into outer space!
+            </div>,
+            <div className='ejection-gif' />
+          ]}
+        />
+      );
       break;
     default:
       break;
@@ -84,7 +107,7 @@ export const Animations = () => {
     <div className='animations'>
       <Helmet><title>Heavenfire Animations</title></Helmet>
 
-       <img
+        <img
           className='stream_background_sample'
           alt='luna'
           src='stream_background_sample.png'

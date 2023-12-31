@@ -1,0 +1,28 @@
+.animation_cascading_fade_in_out {
+  .animation_item {
+    opacity: 0;
+    animation: fadeInOut 10s linear;
+    animation-fill-mode: forwards;
+    animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+    &.animation_item--1 { animation: fadeInOut 9.5s linear 0.5s };
+    &.animation_item--2 { animation: fadeInOut 9s linear 1s };
+    &.animation_item--3 { animation: fadeInOut 8.5s linear 1.5s };
+    &.animation_item--4 { animation: fadeInOut 8s linear 2s };
+  }
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

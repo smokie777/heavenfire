@@ -15,7 +15,7 @@
 
     .neon_text {
       font-size: 24px;
-      margin: 12px 0;
+      margin: 10px 0;
       width: 100%;
       text-align: center;
     }
@@ -38,7 +38,7 @@
       //   background: url('../public/ratjam.GIF') no-repeat center center / contain;
       //   width: 24px;
       //   height: 24px;
-      //   animation: flashIn 7s linear;
+      //   animation: fadeInOut 7s linear;
       //   animation-fill-mode: forwards;
       //   animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
       // }
@@ -52,13 +52,9 @@
 
     .ratsenteringhole-gif {
       margin-top: -10px;
-      opacity: 0;
       background: url('../public/ratsenteringhole.gif') no-repeat center center / contain;
       width: 250px;
       height: 250px;
-      animation: flashIn 10s linear;
-      animation-fill-mode: forwards;
-      animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
     }
   }
 
@@ -69,20 +65,25 @@
 
     .event_text_top {
       font-weight: bold;
-      animation: flashIn 10s linear;
-      animation-fill-mode: forwards;
-      animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    .event_text_bottom {
+      display: flex;
+      justify-content: center;
+    }
+
+    .bits-png {
+      margin-left: 5px;
+      background: url('../public/bits.png') no-repeat center center / contain;
+      width: 24px;
+      height: 24px;
     }
 
     .rathole-gif {
-      margin-top: -50px;
-      opacity: 0;
+      margin-top: -40px;
       background: url('../public/rathole.gif') no-repeat center center / contain;
       width: 250px;
       height: 250px;
-      animation: flashIn 9s linear 1s;
-      animation-fill-mode: forwards;
-      animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
     }
   }
 
@@ -93,20 +94,13 @@
 
     .event_text_top {
       font-weight: bold;
-      animation: flashIn 10s linear;
-      animation-fill-mode: forwards;
-      animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
     }
 
     .ejection-gif {
       margin-top: -50px;
-      opacity: 0;
       background: url('../public/ejection.gif') no-repeat center center / contain;
       width: 250px;
       height: 250px;
-      animation: flashIn 9.75s linear 0.25s;
-      animation-fill-mode: forwards;
-      animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
     }
   }
 }
@@ -145,24 +139,6 @@
   }
   100% {
     transform: translateX(-100%);
-    opacity: 0;
-  }
-}
-
-@keyframes flashIn {
-  0% {
-    opacity: 0;
-  }
-  15% {
-    opacity: 0;
-  }
-  30% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
     opacity: 0;
   }
 }
