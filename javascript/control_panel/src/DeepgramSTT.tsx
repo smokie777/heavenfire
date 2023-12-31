@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { MIC_INPUT_DELAY } from './constants';
 import { fetch_post } from './fetch_functions';
+
+const MIC_INPUT_DELAY = 1500;
 
 let mediaRecorder:MediaRecorder;
 
