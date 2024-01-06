@@ -1,60 +1,55 @@
 .animations {
   font-family: 'BubblegumSans-Regular';
   position: relative;
-
-  .stream_background_sample {
-    position: absolute;
-    background-size: cover;
-  }
+  background: #00b140;
+  height: 100vh;
 
   .event_container {
     position: absolute;
     z-index: 1;
-    padding: 100px 0;
+    padding-top: 80px;
     width: 100%;
-
-    .neon_text {
-      font-size: 24px;
-      margin: 10px 0;
-      width: 100%;
-      text-align: center;
-    }
   }
+
+  .subtitle_text {
+    margin: 7px 0;
+    font-size: 40px;
+  }
+
+  .event_text_top {
+    display: flex;
+    justify-content: center;
+    animation: slideLeftToRight 10s linear;
+    animation-fill-mode: forwards;
+    animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+    // .ratjam-gif {
+    //   background: url('../public/ratjam.GIF') no-repeat center center / contain;
+    //   width: 24px;
+    //   height: 24px;
+    //   animation: fadeInOut 7s linear;
+    //   animation-fill-mode: forwards;
+    //   animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+    // }
+  }
+
+  .event_text_bottom {
+    animation: slideRightToLeft 10s linear;
+    animation-fill-mode: forwards;
+    animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
 
   .sub {
     display: flex;
     flex-direction: column;
     align-items: center;
 
-    .event_text_top {
-      display: flex;
-      justify-content: center;
-      font-weight: bold;
-      animation: slideLeftToRight 10s linear;
-      animation-fill-mode: forwards;
-      animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
-
-      // .ratjam-gif {
-      //   background: url('../public/ratjam.GIF') no-repeat center center / contain;
-      //   width: 24px;
-      //   height: 24px;
-      //   animation: fadeInOut 7s linear;
-      //   animation-fill-mode: forwards;
-      //   animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
-      // }
-    }
-
-    .event_text_bottom {
-      animation: slideRightToLeft 10s linear;
-      animation-fill-mode: forwards;
-      animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
-    }
-
     .ratsenteringhole-gif {
-      margin-top: -10px;
+      margin-top: -15px;
       background: url('../public/ratsenteringhole.gif') no-repeat center center / contain;
-      width: 250px;
-      height: 250px;
+      width: 300px;
+      height: 300px;
     }
   }
 
@@ -63,27 +58,23 @@
     flex-direction: column;
     align-items: center;
 
-    .event_text_top {
-      font-weight: bold;
-    }
-
     .event_text_bottom {
       display: flex;
       justify-content: center;
     }
 
     .bits-png {
-      margin-left: 5px;
+      margin: 0 1px 0 7px;
       background: url('../public/bits.png') no-repeat center center / contain;
-      width: 24px;
-      height: 24px;
+      width: 48px;
+      height: 48px;
     }
 
     .rathole-gif {
-      margin-top: -40px;
+      margin-top: -60px;
       background: url('../public/rathole.gif') no-repeat center center / contain;
-      width: 250px;
-      height: 250px;
+      width: 400px;
+      height: 400px;
     }
   }
 
@@ -92,15 +83,11 @@
     flex-direction: column;
     align-items: center;
 
-    .event_text_top {
-      font-weight: bold;
-    }
-
     .ejection-gif {
-      margin-top: -50px;
+      margin-top: -75px;
       background: url('../public/ejection.gif') no-repeat center center / contain;
-      width: 250px;
-      height: 250px;
+      width: 450px;
+      height: 450px;
     }
   }
 }

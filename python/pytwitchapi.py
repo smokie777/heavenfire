@@ -194,7 +194,7 @@ async def run_pytwitchapi():
 
 
 if __name__ == '__main__':
-  asyncio.run(run_pytwitchapi())
+  # asyncio.run(run_pytwitchapi())
 
   # config.ws.send(json.dumps({
   #   'twitch_event': {
@@ -203,13 +203,13 @@ if __name__ == '__main__':
   #     'value': str(200)
   #   }
   # }))
-  # config.ws.send(json.dumps({
-  #   'twitch_event': {
-  #     'event': TWITCH_EVENTS['SUB'],
-  #     'username': 'username2',
-  #     'value': 'x3 resub'
-  #   }
-  # }))
+  config.ws.send(json.dumps({
+    'twitch_event': {
+      'event': TWITCH_EVENTS['SUB'],
+      'username': 'username2',
+      'value': 'x3 resub'
+    }
+  }))
   # config.ws.send(json.dumps({
   #   'twitch_event': {
   #     'event': TWITCH_EVENTS['BAN'],

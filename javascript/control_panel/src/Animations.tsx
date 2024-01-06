@@ -17,22 +17,37 @@ interface twitchEvent {
 
 export const Animations = () => {
   const clearAnimationTimeoutRef = useRef<number | NodeJS.Timer>();
-  const [twitchEvent, setTwitchEvent] = useState<twitchEvent | null>(null);
-  // const [twitchEvent, setTwitchEvent] = useState<twitchEvent | null>({
+  const isAnimationInProgressRef = useRef(false);
+  const twitchEventQueueRef = useRef<twitchEvent[]>([]);
+  const [twitchEvent, setTwitchEvent] = useState<twitchEvent | undefined>(undefined);
+  // const [twitchEvent, setTwitchEvent] = useState<twitchEvent | undefined>({
   //   event: 'BITS',
   //   username: 'test-username-for-bits',
   //   value: '2000'
   // });
-  // const [twitchEvent, setTwitchEvent] = useState<twitchEvent | null>({
+  // const [twitchEvent, setTwitchEvent] = useState<twitchEvent | undefined>({
   //   event: 'SUB',
   //   username: 'test-username-for-sub',
   //   value: 'Prime'
   // });
-  // const [twitchEvent, setTwitchEvent] = useState<twitchEvent | null>({
+  // const [twitchEvent, setTwitchEvent] = useState<twitchEvent | undefined>({
   //   event: 'BAN',
   //   username: 'test-username-for-ban',
   //   value: ''
   // });
+
+  const runTwitchEventQueue = () => {
+    isAnimationInProgressRef.current = true;
+    const event = twitchEventQueueRef.current.shift();
+    setTwitchEvent(event);
+    if (event) {
+      clearAnimationTimeoutRef.current = setTimeout(() => {
+        runTwitchEventQueue();
+      }, 10000);
+    } else {
+      isAnimationInProgressRef.current = false;
+    }
+  };
 
   useEffect(() => {
     const ws = new WebSocket('ws://localhost:4000');
@@ -41,14 +56,11 @@ export const Animations = () => {
     });
     ws.addEventListener('message', (_data) => {
       const data = JSON.parse(_data.data);
-      if (
-        data.hasOwnProperty('twitch_event')
-        && !twitchEvent
-      ) {
-        setTwitchEvent(data.twitch_event);
-        clearAnimationTimeoutRef.current = setTimeout(() => {
-          setTwitchEvent(null);
-        }, 10000);
+      if (data.hasOwnProperty('twitch_event')) {
+        twitchEventQueueRef.current.push(data.twitch_event);
+        if (!isAnimationInProgressRef.current) {
+          runTwitchEventQueue();
+        }
       }
     });
 
@@ -57,16 +69,17 @@ export const Animations = () => {
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  let event = null;
+  
+  let event;
   switch (twitchEvent?.event) {
     case ANIMATION_EVENTS.SUB:
       event = (
         <AnimationCascadingFadeInOut
+          key={new Date().toLocaleString()}
           className='sub'
           items={[
-            <div className='neon_text event_text_top'>{twitchEvent.username}</div>,
-            <div className='neon_text event_text_bottom'>{twitchEvent.value}</div>,
+            <div className='subtitle_text event_text_top'>{twitchEvent.username}</div>,
+            <div className='subtitle_text event_text_bottom'>{twitchEvent.value}</div>,
             <div className='ratsenteringhole-gif' />
           ]}
         />
@@ -75,11 +88,12 @@ export const Animations = () => {
     case ANIMATION_EVENTS.BITS:
       event = (
         <AnimationCascadingFadeInOut
+          key={new Date().toLocaleString()}
           className='bits'
           items={[
-            <div className='neon_text event_text_top'>{twitchEvent.username}</div>,
-            <div className='neon_text event_text_bottom'>
-              <b>+</b>&nbsp;{twitchEvent.value}<div className='bits-png' />
+            <div className='subtitle_text event_text_top'>{twitchEvent.username}</div>,
+            <div className='subtitle_text event_text_bottom'>
+              just donated {twitchEvent.value}<div className='bits-png' />!
             </div>,
             <div className='rathole-gif' />
           ]}
@@ -89,10 +103,12 @@ export const Animations = () => {
     case ANIMATION_EVENTS.BAN:
       event = (
         <AnimationCascadingFadeInOut
+          key={new Date().toLocaleString()}
           className='ban'
           items={[
-            <div className='neon_text event_text_top'>
-              <b>{twitchEvent.username}</b> has been <b>ejected</b> into outer space!
+            <div className='subtitle_text event_text_top'>{twitchEvent.username}</div>,
+            <div className='subtitle_text event_text_bottom'>
+              has been <b>ejected</b> into outer space!
             </div>,
             <div className='ejection-gif' />
           ]}
@@ -106,14 +122,6 @@ export const Animations = () => {
   return (
     <div className='animations'>
       <Helmet><title>Heavenfire Animations</title></Helmet>
-
-        <img
-          className='stream_background_sample'
-          alt='luna'
-          src='stream_background_sample.png'
-          width='1250px'
-          height='800px'
-        />
 
       <div className='event_container'>
         {event}

@@ -5,10 +5,10 @@
     animation-fill-mode: forwards;
     animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
 
-    &.animation_item--1 { animation: fadeInOut 9.5s linear 0.5s };
-    &.animation_item--2 { animation: fadeInOut 9s linear 1s };
-    &.animation_item--3 { animation: fadeInOut 8.5s linear 1.5s };
-    &.animation_item--4 { animation: fadeInOut 8s linear 2s };
+    &.animation_item--1 { animation: fadeInOut 9.75s linear 0.25s };
+    &.animation_item--2 { animation: fadeInOut 9.5s linear 0.5s };
+    &.animation_item--3 { animation: fadeInOut 9.25s linear 0.75s };
+    &.animation_item--4 { animation: fadeInOut 9s linear 1s };
   }
 }
 

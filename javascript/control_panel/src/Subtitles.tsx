@@ -57,7 +57,7 @@ export const Subtitles = ({
   const subtitlePartition = subtitleText.slice(subtitlePartitionNum * 333);
 
   return (
-    <div className='subtitles'>
+    <div className='subtitles subtitle_text'>
       <div>{subtitleText.length < 333 ? '' : '...'}{subtitlePartition}</div>
       {/* <div>What would I say if doption1 was trolling in my chat? I'd tell doption1 to suck it!</div> */}
     </div>
