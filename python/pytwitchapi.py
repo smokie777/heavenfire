@@ -4,7 +4,6 @@ from twitchAPI.type import AuthScope, ChatEvent
 from twitchAPI.chat import Chat, EventData, ChatMessage, ChatSub, ChatCommand
 from twitchAPI.pubsub import PubSub
 from uuid import UUID
-import asyncio
 import os
 from enums import AZURE_SPEAKING_STYLE_TAGS, VTS_EXPRESSIONS, PRIORITY_QUEUE_PRIORITIES, TWITCH_EVENTS
 from execute_action import execute_or_enqueue_action
@@ -16,8 +15,8 @@ import json
 import config
 from eleven_labs_tts import eleven_labs_tts_speak
 from time import sleep
-from remindme import convert_time_hms_string_to_ms
-import threading
+from remind_me import convert_time_hms_string_to_ms
+from datetime import datetime, timedelta
 
 APP_ID = os.environ['TWITCH_APP_ID']
 APP_SECRET = os.environ['TWITCH_APP_SECRET']
@@ -139,14 +138,15 @@ async def chat_on_message(msg: ChatMessage):
   ):
     if msg.user.name == 'smokie_777' and '@luna !remindme ' in msg.text.lower():
       args = msg.text.lower().replace('@luna !remindme ', '').split(' ')
-      seconds_to_sleep = convert_time_hms_string_to_ms(args[0]) / 1000
-      acknowledgement_prompt = f'announce that you will remind {msg.user.name} to {" ".join(args[1:])} in {args[0]}!'
+      acknowledgement_prompt = (
+        f'say exactly that you will remind {msg.user.name} to "{" ".join(args[1:])}" in {args[0]}.'
+      )
       reminder_prompt = f'remind {msg.user.name} to {" ".join(args[1:])}.'
-      await execute_or_enqueue_action(acknowledgement_prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT'])
-      async def cb():
-        await execute_or_enqueue_action(reminder_prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT'])
-      timer = threading.Timer(seconds_to_sleep, cb)
-      timer.start()
+      config.remind_me_prompts_and_datetime_queue.append((
+        reminder_prompt,
+        datetime.now() + timedelta(milliseconds=convert_time_hms_string_to_ms(args[0]))
+      ))
+      await execute_or_enqueue_action(acknowledgement_prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_REMIND_ME'])
     else:
       await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_TWITCH_CHAT_QUEUE'])
 

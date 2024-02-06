@@ -28,5 +28,5 @@ chat = None
 pubsub = None
 # is singing in action
 is_singing = False
-# is !remindme in action
-is_remindme = False
+# stores tuples like ('remind foo to bar!', datetime)
+remind_me_prompts_and_datetime_queue = []

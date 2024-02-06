@@ -33,6 +33,9 @@ class PriorityQueue:
         self.queue[priority][0] = self.queue[priority][1]
         self.queue[priority][1] = self.queue[priority][2]
         self.queue[priority][2] = item
+    elif priority == 'PRIORITY_REMIND_ME':
+      # this priority will simply append the enqueued item.
+      self.queue[priority].append(item)
 
   def dequeue(self):
     # returns tuple (item, priority)

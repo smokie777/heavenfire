@@ -35,6 +35,19 @@ class TestPriorityQueue(unittest.TestCase):
       'cant enqueue PRIORITY_PUBSUB_EVENTS_QUEUE'
     )
 
+    q.enqueue('foo', 'PRIORITY_REMIND_ME')
+    q.enqueue('foo1', 'PRIORITY_REMIND_ME')
+    self.assertEqual(
+      q.get_items()['PRIORITY_REMIND_ME'][0],
+      'foo',
+      'cant enqueue PRIORITY_REMIND_ME'
+    )
+    self.assertEqual(
+      q.get_items()['PRIORITY_REMIND_ME'][1],
+      'foo1',
+      'cant enqueue PRIORITY_REMIND_ME'
+    )
+
     q.enqueue('foo', 'PRIORITY_TWITCH_CHAT_QUEUE')
     q.enqueue('foo1', 'PRIORITY_TWITCH_CHAT_QUEUE')
     q.enqueue('foo2', 'PRIORITY_TWITCH_CHAT_QUEUE')
@@ -70,6 +83,8 @@ class TestPriorityQueue(unittest.TestCase):
         item_result = 'foo1'
       elif priority == 'PRIORITY_PUBSUB_EVENTS_QUEUE':
         item_result = 'foo foo1'
+      elif priority == 'PRIORITY_REMIND_ME':
+        item_result = 'foo'
       elif priority == 'PRIORITY_TWITCH_CHAT_QUEUE':
         item_result = 'foo1'
       self.assertEqual(

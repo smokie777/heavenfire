@@ -15,6 +15,7 @@ from gen_edited_luna_response import gen_edited_luna_response
 from tts import gen_audio_file_and_subtitles, speak
 from sing import sing
 from enums import PRIORITY_QUEUE_PRIORITIES
+from remind_me import remind_me_start_async_loop
 
 app = Flask(__name__)
 
@@ -145,9 +146,11 @@ def _shut_down_server():
 
 
 if __name__ == '__main__':
+  loop = asyncio.new_event_loop()
   threads = [
     Thread(target=lambda: app.run(debug=False, port=5001)),
-    Thread(target=lambda: asyncio.run(run_pytwitchapi()))
+    Thread(target=lambda: asyncio.run(run_pytwitchapi())),
+    Thread(target=remind_me_start_async_loop, args=(loop,))
   ]
   [t.start() for t in threads]
   [t.join() for t in threads]
