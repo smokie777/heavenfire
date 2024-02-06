@@ -103,7 +103,7 @@ export const ControlPanel = () => {
 
   const sing = async() => {
     // TODO: implement a dropdown with all possible songs
-    const songs = ['edamame', 'ringer', 'newcrack', 'iwantitthatway', 'yesterday'];
+    const songs = ['edamame', 'ringer', 'newcrack', 'iwantitthatway', 'yesterday', 'yijianmei', 'consequences'];
     const song = textBoxInput;
     if (!songs.includes(song)) {
       return;

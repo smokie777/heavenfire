@@ -21,6 +21,7 @@ def gen_llm_response(prompt):
     # model = os.environ['LUNA_GPT_MODEL_FINETUNED_2'],
     messages=config.llm_short_term_memory.messages,
     temperature=float(os.environ['LUNA_GPT_TEMPERATURE']),
+    # temperature=2,
     presence_penalty=float(os.environ['LUNA_GPT_PRESENCE_PENALTY']),
     frequency_penalty=float(os.environ['LUNA_GPT_FREQUENCY_PENALTY']),
     max_tokens=int(os.environ['LUNA_GPT_MAX_TOKENS'])

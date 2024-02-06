@@ -14,6 +14,10 @@ from utils import does_one_word_start_with_at
 from pytwitchapi_helpers import ban_user_via_username
 import json
 import config
+from eleven_labs_tts import eleven_labs_tts_speak
+from time import sleep
+from remindme import convert_time_hms_string_to_ms
+import threading
 
 APP_ID = os.environ['TWITCH_APP_ID']
 APP_SECRET = os.environ['TWITCH_APP_SECRET']
@@ -51,6 +55,9 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
     ])
   elif title == 'Luna brown hair':
     vts_set_expression(VTS_EXPRESSIONS['BROWN_HAIR'])
+  elif title == 'smokie tts' and not config.is_singing:
+    user_input = data['data']['redemption']['user_input']
+    eleven_labs_tts_speak(user_input)
 
 async def pubsub_callback_listen_bits_v1(uuid: UUID, data: dict) -> None:
   print(data)
@@ -84,11 +91,11 @@ async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -
   if is_gift:
     if multi_month_duration:
       ws_sub_name = display_name
-      ws_message = f'gifted a {multi_month_duration}-month {tier} sub to {recipient_display_name}!'
+      ws_message = f'gift {multi_month_duration}-month {tier} sub --> {recipient_display_name}!'
       prompt = f'{ws_sub_name} just {ws_message}'
     else:
       ws_sub_name = display_name
-      ws_message = f'gifted a {tier} sub to {recipient_display_name}!'
+      ws_message = f'gift {tier} sub --> {recipient_display_name}!'
       prompt = f'{ws_sub_name} just {ws_message}'
   else:
     if multi_month_duration:
@@ -130,7 +137,18 @@ async def chat_on_message(msg: ChatMessage):
       or (not config.is_quiet_mode_on and (is_at_luna or not does_one_word_start_with_at(msg.text.lower().split(' '))))
     )
   ):
-    await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_TWITCH_CHAT_QUEUE'])
+    if msg.user.name == 'smokie_777' and '@luna !remindme ' in msg.text.lower():
+      args = msg.text.lower().replace('@luna !remindme ', '').split(' ')
+      seconds_to_sleep = convert_time_hms_string_to_ms(args[0]) / 1000
+      acknowledgement_prompt = f'announce that you will remind {msg.user.name} to {" ".join(args[1:])} in {args[0]}!'
+      reminder_prompt = f'remind {msg.user.name} to {" ".join(args[1:])}.'
+      await execute_or_enqueue_action(acknowledgement_prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT'])
+      async def cb():
+        await execute_or_enqueue_action(reminder_prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT'])
+      timer = threading.Timer(seconds_to_sleep, cb)
+      timer.start()
+    else:
+      await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_TWITCH_CHAT_QUEUE'])
 
 async def chat_on_command_discord(cmd: ChatCommand):
   await cmd.reply('https://discord.gg/cxTHwepMTb 🖤✨')
@@ -139,13 +157,13 @@ async def chat_on_command_profile(cmd: ChatCommand):
   await cmd.reply('https://www.pathofexile.com/account/view-profile/smokie_777/characters 🖤✨')
 
 async def chat_on_command_pob(cmd: ChatCommand):
-  await cmd.reply('https://pobb.in/rBu7TCkUjiRY 🖤✨')
+  await cmd.reply('https://pobb.in/RFuJbFI73eIN 🖤✨')
 
 async def chat_on_command_filter(cmd: ChatCommand):
-  await cmd.reply('https://www.filterblade.xyz/Profile?name=kiteezy&platform=pc 🖤✨')
+  await cmd.reply('https://www.filterblade.xyz/?profile=smokie_777 🖤✨')
 
 async def chat_on_command_video(cmd: ChatCommand):
-  await cmd.reply('https://www.youtube.com/watch?v=in7lM9aoEn8 🖤✨')
+  await cmd.reply('https://www.youtube.com/watch?v=VBijra3J4zo 🖤✨')
 
 async def chat_on_command_ban(cmd: ChatCommand):
   if cmd.user.name == 'smokie_777':
@@ -203,13 +221,13 @@ if __name__ == '__main__':
   #     'value': str(200)
   #   }
   # }))
-  config.ws.send(json.dumps({
-    'twitch_event': {
-      'event': TWITCH_EVENTS['SUB'],
-      'username': 'username2',
-      'value': 'x3 resub'
-    }
-  }))
+  # config.ws.send(json.dumps({
+  #   'twitch_event': {
+  #     'event': TWITCH_EVENTS['SUB'],
+  #     'username': 'username2',
+  #     'value': 'x3 resub'
+  #   }
+  # }))
   # config.ws.send(json.dumps({
   #   'twitch_event': {
   #     'event': TWITCH_EVENTS['BAN'],
@@ -217,4 +235,7 @@ if __name__ == '__main__':
   #     'value': None
   #   }
   # }))
+
+  sleep(10)
+  print('hi')
   

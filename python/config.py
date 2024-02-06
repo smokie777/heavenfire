@@ -13,7 +13,9 @@ llm_fuzzy_token_limit = 750
 # make this false for a couple seconds to terminate the audio playing loop.
 tts_green_light = True
 # seconds of delay bewteen ai responses
-ai_response_delay = 2
+ai_response_delay = 2.5
+# seconds of delay after mic input to prevent ai hearing itself on speakers
+mic_input_delay = 1
 # websocket connection instance
 ws = create_connection('ws://localhost:4000')
 # is the vtuber responding to twitch chat?
@@ -24,3 +26,7 @@ is_quiet_mode_on = True
 twitch = None
 chat = None
 pubsub = None
+# is singing in action
+is_singing = False
+# is !remindme in action
+is_remindme = False

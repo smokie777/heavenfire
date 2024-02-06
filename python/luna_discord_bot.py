@@ -105,9 +105,18 @@ async def on_message(message):
       if (messages_per_minute_counter < MAX_MESSAGES_PER_MINUTE and messages_per_hour_counter < MAX_MESSAGES_PER_HOUR):
         try:
           prompt = ''
-
+          # send specific message to target channel functionality
+          if (str(message.author) == 'smokie_777' and '@Luna send ' in str(message.clean_content)):
+            args = message.clean_content.replace('@Luna send ', '').split(' ')
+            channel_name = args[0]
+            message_to_send = ' '.join(args[1:])
+            if channel_name and message_to_send:
+              channel = discord.utils.get(message.guild.text_channels, name=channel_name)
+              async with channel.typing():
+                await asyncio.sleep(random.uniform(2, 4))
+              await channel.send(message_to_send)
           # ban functionality
-          if (str(message.author) == 'smokie_777' and '@Luna ban ' in str(message.clean_content)):
+          elif (str(message.author) == 'smokie_777' and '@Luna ban ' in str(message.clean_content)):
             await message.mentions[1].ban()
             (_, _, edited) = gen_llm_response('Smokie: luna, announce that you\'ve just banned ' + message.mentions[1].display_name + ' out of your discord server. feel free to include some spice :)')
             async with message.channel.typing():

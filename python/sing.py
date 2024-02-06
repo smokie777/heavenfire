@@ -2,6 +2,7 @@ import os
 from tts import speak
 from time import sleep
 import multiprocessing
+import config
 
 # STEPS TO MAKE A SONG
 # 1. Obtain high quality instrumental track & acapella
@@ -18,8 +19,11 @@ def play_iv(song):
 # example: edamame_v.wav is the vocals only, to be played silently through the virtual cable
 def play_v(song):
   speak(f'./songs/{song}_v.wav')
+  config.is_singing = False
 
 def sing(song):
+  config.is_singing = True
+
   p1 = multiprocessing.Process(target=play_iv, args=(song,))
   p2 = multiprocessing.Process(target=play_v, args=(song,))
 

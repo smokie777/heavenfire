@@ -87,9 +87,12 @@ replacements = [
   (';)', '*wink*'),
   ('Duuude', 'Dude'),
   ('Duude', 'Dude'),
+  ('time out', '!timeout'),
+  ('time-out', '!timeout'),
+  ('timeout', '!timeout')
 ]
 
-def gen_edited_luna_response_1(s):
+def gen_edited_luna_response(s):
   s = s.replace('..', '...')
   words = (process_text_emojis(s)).replace('...', '... ').split()
   processed_words = []
@@ -131,6 +134,7 @@ def gen_edited_luna_response_1(s):
       or is_mouth_sound(text, 'u', 'm')
       or is_mouth_sound(text, 'u', 'h')
       or 'uhuh' in text
+      or is_mouth_sound(strip_leading_letters(text, 'e'), 'r', 'm', ['erm'])
     ):
       replacement_word = 'Erm'
     elif is_mouth_sound(strip_leading_letters(text, 'd'), 'u', 'h'):
@@ -213,7 +217,7 @@ def gen_edited_luna_response_1(s):
 
   return ret.replace('... ', '...')
 
-def gen_edited_luna_response(s):
+def gen_edited_luna_response_1(s):
   s = s.replace('..', '...')
   words = (process_text_emojis(s)).replace('...', '... ').split()
   processed_words = []

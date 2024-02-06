@@ -101,7 +101,8 @@ def gen_audio_file_and_subtitles(text, speaking_style = '', skipGeneratingSubtit
     emoji.demojize(text)
   )
 
-  prosody_ssml = '<prosody pitch="+10.00%"><say-as interpret-as="message">' + emoji_processed_text + '</say-as></prosody>'
+  prosody_ssml = '<prosody pitch="+10.00%">' + emoji_processed_text + '</prosody>'
+  # prosody_ssml = '<prosody pitch="+10.00%"><say-as interpret-as="message">' + emoji_processed_text + '</say-as></prosody>'
   if speaking_style:
     prosody_ssml = '<mstts:express-as style="' + speaking_style + '">' + prosody_ssml + '</mstts:express-as>'
 

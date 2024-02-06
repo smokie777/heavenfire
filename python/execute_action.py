@@ -68,9 +68,11 @@ async def execute_action():
         await ban_user_via_username(username_to_timeout, 60, 'timed out by luna')
 
     if (
-      priority != PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT']
-      and priority != PRIORITY_QUEUE_PRIORITIES['PRIORITY_COLLAB_MIC_INPUT']
+      priority == PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT']
+      or priority == PRIORITY_QUEUE_PRIORITIES['PRIORITY_COLLAB_MIC_INPUT']
     ):
+      sleep(config.mic_input_delay)
+    else:
       sleep(config.ai_response_delay)
 
     (prompt, priority) = config.priority_queue.dequeue()
