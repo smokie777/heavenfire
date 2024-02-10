@@ -40,8 +40,3 @@ def eleven_labs_tts_speak(text):
         f.write(chunk)
 
     os.startfile(os.path.abspath(output_file_name))
-
-
-if __name__ == '__main__':
-  eleven_labs_tts_speak("Urgh, Smokie. I'm not a puppet. If you want me to say something, just ask!")
-  

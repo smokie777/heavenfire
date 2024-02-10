@@ -49,7 +49,8 @@ async def execute_action():
     start_time = time()
     (output_filename, subtitles) = gen_audio_file_and_subtitles(edited, speaking_style)
     latency_tts = round((time() - start_time), 3)
-    db_message_insert_one(prompt=prompt, response=edited, latency_llm=latency_llm, latency_tts=latency_tts)
+    with config.app.app_context():
+      db_message_insert_one(prompt=prompt, response=edited, latency_llm=latency_llm, latency_tts=latency_tts)
 
     print(f'LLM: {latency_llm}s | TTS: {latency_tts}s')
 

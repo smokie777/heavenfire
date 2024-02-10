@@ -5,7 +5,7 @@ from twitchAPI.chat import Chat, EventData, ChatMessage, ChatSub, ChatCommand
 from twitchAPI.pubsub import PubSub
 from uuid import UUID
 import os
-from enums import AZURE_SPEAKING_STYLE_TAGS, VTS_EXPRESSIONS, PRIORITY_QUEUE_PRIORITIES, TWITCH_EVENTS
+from enums import AZURE_SPEAKING_STYLE_TAGS, VTS_EXPRESSIONS, PRIORITY_QUEUE_PRIORITIES, TWITCH_EVENTS, TWITCH_EVENT_TYPE
 from execute_action import execute_or_enqueue_action
 from vts_set_expression import vts_set_expression
 from dotenv import load_dotenv; load_dotenv()
@@ -17,6 +17,7 @@ from eleven_labs_tts import eleven_labs_tts_speak
 from time import sleep
 from remind_me import convert_time_hms_string_to_ms
 from datetime import datetime, timedelta
+from db import db_event_insert_one
 
 APP_ID = os.environ['TWITCH_APP_ID']
 APP_SECRET = os.environ['TWITCH_APP_SECRET']
@@ -44,18 +45,39 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
     vts_set_expression(VTS_EXPRESSIONS['FLUSHED'])
     user_input = data['data']['redemption']['user_input']
     prompt = f'{AZURE_SPEAKING_STYLE_TAGS["WHISPERING"]}(Luna, please give a longer response than usual!) {display_name}: {user_input}'
-    await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'
-    ])
+    with config.app.app_context():
+      db_event_insert_one(
+        type=TWITCH_EVENT_TYPE['CHANNEL_POINT_REDEMPTION'],
+        event='luna whisper',
+        body=user_input
+      )
+    await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'])
   elif title == 'luna rant':
     vts_set_expression(VTS_EXPRESSIONS['ANGRY'])
     user_input = data['data']['redemption']['user_input']
     prompt = f'Luna, please go on a really long and angry rant about the following topic: {user_input}!'
-    await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'
-    ])
+    with config.app.app_context():
+      db_event_insert_one(
+        type=TWITCH_EVENT_TYPE['CHANNEL_POINT_REDEMPTION'],
+        event='luna rant',
+        body=user_input
+      )
+    await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'])
   elif title == 'Luna brown hair':
+    with config.app.app_context():
+      db_event_insert_one(
+        type=TWITCH_EVENT_TYPE['CHANNEL_POINT_REDEMPTION'],
+        event='Luna brown hair'
+      )
     vts_set_expression(VTS_EXPRESSIONS['BROWN_HAIR'])
   elif title == 'smokie tts' and not config.is_singing:
     user_input = data['data']['redemption']['user_input']
+    with config.app.app_context():
+      db_event_insert_one(
+        type=TWITCH_EVENT_TYPE['CHANNEL_POINT_REDEMPTION'],
+        event='smokie tts',
+        body=user_input
+      )
     eleven_labs_tts_speak(user_input)
 
 async def pubsub_callback_listen_bits_v1(uuid: UUID, data: dict) -> None:
@@ -73,8 +95,7 @@ async def pubsub_callback_listen_bits_v1(uuid: UUID, data: dict) -> None:
       'value': str(bits)
     }
   }))
-  await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'
-  ])
+  await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'])
 
 async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -> None:
   print(data)
@@ -116,8 +137,7 @@ async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -
       'value': ws_message
     }
   }))
-  await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'
-  ])
+  await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'])
 
 async def chat_on_ready(ready_event: EventData):
   print('pytwitchapi chat connected')
@@ -151,18 +171,28 @@ async def chat_on_message(msg: ChatMessage):
       await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_TWITCH_CHAT_QUEUE'])
 
 async def chat_on_command_discord(cmd: ChatCommand):
+  with config.app.app_context():
+    db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!discord')
   await cmd.reply('https://discord.gg/cxTHwepMTb 🖤✨')
 
 async def chat_on_command_profile(cmd: ChatCommand):
+  with config.app.app_context():
+    db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!profile')
   await cmd.reply('https://www.pathofexile.com/account/view-profile/smokie_777/characters 🖤✨')
 
 async def chat_on_command_pob(cmd: ChatCommand):
+  with config.app.app_context():
+    db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!pob')
   await cmd.reply('https://pobb.in/RFuJbFI73eIN 🖤✨')
 
 async def chat_on_command_filter(cmd: ChatCommand):
+  with config.app.app_context():
+    db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!filter')
   await cmd.reply('https://www.filterblade.xyz/?profile=smokie_777 🖤✨')
 
 async def chat_on_command_video(cmd: ChatCommand):
+  with config.app.app_context():
+    db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!video')
   await cmd.reply('https://www.youtube.com/watch?v=VBijra3J4zo 🖤✨')
 
 async def chat_on_command_ban(cmd: ChatCommand):
@@ -209,33 +239,3 @@ async def run_pytwitchapi():
     str(os.environ['TWITCH_CHANNEL_ID']),
     pubsub_callback_listen_channel_subscriptions
   )
-
-
-if __name__ == '__main__':
-  # asyncio.run(run_pytwitchapi())
-
-  # config.ws.send(json.dumps({
-  #   'twitch_event': {
-  #     'event': TWITCH_EVENTS['BITS'],
-  #     'username': 'username1',
-  #     'value': str(200)
-  #   }
-  # }))
-  # config.ws.send(json.dumps({
-  #   'twitch_event': {
-  #     'event': TWITCH_EVENTS['SUB'],
-  #     'username': 'username2',
-  #     'value': 'x3 resub'
-  #   }
-  # }))
-  # config.ws.send(json.dumps({
-  #   'twitch_event': {
-  #     'event': TWITCH_EVENTS['BAN'],
-  #     'username': 'username3',
-  #     'value': None
-  #   }
-  # }))
-
-  sleep(10)
-  print('hi')
-  

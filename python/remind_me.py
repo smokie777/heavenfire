@@ -28,7 +28,6 @@ def convert_time_hms_string_to_ms(s):
 async def remind_me_loop():
   while True:
     await asyncio.sleep(10)
-    print(config.remind_me_prompts_and_datetime_queue)
     now = datetime.now()
     for (reminder_prompt, reminder_datetime) in config.remind_me_prompts_and_datetime_queue:
       if now >= reminder_datetime:

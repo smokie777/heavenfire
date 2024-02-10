@@ -51,12 +51,3 @@ def gen_image_react_prompt(captions, image_type = 'picture'):
       captions_text[i] = s.replace(sub, '')
 
   return f'{question_prompt}{prompt}{", ".join(captions_text)}'
-
-
-if __name__ == '__main__':
-  take_screenshot()
-  captions = gen_image_captions()
-  print(captions)
-  prompt = gen_image_react_prompt(captions, 'picture')
-  print(prompt)
-  

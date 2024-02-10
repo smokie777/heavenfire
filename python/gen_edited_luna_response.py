@@ -268,7 +268,3 @@ def gen_edited_luna_response_1(s):
     ret = ret[1:-1]
 
   return ret.replace('... ', '...')
-
-
-if __name__ == '__main__':
-  print(gen_edited_luna_response('Umm...Smokie? Testing?'))

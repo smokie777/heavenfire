@@ -80,7 +80,7 @@ class Event(config.db.Model):
   )
   body = config.db.Column(
     config.db.Text,
-    nullable=False
+    nullable=True
   )
 class EventSchema(config.ma.SQLAlchemySchema):
   class Meta:
@@ -95,7 +95,7 @@ events_schema = EventSchema(many=True)
 def db_event_get_by_page(page):
   rows = Event.query.offset((page - 1) * PAGINATION_ROW_COUNT).limit(PAGINATION_ROW_COUNT).all()
   return events_schema.dump(rows)
-def db_event_insert_one(type, event, body):
+def db_event_insert_one(type, event, body = None):
   row = Event(
     type=type,
     event=event,

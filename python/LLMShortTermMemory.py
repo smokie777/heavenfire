@@ -46,7 +46,3 @@ class LLMShortTermMemory:
 
   def erase_memory(self):
     self.messages = self.messages[:memory_trim_index]
-
-
-if __name__ == '__main__':
-  print('hello world')
