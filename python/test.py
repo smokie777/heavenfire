@@ -6,6 +6,7 @@ from LLMShortTermMemory import LLMShortTermMemory, memory_trim_index
 from gen_image_captions import gen_image_react_prompt
 from prompts import system
 from helpers import obfuscate_prompt_username
+from datetime import datetime
 
 class TestPriorityQueue(unittest.TestCase):
   def runTest(self):
@@ -207,6 +208,36 @@ class TestLLMShortTermMemory(unittest.TestCase):
     self.assertEqual(len(m.messages), memory_trim_index)
     m.set_context('Today, we are playing Path of Exile.')
     self.assertEqual(m.messages[0]['content'], f'{system} [Context description] Today, we are playing Path of Exile.')
+    m = LLMShortTermMemory()
+    m.load_initial_messages([
+      {
+        'created_at': datetime.now(),
+        'prompt': 'foo',
+        'response': 'bar',
+        'latency_llm': 0.123,
+        'latency_tts': 0.456,
+      },
+      {
+        'created_at': datetime.now(),
+        'prompt': 'foo1',
+        'response': 'bar1',
+        'latency_llm': 0.123,
+        'latency_tts': 0.456,
+      },
+    ])
+    self.assertEqual(m.messages[-1]['content'], 'bar1.')
+    self.assertEqual(m.messages[-2]['content'], 'foo1')
+    m = LLMShortTermMemory()
+    with self.assertRaises(RuntimeError):
+      m.load_initial_messages([
+        {
+          'created_at': datetime.now(),
+          'prompt': 'foo',
+          'response': 'bar',
+          'latency_llm': 0.123,
+          'latency_tts': 0.456,
+        },
+      ] * 4)
 
 class TestMoveEmojisToEnd(unittest.TestCase):
   def runTest(self):
