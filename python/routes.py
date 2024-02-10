@@ -20,7 +20,7 @@ async def _get_db_rows_by_page():
   data = request.get_json()
   model = data['model']
   page = data['page']
-  rows = None
+  rows = []
   
   try:
     if model.lower() == 'message':

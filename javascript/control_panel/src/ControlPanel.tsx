@@ -118,7 +118,7 @@ export const ControlPanel = () => {
 
   const getDbRowsByPage = async() => {
     const rows = await fetch_post('/get_db_rows_by_page', {
-      model: 'event',
+      model: textBoxInput,
       page: 1
     });
     console.log(rows);

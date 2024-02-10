@@ -45,7 +45,11 @@ class MessageSchema(config.ma.SQLAlchemySchema):
 message_schema = MessageSchema()
 messages_schema = MessageSchema(many=True)
 def db_message_get_by_page(page):
-  rows = Message.query.offset((page - 1) * PAGINATION_ROW_COUNT).limit(PAGINATION_ROW_COUNT).all()
+  rows = Message.query \
+    .order_by(Message.created_at.desc()) \
+    .offset((page - 1) * PAGINATION_ROW_COUNT) \
+    .limit(PAGINATION_ROW_COUNT) \
+    .all()
   return messages_schema.dump(rows)
 def db_message_insert_one(prompt, response, latency_llm, latency_tts):
   row = Message(
@@ -56,6 +60,9 @@ def db_message_insert_one(prompt, response, latency_llm, latency_tts):
   )
   config.db.session.add(row)
   config.db.session.commit()
+def db_message_get_last_three():
+  rows = Message.query.order_by(Message.created_at.desc()).limit(3).all()
+  return messages_schema.dump(rows)
 
 class Event(config.db.Model):
   """Keeps track of twitch event usage, such as channel point redemptions & chat commands."""
@@ -93,7 +100,11 @@ class EventSchema(config.ma.SQLAlchemySchema):
 event_schema = EventSchema()
 events_schema = EventSchema(many=True)
 def db_event_get_by_page(page):
-  rows = Event.query.offset((page - 1) * PAGINATION_ROW_COUNT).limit(PAGINATION_ROW_COUNT).all()
+  rows = Event.query \
+    .order_by(Event.created_at.desc()) \
+    .offset((page - 1) * PAGINATION_ROW_COUNT) \
+    .limit(PAGINATION_ROW_COUNT) \
+    .all()
   return events_schema.dump(rows)
 def db_event_insert_one(type, event, body = None):
   row = Event(

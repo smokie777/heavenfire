@@ -5,6 +5,7 @@ from PriorityQueue import PriorityQueue
 from LLMShortTermMemory import LLMShortTermMemory
 from websocket import create_connection
 
+### INSTANCES
 # initialize the flask server
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///project.db'
@@ -23,10 +24,11 @@ twitch = None
 chat = None
 pubsub = None
 
+### FLAGS/TOGGLES
 # the vtuber can't perform any actions while is_busy is True.
 is_busy = False
 # llm fuzzy token limit
-llm_fuzzy_token_limit = 750
+llm_fuzzy_token_limit = 1000
 # make this false for a couple seconds to terminate the audio playing loop.
 tts_green_light = True
 # seconds of delay bewteen ai responses
@@ -40,5 +42,6 @@ is_quiet_mode_on = True
 # is singing in action
 is_singing = False
 
+### SERVER IN-MEMORY STORAGE
 # stores tuples like ('remind foo to bar!', datetime)
 remind_me_prompts_and_datetime_queue = []

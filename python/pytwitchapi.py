@@ -158,42 +158,49 @@ async def chat_on_message(msg: ChatMessage):
   ):
     if msg.user.name == 'smokie_777' and '@luna !remindme ' in msg.text.lower():
       args = msg.text.lower().replace('@luna !remindme ', '').split(' ')
+      reminder_action = " ".join(args[1:])
       acknowledgement_prompt = (
-        f'say exactly that you will remind {msg.user.name} to "{" ".join(args[1:])}" in {args[0]}.'
+        f'say exactly that you will remind {msg.user.name} to "{reminder_action}" in {args[0]}.'
       )
-      reminder_prompt = f'remind {msg.user.name} to {" ".join(args[1:])}.'
+      reminder_prompt = f'remind {msg.user.name} to {reminder_action}.'
       config.remind_me_prompts_and_datetime_queue.append((
         reminder_prompt,
         datetime.now() + timedelta(milliseconds=convert_time_hms_string_to_ms(args[0]))
       ))
+      with config.app.app_context():
+        db_event_insert_one(
+          type=TWITCH_EVENT_TYPE['CHAT_COMMAND'],
+          event='!remindme',
+          body=reminder_action
+        )
       await execute_or_enqueue_action(acknowledgement_prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_REMIND_ME'])
     else:
       await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_TWITCH_CHAT_QUEUE'])
 
 async def chat_on_command_discord(cmd: ChatCommand):
+  await cmd.reply('https://discord.gg/cxTHwepMTb 🖤✨')
   with config.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!discord')
-  await cmd.reply('https://discord.gg/cxTHwepMTb 🖤✨')
 
 async def chat_on_command_profile(cmd: ChatCommand):
+  await cmd.reply('https://www.pathofexile.com/account/view-profile/smokie_777/characters 🖤✨')
   with config.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!profile')
-  await cmd.reply('https://www.pathofexile.com/account/view-profile/smokie_777/characters 🖤✨')
 
 async def chat_on_command_pob(cmd: ChatCommand):
+  await cmd.reply('https://pobb.in/RFuJbFI73eIN 🖤✨')
   with config.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!pob')
-  await cmd.reply('https://pobb.in/RFuJbFI73eIN 🖤✨')
 
 async def chat_on_command_filter(cmd: ChatCommand):
+  await cmd.reply('https://www.filterblade.xyz/?profile=smokie_777 🖤✨')
   with config.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!filter')
-  await cmd.reply('https://www.filterblade.xyz/?profile=smokie_777 🖤✨')
 
 async def chat_on_command_video(cmd: ChatCommand):
+  await cmd.reply('https://www.youtube.com/watch?v=VBijra3J4zo 🖤✨')
   with config.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!video')
-  await cmd.reply('https://www.youtube.com/watch?v=VBijra3J4zo 🖤✨')
 
 async def chat_on_command_ban(cmd: ChatCommand):
   if cmd.user.name == 'smokie_777':

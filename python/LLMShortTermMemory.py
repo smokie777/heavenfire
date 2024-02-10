@@ -46,3 +46,11 @@ class LLMShortTermMemory:
 
   def erase_memory(self):
     self.messages = self.messages[:memory_trim_index]
+
+  def load_initial_messages(self, db_messages):
+    # db_messages is a list of MessageSchema dicts
+    if len(db_messages) > 3:
+      raise RuntimeError('Can\'t load more than 3 messages from memory, as a financial precaution.')
+    for i in db_messages:
+      self.add_user_message(i['prompt'])
+      self.add_assistant_message(i['response'])

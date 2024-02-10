@@ -10,8 +10,11 @@ from pytwitchapi import run_pytwitchapi # this import must happen after db
 
 from remind_me import remind_me_start_async_loop
 
-
 if __name__ == '__main__':
+  # initialization
+  with config.app.app_context():
+    config.llm_short_term_memory.load_initial_messages(db.db_message_get_last_three())
+
   # run apps individually. should be done for testing purposes only
   # config.app.run(debug=False, port=5001)
   # asyncio.run(run_pytwitchapi())
