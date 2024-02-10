@@ -35,21 +35,25 @@ async def execute_action():
     
     start_time = time()
     (prompt, raw, edited) = gen_llm_response(prompt)
-    latency_llm = f'{round((time() - start_time), 3)}s'
+    latency_llm = round((time() - start_time), 3)
 
     print('Prompt: ', prompt)
     print('Raw: ', raw)
     print('Edited: ', edited)
 
-    config.ws.send(json.dumps({ 'prompt': prompt, 'raw': raw, 'edited': edited, 'latency_llm': latency_llm }))
+    config.ws.send(json.dumps({
+      'prompt': prompt, 'raw': raw, 'edited': edited, 'latency_llm': f'{latency_llm}s'
+    }))
 
     start_time = time()
     (output_filename, subtitles) = gen_audio_file_and_subtitles(edited, speaking_style)
-    latency_tts = f'{round((time() - start_time), 3)}s'
+    latency_tts = round((time() - start_time), 3)
 
-    print(f'LLM: {latency_llm} | TTS: {latency_tts}')
+    print(f'LLM: {latency_llm}s | TTS: {latency_tts}s')
 
-    config.ws.send(json.dumps({ 'edited': edited, 'subtitles': subtitles, 'latency_tts': latency_tts }))
+    config.ws.send(json.dumps({
+      'edited': edited, 'subtitles': subtitles, 'latency_tts': f'{latency_tts}s'
+    }))
 
     if username_to_ban:
       config.ws.send(json.dumps({

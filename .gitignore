@@ -12,3 +12,4 @@ python/prompts.py
 python/screenshot.png
 python/datasets/*
 python/songs/*
+python/instance/*

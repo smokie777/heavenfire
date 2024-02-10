@@ -116,6 +116,13 @@ export const ControlPanel = () => {
     setIsBusy(false);
   };
 
+  const viewDb = () => {
+    fetch_post('/view_db', {
+      model: textBoxInput
+    });
+    setTextBoxInput('');
+  };
+
   const shutDownServer = () => {
     setIsBusy(false);
     fetch_post('/shut_down_server');
@@ -190,22 +197,28 @@ export const ControlPanel = () => {
         />
         <Spacer height={10} />
         <div className='textbox_buttons'>
-          <button onClick={answerTextBox}>Answer</button>
-          <Spacer width={20} />
-          <button onClick={lunaReadTextBox}>Read</button>
-          <Spacer width={20} />
-          <button onClick={reactToScreen}>React to screen</button>
-          <Spacer width={20} />
-          <button onClick={eraseMemory}>Clear memory</button>
-          <Spacer width={20} />
-          <button onClick={cancelSpeech}>Cancel speech</button>
-          <Spacer width={20} />
-          <button onClick={sing}>Sing</button>
-          <Spacer width={20} />
-          <button onClick={setContext}>Set context</button>
-          <Spacer width={20} />
-          <button onClick={shutDownServer}>Shut down server</button>
-          <Spacer width={20} />
+          <div>
+            <button onClick={answerTextBox}>Answer</button>
+            <Spacer width={20} />
+            <button onClick={lunaReadTextBox}>Read</button>
+            <Spacer width={20} />
+            <button onClick={reactToScreen}>React to screen</button>
+            <Spacer width={20} />
+            <button onClick={eraseMemory}>Clear memory</button>
+            <Spacer width={20} />
+            <button onClick={cancelSpeech}>Cancel speech</button>
+            <Spacer width={20} />
+            <button onClick={sing}>Sing</button>
+            <Spacer width={20} />
+            <button onClick={setContext}>Set context</button>
+            <Spacer width={20} />
+            </div>
+          <div>
+            <button onClick={viewDb}>View DB</button>
+            <Spacer width={20} />
+            <button onClick={shutDownServer}>Shut down server</button>
+            <Spacer width={20} />
+          </div>
         </div>
       </div>
 

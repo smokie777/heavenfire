@@ -34,7 +34,11 @@ textarea {
 }
 
 .textbox_buttons {
-  display: flex;
+  & > div {
+    display: flex;
+    margin-bottom: 10px;
+    justify-content: center;
+  }
 }
 
 .textbox_buttons button {

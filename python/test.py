@@ -5,6 +5,7 @@ from enums import PRIORITY_QUEUE_PRIORITY_MAP
 from LLMShortTermMemory import LLMShortTermMemory, memory_trim_index
 from gen_image_captions import gen_image_react_prompt
 from prompts import system
+from helpers import obfuscate_prompt_username
 
 class TestPriorityQueue(unittest.TestCase):
   def runTest(self):
@@ -37,6 +38,7 @@ class TestPriorityQueue(unittest.TestCase):
 
     q.enqueue('foo', 'PRIORITY_REMIND_ME')
     q.enqueue('foo1', 'PRIORITY_REMIND_ME')
+    print(q.get_items())
     self.assertEqual(
       q.get_items()['PRIORITY_REMIND_ME'][0],
       'foo',
@@ -70,58 +72,105 @@ class TestPriorityQueue(unittest.TestCase):
 
     self.assertTrue(q.has_items(), 'priority queue has_items: non-empty queue should have items')
 
-    for _priority in PRIORITY_QUEUE_PRIORITY_MAP.keys():
-      item_result = ''
-      (item, priority) = q.dequeue()
-      if priority in [
-        'PRIORITY_BAN_USER',
-        'PRIORITY_GAME_INPUT',
-        'PRIORITY_IMAGE',
-        'PRIORITY_MIC_INPUT',
-        'PRIORITY_COLLAB_MIC_INPUT'
-      ]:
-        item_result = 'foo1'
-      elif priority == 'PRIORITY_PUBSUB_EVENTS_QUEUE':
-        item_result = 'foo foo1'
-      elif priority == 'PRIORITY_REMIND_ME':
-        item_result = 'foo'
-      elif priority == 'PRIORITY_TWITCH_CHAT_QUEUE':
-        item_result = 'foo1'
-      self.assertEqual(
-        item,
-        item_result,
-        f'priority queue cant dequeue {priority} (incorrect returned item)'
-      )
-      self.assertEqual(
-        _priority,
-        priority,
-        f'priority queue cant dequeue {priority} (incorrect returned priority)'
-      )
-
+    # test dequeue by dequeueing all previously enqueued items
     (item, priority) = q.dequeue()
     self.assertEqual(
       item,
-      'foo2',
-      f'priority queue cant dequeue {priority} (incorrect returned item)'
-    )
-    (item, priority) = q.dequeue()
-    self.assertEqual(
-      item,
-      'foo3',
-      f'priority queue cant dequeue {priority} (incorrect returned item)'
-    )
-    (item, priority) = q.dequeue()
-    self.assertEqual(
-      item,
-      None,
-      'priority queue cant correctly dequeue while empty'
+      'foo1',
+      f'priority queue cant dequeue PRIORITY_BAN_USER (incorrect returned item)'
     )
     self.assertEqual(
       priority,
-      None,
-      'priority queue cant correctly dequeue while empty'
+      'PRIORITY_BAN_USER',
+      f'priority queue cant dequeue PRIORITY_BAN_USER (incorrect returned priority)'
     )
 
+    (item, priority) = q.dequeue()
+    self.assertEqual(
+      item,
+      'foo1',
+      f'priority queue cant dequeue PRIORITY_GAME_INPUT (incorrect returned item)'
+    )
+    self.assertEqual(
+      priority,
+      'PRIORITY_GAME_INPUT',
+      f'priority queue cant dequeue PRIORITY_GAME_INPUT (incorrect returned priority)'
+    )
+
+    (item, priority) = q.dequeue()
+    self.assertEqual(
+      item,
+      'foo1',
+      f'priority queue cant dequeue PRIORITY_IMAGE (incorrect returned item)'
+    )
+    self.assertEqual(
+      priority,
+      'PRIORITY_IMAGE',
+      f'priority queue cant dequeue PRIORITY_IMAGE (incorrect returned priority)'
+    )
+
+    (item, priority) = q.dequeue()
+    self.assertEqual(
+      item,
+      'foo foo1',
+      f'priority queue cant dequeue PRIORITY_PUBSUB_EVENTS_QUEUE (incorrect returned item)'
+    )
+    self.assertEqual(
+      priority,
+      'PRIORITY_PUBSUB_EVENTS_QUEUE',
+      f'priority queue cant dequeue PRIORITY_PUBSUB_EVENTS_QUEUE (incorrect returned priority)'
+    )
+
+    (item, priority) = q.dequeue()
+    self.assertEqual(
+      item,
+      'foo1',
+      f'priority queue cant dequeue PRIORITY_MIC_INPUT (incorrect returned item)'
+    )
+    self.assertEqual(
+      priority,
+      'PRIORITY_MIC_INPUT',
+      f'priority queue cant dequeue PRIORITY_MIC_INPUT (incorrect returned priority)'
+    )
+
+    (item, priority) = q.dequeue()
+    self.assertEqual(
+      item,
+      'foo1',
+      f'priority queue cant dequeue PRIORITY_COLLAB_MIC_INPUT (incorrect returned item)'
+    )
+    self.assertEqual(
+      priority,
+      'PRIORITY_COLLAB_MIC_INPUT',
+      f'priority queue cant dequeue PRIORITY_COLLAB_MIC_INPUT (incorrect returned priority)'
+    )
+
+    for _item in ['foo', 'foo1']:
+      (item, priority) = q.dequeue()
+      self.assertEqual(
+        item,
+        _item,
+        f'priority queue cant dequeue PRIORITY_REMIND_ME (incorrect returned item)'
+      )
+      self.assertEqual(
+        priority,
+        'PRIORITY_REMIND_ME',
+        f'priority queue cant dequeue PRIORITY_REMIND_ME (incorrect returned priority)'
+      )
+    print(q.get_items())
+    for _item in ['foo1', 'foo2', 'foo3']:
+      (item, priority) = q.dequeue()
+      self.assertEqual(
+        item,
+        _item,
+        f'priority queue cant dequeue PRIORITY_TWITCH_CHAT_QUEUE (incorrect returned item)'
+      )
+      self.assertEqual(
+        priority,
+        'PRIORITY_TWITCH_CHAT_QUEUE',
+        f'priority queue cant dequeue PRIORITY_TWITCH_CHAT_QUEUE (incorrect returned priority)'
+      )
+        
     self.assertFalse(q.has_items(), 'priority queue has_items: empty queue should not have items')
 
 class TestRemoveTextInsideParentheses(unittest.TestCase):
@@ -196,6 +245,22 @@ class TestExtractUsernameToTimeoutFromString(unittest.TestCase):
       extract_username_to_timeout_from_string(test_case),
       'spam_username_333'
     ) for test_case in test_cases]
+
+class TestObfuscatePromptUsername:
+  def runTest(self):
+    test_cases = [
+      ('user_name: text here', 'username: text here'),
+      ('another_text without username', 'another_text without username'),
+      ('second_user: some other text', 'username: some other text'),
+      ('text with no user name prefix', 'text with no user name prefix'),
+      ('third_user_name: another piece of text', 'username: another piece of text'),
+      ('no user_name: another piece of text', 'no username: another piece of text'),
+      ('smokie_777: text', 'smokie_777: text'),
+    ]
+    [self.assertEqual(
+      obfuscate_prompt_username(i[0]),
+      i[1]
+    ) for i in test_cases]
 
 
 if __name__ == '__main__':

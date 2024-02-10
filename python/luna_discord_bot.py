@@ -116,7 +116,7 @@ async def on_message(message):
                 await asyncio.sleep(random.uniform(2, 4))
               await channel.send(message_to_send)
           # ban functionality
-          elif (str(message.author) == 'smokie_777' and '@Luna ban ' in str(message.clean_content)):
+          elif (str(message.author) == 'smokie_777' and '@Luna !ban ' in str(message.clean_content)):
             await message.mentions[1].ban()
             (_, _, edited) = gen_llm_response('Smokie: luna, announce that you\'ve just banned ' + message.mentions[1].display_name + ' out of your discord server. feel free to include some spice :)')
             async with message.channel.typing():
@@ -131,10 +131,10 @@ async def on_message(message):
               await asyncio.sleep(random.uniform(2, 4))
             await message.reply(edited)
           # remote shut down functionality
-          elif (str(message.author) == 'smokie_777' and '@Luna sleep' in str(message.clean_content)):
+          elif (str(message.author) == 'smokie_777' and '@Luna !sleep' in str(message.clean_content)):
             await client.close()
           # bot join voice channel
-          elif (str(message.author) == 'smokie_777' and '@Luna vc' in str(message.clean_content)):
+          elif (str(message.author) == 'smokie_777' and '@Luna !vc' in str(message.clean_content)):
             channel = message.author.voice.channel
             # channel = message.guild.get_channel(1139810743471063053)
             if vc is not None:
@@ -142,8 +142,8 @@ async def on_message(message):
               vc = None
             else:
               vc = await channel.connect()
-          elif (str(message.author) == 'smokie_777' and '@Luna reply ' in str(message.clean_content)):
-            message_id = str(message.clean_content).replace('@Luna reply ', '')
+          elif (str(message.author) == 'smokie_777' and '@Luna !reply ' in str(message.clean_content)):
+            message_id = str(message.clean_content).replace('@Luna !reply ', '')
             target_messsage = await message.channel.fetch_message(message_id)
             prompt = str(target_messsage.author.display_name) + ': ' + str(target_messsage.clean_content)
             (_, _, edited) = gen_llm_response(prompt)
