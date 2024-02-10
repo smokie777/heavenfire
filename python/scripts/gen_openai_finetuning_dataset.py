@@ -1,7 +1,7 @@
-from prompts import system
+from ..prompts import system
 
-in_file_name = 'datasets/luna_training_dataset_v1.51.tsv'
-out_file_name = 'datasets/luna_training_dataset_v1.51.jsonl'
+in_file_name = '../datasets/luna_training_dataset_v1.51.tsv'
+out_file_name = '../datasets/luna_training_dataset_v1.51.jsonl'
 system_prompt = system
 
 # this function takes a dataset TSV, and converts it to a dataset jsonl, in a format which can be used to fine-tune gpt-3.5-turbo.

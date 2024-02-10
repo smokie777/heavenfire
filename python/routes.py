@@ -13,22 +13,27 @@ from gen_edited_luna_response import gen_edited_luna_response
 from tts import gen_audio_file_and_subtitles, speak
 from sing import sing
 from enums import PRIORITY_QUEUE_PRIORITIES
-from db import db_message_get_all
+from db import db_message_get_by_page, db_event_get_by_page
 
-@config.app.route('/view_db', methods=['POST'])
-async def _view_db():
+@config.app.route('/get_db_rows_by_page', methods=['POST'])
+async def _get_db_rows_by_page():
   data = request.get_json()
   model = data['model']
-  model = 'message'
+  page = data['page']
+  rows = None
   
   try:
     if model.lower() == 'message':
-      print(db_message_get_all())
+      rows = db_message_get_by_page(page)
+    elif model.lower() == 'event':
+      rows = db_event_get_by_page(page)
 
   except Exception as e:
-    log_error(e, '/view_db')
+    log_error(e, '/get_db_rows_by_page')
 
-  return {}
+  return {
+    'rows': rows
+  }
 
 @config.app.route('/receive_prompt', methods=['POST'])
 async def _receive_prompt():

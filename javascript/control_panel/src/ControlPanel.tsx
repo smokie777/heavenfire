@@ -116,10 +116,12 @@ export const ControlPanel = () => {
     setIsBusy(false);
   };
 
-  const viewDb = () => {
-    fetch_post('/view_db', {
-      model: textBoxInput
+  const getDbRowsByPage = async() => {
+    const rows = await fetch_post('/get_db_rows_by_page', {
+      model: 'message',
+      page: 1
     });
+    console.log(rows);
     setTextBoxInput('');
   };
 
@@ -214,7 +216,7 @@ export const ControlPanel = () => {
             <Spacer width={20} />
             </div>
           <div>
-            <button onClick={viewDb}>View DB</button>
+            <button onClick={getDbRowsByPage}>Get DB Rows By Page</button>
             <Spacer width={20} />
             <button onClick={shutDownServer}>Shut down server</button>
             <Spacer width={20} />

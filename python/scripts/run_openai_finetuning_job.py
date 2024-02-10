@@ -2,7 +2,7 @@ import os
 import openai
 from dotenv import load_dotenv; load_dotenv()
 
-dataset_filename = 'datasets/luna_training_dataset_v1.51.jsonl'
+dataset_filename = '../datasets/luna_training_dataset_v1.51.jsonl'
 
 openai.api_key = os.environ['OPENAI_KEY']
 

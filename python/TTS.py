@@ -168,8 +168,3 @@ def print_wav_length(filename):
     rate = f.getframerate()
     duration = frames / float(rate)
     print('--> ' + str(duration) + 's')
-
-if __name__ == '__main__':
-  # s = "Luna's streams are like a wild rollercoaster ride 🎢🔥, filled with laughter 😂, surprises ✨, and moments that will make your heart skip a beat 💖."
-  # speak('./output_audio_files/hq.wav')
-  print(get_output_audio_index())
