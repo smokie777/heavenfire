@@ -1,4 +1,3 @@
-from __main__ import app # this file declares routes for the flask server in server.py
 from flask import request
 from log_error import log_error
 from execute_action import execute_or_enqueue_action
@@ -16,7 +15,7 @@ from sing import sing
 from enums import PRIORITY_QUEUE_PRIORITIES
 from db import db_message_get_all
 
-@app.route('/view_db', methods=['POST'])
+@config.app.route('/view_db', methods=['POST'])
 async def _view_db():
   data = request.get_json()
   model = data['model']
@@ -31,7 +30,7 @@ async def _view_db():
 
   return {}
 
-@app.route('/receive_prompt', methods=['POST'])
+@config.app.route('/receive_prompt', methods=['POST'])
 async def _receive_prompt():
   data = request.get_json()
   prompt = data['prompt']
@@ -45,7 +44,7 @@ async def _receive_prompt():
   return {}
 
 # speak_text bypasses most of the app flow, so it should be used sparingly
-@app.route('/speak_text', methods=['POST'])
+@config.app.route('/speak_text', methods=['POST'])
 def _speak_text():
   data = request.get_json()
   text = data['text']
@@ -63,7 +62,7 @@ def _speak_text():
 
   return {}
 
-@app.route('/react_to_screen', methods=['POST'])
+@config.app.route('/react_to_screen', methods=['POST'])
 async def _react_to_screen():
   data = request.get_json()
 
@@ -78,7 +77,7 @@ async def _react_to_screen():
 
   return {}
 
-@app.route('/erase_memory', methods=['POST'])
+@config.app.route('/erase_memory', methods=['POST'])
 def _erase_memory():
   data = request.get_json()
 
@@ -91,7 +90,7 @@ def _erase_memory():
 
   return {}
 
-@app.route('/cancel_speech', methods=['POST'])
+@config.app.route('/cancel_speech', methods=['POST'])
 def _cancel_speech():
   data = request.get_json()
 
@@ -104,7 +103,7 @@ def _cancel_speech():
 
   return {}
 
-@app.route('/sing', methods=['POST'])
+@config.app.route('/sing', methods=['POST'])
 def _sing():
   data = request.get_json()
   song = data['song']
@@ -118,7 +117,7 @@ def _sing():
 
   return {}
 
-@app.route('/set_context', methods=['POST'])
+@config.app.route('/set_context', methods=['POST'])
 def _set_context():
   data = request.get_json()
   context = data['context']
@@ -130,7 +129,7 @@ def _set_context():
 
   return {}
 
-@app.route('/set_config_variable', methods=['POST'])
+@config.app.route('/set_config_variable', methods=['POST'])
 def _set_config_variable():
   data = request.get_json()
   name = data['name']
@@ -144,7 +143,7 @@ def _set_config_variable():
 
   return {}
 
-@app.route('/shut_down_server', methods=['POST'])
+@config.app.route('/shut_down_server', methods=['POST'])
 def _shut_down_server():
   data = request.get_json()
 

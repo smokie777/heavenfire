@@ -8,6 +8,7 @@ from time import sleep, time
 from enums import PRIORITY_QUEUE_PRIORITIES, TWITCH_EVENTS
 from utils import extract_username_to_timeout_from_string
 from pytwitchapi_helpers import ban_user_via_username
+from db import db_message_insert_one
 
 async def execute_or_enqueue_action(prompt, priority):
   config.priority_queue.enqueue(prompt, priority)
@@ -48,6 +49,7 @@ async def execute_action():
     start_time = time()
     (output_filename, subtitles) = gen_audio_file_and_subtitles(edited, speaking_style)
     latency_tts = round((time() - start_time), 3)
+    db_message_insert_one(prompt=prompt, response=edited, latency_llm=latency_llm, latency_tts=latency_tts)
 
     print(f'LLM: {latency_llm}s | TTS: {latency_tts}s')
 
