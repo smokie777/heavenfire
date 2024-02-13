@@ -10,8 +10,12 @@ import re
 import config
 from dotenv import load_dotenv; load_dotenv()
 from tts_helpers import get_pyaudio_output_audio_index, gen_output_audio_filename
+from enums import PRIORITY_QUEUE_PRIORITIES
+from execute_action import execute_or_enqueue_action
+# https://learn.microsoft.com/en-us/azure/ai-services/speech-service/get-started-speech-to-text?tabs=windows%2Cterminal&pivots=programming-language-python
 
 class Azure:
+  # TTS
   OUTPUT_AUDIO_INDEX = get_pyaudio_output_audio_index()
   AZURE_POST_URL = f'https://{os.environ["SPEECH_REGION"]}.tts.speech.microsoft.com/cognitiveservices/v1'
   AZURE_POST_HEADERS = {
@@ -33,8 +37,17 @@ class Azure:
     audio_config=None
   )
 
+  # STT
+  SPEECHSDK_SPEECH_CONFIG.speech_recognition_language='en-US'
+  AUDIO_CONFIG = speechsdk.audio.AudioConfig(use_default_microphone=True)
+  SPEECH_RECOGNIZER = speechsdk.SpeechRecognizer(
+    speech_config=SPEECHSDK_SPEECH_CONFIG,
+    audio_config=AUDIO_CONFIG
+  )
+
   def __init__(self):
     self.word_offsets = []
+    self.is_listening = False
 
     self.SPEECHSDK_SPEECH_SYNTHESIZER.synthesis_word_boundary.connect(
       lambda evt: self.word_offsets.append({
@@ -125,3 +138,26 @@ class Azure:
     stream.close()
     p.terminate()
   
+  def recognize_from_microphone(self):
+    if not self.is_listening:
+      return
+    
+    print('Listening to microphone...')
+    speech_recognition_result = self.SPEECH_RECOGNIZER.recognize_once_async().get()
+
+    if speech_recognition_result.reason == speechsdk.ResultReason.RecognizedSpeech:
+      print(f'Recognized: {speech_recognition_result.text}')
+      execute_or_enqueue_action(
+        f'Smokie: {speech_recognition_result.text}',
+        PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT']
+      )
+    elif speech_recognition_result.reason == speechsdk.ResultReason.NoMatch:
+      print(f'Could not recognize speech: {speech_recognition_result.no_match_details}')
+    elif speech_recognition_result.reason == speechsdk.ResultReason.Canceled:
+      cancellation_details = speech_recognition_result.cancellation_details
+      print('Speech Recognition canceled: {cancellation_details.reason}')
+      if cancellation_details.reason == speechsdk.CancellationReason.Error:
+        print(f'Error details: {cancellation_details.error_details}')
+        print('Did you set the speech resource key and region values?')
+
+    self.is_listening = False

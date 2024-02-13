@@ -1,20 +1,20 @@
 import config
-from time import sleep
 from llm_openai import gen_llm_response
 import json
-from enums import AZURE_SPEAKING_STYLE_TAGS
 from time import sleep, time
-from enums import PRIORITY_QUEUE_PRIORITIES, TWITCH_EVENTS
+from enums import PRIORITY_QUEUE_PRIORITIES, TWITCH_EVENTS, AZURE_SPEAKING_STYLE_TAGS
 from utils import extract_username_to_timeout_from_string
 from pytwitchapi_helpers import ban_user_via_username
 from db import db_message_insert_one
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
-async def execute_or_enqueue_action(prompt, priority):
+def execute_or_enqueue_action(prompt, priority):
   config.priority_queue.enqueue(prompt, priority)
   if not config.is_busy:
-    await execute_action()
+    execute_action()
 
-async def execute_action():
+def execute_action():
   config.is_busy = True
   config.ws.send(json.dumps({ 'is_busy': True }))
   username_to_ban = ''
@@ -71,8 +71,15 @@ async def execute_action():
     if '!timeout' in edited:
       username_to_timeout = extract_username_to_timeout_from_string(edited)
       if username_to_timeout:
-        await ban_user_via_username(username_to_timeout, 60, 'timed out by luna')
-
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        with ThreadPoolExecutor() as pool:
+          # Ensure the loop runs in a new thread
+          loop.run_in_executor(
+            pool,
+            asyncio.run,
+            ban_user_via_username(username_to_timeout, 30, 'timed out by luna')
+          )
     if (
       priority == PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT']
       or priority == PRIORITY_QUEUE_PRIORITIES['PRIORITY_COLLAB_MIC_INPUT']

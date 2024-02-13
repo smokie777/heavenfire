@@ -15,7 +15,7 @@ from enums import PRIORITY_QUEUE_PRIORITIES
 from db import db_message_get_by_page, db_event_get_by_page
 
 @config.app.route('/get_db_rows_by_page', methods=['POST'])
-async def _get_db_rows_by_page():
+def _get_db_rows_by_page():
   data = request.get_json()
   model = data['model']
   page = data['page']
@@ -35,13 +35,13 @@ async def _get_db_rows_by_page():
   }
 
 @config.app.route('/receive_prompt', methods=['POST'])
-async def _receive_prompt():
+def _receive_prompt():
   data = request.get_json()
   prompt = data['prompt']
   priority = data['priority']
 
   try:
-    await execute_or_enqueue_action(prompt, priority)
+    execute_or_enqueue_action(prompt, priority)
   except Exception as e:
     log_error(e, '/receive_prompt')
 
@@ -67,7 +67,7 @@ def _speak_text():
   return {}
 
 @config.app.route('/react_to_screen', methods=['POST'])
-async def _react_to_screen():
+def _react_to_screen():
   data = request.get_json()
 
   try:
@@ -75,7 +75,7 @@ async def _react_to_screen():
     image_captions = gen_image_captions()
     print('Captions: ', image_captions)
     prompt = gen_image_react_prompt(image_captions, 'picture')
-    await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_IMAGE'])
+    execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_IMAGE'])
   except Exception as e:
     log_error(e, '/react_to_screen')
 

@@ -51,7 +51,7 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
         event='luna whisper',
         body=user_input
       )
-    await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'])
+    execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'])
   elif title == 'luna rant':
     vts_set_expression(VTS_EXPRESSIONS['ANGRY'])
     user_input = data['data']['redemption']['user_input']
@@ -62,7 +62,7 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
         event='luna rant',
         body=user_input
       )
-    await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'])
+    execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'])
   elif title == 'Luna brown hair':
     with config.app.app_context():
       db_event_insert_one(
@@ -95,7 +95,7 @@ async def pubsub_callback_listen_bits_v1(uuid: UUID, data: dict) -> None:
       'value': str(bits)
     }
   }))
-  await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'])
+  execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'])
 
 async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -> None:
   print(data)
@@ -137,7 +137,7 @@ async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -
       'value': ws_message
     }
   }))
-  await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'])
+  execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'])
 
 async def chat_on_ready(ready_event: EventData):
   print('pytwitchapi chat connected')
@@ -173,9 +173,9 @@ async def chat_on_message(msg: ChatMessage):
           event='!remindme',
           body=reminder_action
         )
-      await execute_or_enqueue_action(acknowledgement_prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_REMIND_ME'])
+      execute_or_enqueue_action(acknowledgement_prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_REMIND_ME'])
     else:
-      await execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_TWITCH_CHAT_QUEUE'])
+      execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_TWITCH_CHAT_QUEUE'])
 
 async def chat_on_command_discord(cmd: ChatCommand):
   await cmd.reply('https://discord.gg/cxTHwepMTb 🖤✨')
@@ -208,7 +208,7 @@ async def chat_on_command_ban(cmd: ChatCommand):
     if username_to_ban:
       prompt = f'Announce to everyone that {username_to_ban} has just been permanently banned from the channel! Feel free to add some spice :)'
       await ban_user_via_username(username_to_ban, None, 'banned via !ban')
-      await execute_or_enqueue_action(f'{username_to_ban}|{prompt}', PRIORITY_QUEUE_PRIORITIES['PRIORITY_BAN_USER'])
+      execute_or_enqueue_action(f'{username_to_ban}|{prompt}', PRIORITY_QUEUE_PRIORITIES['PRIORITY_BAN_USER'])
 
 async def terminate_pytwitchapi():
   config.chat.stop()

@@ -25,17 +25,17 @@ def convert_time_hms_string_to_ms(s):
 
   return ms
 
-async def remind_me_loop():
+async def remind_me_async_loop():
   while True:
     await asyncio.sleep(10)
     now = datetime.now()
     for (reminder_prompt, reminder_datetime) in config.remind_me_prompts_and_datetime_queue:
       if now >= reminder_datetime:
-        await execute_or_enqueue_action(reminder_prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_REMIND_ME'])
+        execute_or_enqueue_action(reminder_prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_REMIND_ME'])
     config.remind_me_prompts_and_datetime_queue = [
       (rp, rd) for (rp, rd) in config.remind_me_prompts_and_datetime_queue if now < rd
     ]
 
-def remind_me_start_async_loop(loop):
+def remind_me_async_loop_run(loop):
   asyncio.set_event_loop(loop)
-  loop.run_until_complete(remind_me_loop())
+  loop.run_until_complete(remind_me_async_loop())
