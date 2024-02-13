@@ -1,12 +1,12 @@
 import unittest
 from utils import move_emojis_to_end, remove_text_inside_parentheses, extract_username_to_timeout_from_string
 from PriorityQueue import PriorityQueue
-from enums import PRIORITY_QUEUE_PRIORITY_MAP
 from LLMShortTermMemory import LLMShortTermMemory, memory_trim_index
 from gen_image_captions import gen_image_react_prompt
 from prompts import system
 from helpers import obfuscate_prompt_username
 from datetime import datetime
+from Prompt import Prompt
 
 class TestPriorityQueue(unittest.TestCase):
   def runTest(self):
@@ -21,52 +21,52 @@ class TestPriorityQueue(unittest.TestCase):
       'PRIORITY_MIC_INPUT',
       'PRIORITY_COLLAB_MIC_INPUT'
     ]:
-      q.enqueue('foo', priority)
-      q.enqueue('foo1', priority)
+      q.enqueue(Prompt(prompt='foo', priority=priority))
+      q.enqueue(Prompt(prompt='foo1', priority=priority))
       self.assertEqual(
-        q.get_items()[priority][0],
+        q.get_items()[priority][0].prompt,
         'foo1',
         f'cant enqueue {priority}'
       )
 
-    q.enqueue('foo', 'PRIORITY_PUBSUB_EVENTS_QUEUE')
-    q.enqueue('foo1', 'PRIORITY_PUBSUB_EVENTS_QUEUE')
+    q.enqueue(Prompt(prompt='foo', priority='PRIORITY_PUBSUB_EVENTS_QUEUE'))
+    q.enqueue(Prompt(prompt='foo1', priority='PRIORITY_PUBSUB_EVENTS_QUEUE'))
     self.assertEqual(
-      q.get_items()['PRIORITY_PUBSUB_EVENTS_QUEUE'][0],
+      q.get_items()['PRIORITY_PUBSUB_EVENTS_QUEUE'][0].prompt,
       'foo foo1',
       'cant enqueue PRIORITY_PUBSUB_EVENTS_QUEUE'
     )
 
-    q.enqueue('foo', 'PRIORITY_REMIND_ME')
-    q.enqueue('foo1', 'PRIORITY_REMIND_ME')
+    q.enqueue(Prompt(prompt='foo', priority='PRIORITY_REMIND_ME'))
+    q.enqueue(Prompt(prompt='foo1', priority='PRIORITY_REMIND_ME'))
 
     self.assertEqual(
-      q.get_items()['PRIORITY_REMIND_ME'][0],
+      q.get_items()['PRIORITY_REMIND_ME'][0].prompt,
       'foo',
       'cant enqueue PRIORITY_REMIND_ME'
     )
     self.assertEqual(
-      q.get_items()['PRIORITY_REMIND_ME'][1],
+      q.get_items()['PRIORITY_REMIND_ME'][1].prompt,
       'foo1',
       'cant enqueue PRIORITY_REMIND_ME'
     )
 
-    q.enqueue('foo', 'PRIORITY_TWITCH_CHAT_QUEUE')
-    q.enqueue('foo1', 'PRIORITY_TWITCH_CHAT_QUEUE')
-    q.enqueue('foo2', 'PRIORITY_TWITCH_CHAT_QUEUE')
+    q.enqueue(Prompt(prompt='foo', priority='PRIORITY_TWITCH_CHAT_QUEUE'))
+    q.enqueue(Prompt(prompt='foo1', priority='PRIORITY_TWITCH_CHAT_QUEUE'))
+    q.enqueue(Prompt(prompt='foo2', priority='PRIORITY_TWITCH_CHAT_QUEUE'))
     self.assertEqual(
       len(q.get_items()['PRIORITY_TWITCH_CHAT_QUEUE']),
       3,
       'cant enqueue PRIORITY_TWITCH_CHAT_QUEUE'
     )
-    q.enqueue('foo3', 'PRIORITY_TWITCH_CHAT_QUEUE')
+    q.enqueue(Prompt(prompt='foo3', priority='PRIORITY_TWITCH_CHAT_QUEUE'))
     self.assertEqual(
       len(q.get_items()['PRIORITY_TWITCH_CHAT_QUEUE']),
       3,
       'cant enqueue PRIORITY_TWITCH_CHAT_QUEUE'
     )
     self.assertEqual(
-      q.get_items()['PRIORITY_TWITCH_CHAT_QUEUE'][0],
+      q.get_items()['PRIORITY_TWITCH_CHAT_QUEUE'][0].prompt,
       'foo1',
       'cant enqueue PRIORITY_TWITCH_CHAT_QUEUE'
     )
@@ -74,100 +74,100 @@ class TestPriorityQueue(unittest.TestCase):
     self.assertTrue(q.has_items(), 'priority queue has_items: non-empty queue should have items')
 
     # test dequeue by dequeueing all previously enqueued items
-    (item, priority) = q.dequeue()
+    Item = q.dequeue()
     self.assertEqual(
-      item,
+      Item.prompt,
       'foo1',
       f'priority queue cant dequeue PRIORITY_BAN_USER (incorrect returned item)'
     )
     self.assertEqual(
-      priority,
+      Item.priority,
       'PRIORITY_BAN_USER',
       f'priority queue cant dequeue PRIORITY_BAN_USER (incorrect returned priority)'
     )
 
-    (item, priority) = q.dequeue()
+    Item = q.dequeue()
     self.assertEqual(
-      item,
+      Item.prompt,
       'foo1',
       f'priority queue cant dequeue PRIORITY_GAME_INPUT (incorrect returned item)'
     )
     self.assertEqual(
-      priority,
+      Item.priority,
       'PRIORITY_GAME_INPUT',
       f'priority queue cant dequeue PRIORITY_GAME_INPUT (incorrect returned priority)'
     )
 
-    (item, priority) = q.dequeue()
+    Item = q.dequeue()
     self.assertEqual(
-      item,
+      Item.prompt,
       'foo1',
       f'priority queue cant dequeue PRIORITY_IMAGE (incorrect returned item)'
     )
     self.assertEqual(
-      priority,
+      Item.priority,
       'PRIORITY_IMAGE',
       f'priority queue cant dequeue PRIORITY_IMAGE (incorrect returned priority)'
     )
 
-    (item, priority) = q.dequeue()
+    Item = q.dequeue()
     self.assertEqual(
-      item,
+      Item.prompt,
       'foo foo1',
       f'priority queue cant dequeue PRIORITY_PUBSUB_EVENTS_QUEUE (incorrect returned item)'
     )
     self.assertEqual(
-      priority,
+      Item.priority,
       'PRIORITY_PUBSUB_EVENTS_QUEUE',
       f'priority queue cant dequeue PRIORITY_PUBSUB_EVENTS_QUEUE (incorrect returned priority)'
     )
 
-    (item, priority) = q.dequeue()
+    Item = q.dequeue()
     self.assertEqual(
-      item,
+      Item.prompt,
       'foo1',
       f'priority queue cant dequeue PRIORITY_MIC_INPUT (incorrect returned item)'
     )
     self.assertEqual(
-      priority,
+      Item.priority,
       'PRIORITY_MIC_INPUT',
       f'priority queue cant dequeue PRIORITY_MIC_INPUT (incorrect returned priority)'
     )
 
-    (item, priority) = q.dequeue()
+    Item = q.dequeue()
     self.assertEqual(
-      item,
+      Item.prompt,
       'foo1',
       f'priority queue cant dequeue PRIORITY_COLLAB_MIC_INPUT (incorrect returned item)'
     )
     self.assertEqual(
-      priority,
+      Item.priority,
       'PRIORITY_COLLAB_MIC_INPUT',
       f'priority queue cant dequeue PRIORITY_COLLAB_MIC_INPUT (incorrect returned priority)'
     )
 
     for _item in ['foo', 'foo1']:
-      (item, priority) = q.dequeue()
+      Item = q.dequeue()
       self.assertEqual(
-        item,
+        Item.prompt,
         _item,
         f'priority queue cant dequeue PRIORITY_REMIND_ME (incorrect returned item)'
       )
       self.assertEqual(
-        priority,
+        Item.priority,
         'PRIORITY_REMIND_ME',
         f'priority queue cant dequeue PRIORITY_REMIND_ME (incorrect returned priority)'
       )
 
-    for _item in ['foo1', 'foo2', 'foo3']:
-      (item, priority) = q.dequeue()
+    for prompt in ['foo1', 'foo2', 'foo3']:
+      Item = q.dequeue()
       self.assertEqual(
-        item,
-        _item,
+        Item.prompt,
+        prompt,
         f'priority queue cant dequeue PRIORITY_TWITCH_CHAT_QUEUE (incorrect returned item)'
       )
       self.assertEqual(
-        priority,
+        Item.priority,
         'PRIORITY_TWITCH_CHAT_QUEUE',
         f'priority queue cant dequeue PRIORITY_TWITCH_CHAT_QUEUE (incorrect returned priority)'
       )

@@ -14,34 +14,21 @@ from sing import sing
 from enums import PRIORITY_QUEUE_PRIORITIES
 from db import db_message_get_by_page, db_event_get_by_page
 
-@config.app.route('/get_db_rows_by_page', methods=['POST'])
-def _get_db_rows_by_page():
-  data = request.get_json()
-  model = data['model']
-  page = data['page']
-  rows = []
-  
-  try:
-    if model.lower() == 'message':
-      rows = db_message_get_by_page(page)
-    elif model.lower() == 'event':
-      rows = db_event_get_by_page(page)
-
-  except Exception as e:
-    log_error(e, '/get_db_rows_by_page')
-
-  return {
-    'rows': rows
-  }
-
 @config.app.route('/receive_prompt', methods=['POST'])
 def _receive_prompt():
   data = request.get_json()
   prompt = data['prompt']
   priority = data['priority']
+  utterance_id = data['utterance_id'] if 'utterance_id' in data else None
+  azure_speaking_style = data['azure_speaking_style'] if 'azure_speaking_style' in data else None
 
   try:
-    execute_or_enqueue_action(prompt, priority)
+    execute_or_enqueue_action(
+      prompt=prompt,
+      priority=priority,
+      utterance_id=utterance_id,
+      azure_speaking_style=azure_speaking_style
+    )
   except Exception as e:
     log_error(e, '/receive_prompt')
 
@@ -75,7 +62,7 @@ def _react_to_screen():
     image_captions = gen_image_captions()
     print('[ROUTES] Captions: ', image_captions)
     prompt = gen_image_react_prompt(image_captions, 'picture')
-    execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_IMAGE'])
+    execute_or_enqueue_action(prompt=prompt, priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_IMAGE'])
   except Exception as e:
     log_error(e, '/react_to_screen')
 
@@ -158,3 +145,23 @@ def _shut_down_server():
     log_error(e, '/shut_down_server')
 
   return {}
+
+@config.app.route('/get_db_rows_by_page', methods=['POST'])
+def _get_db_rows_by_page():
+  data = request.get_json()
+  model = data['model']
+  page = data['page']
+  rows = []
+  
+  try:
+    if model.lower() == 'message':
+      rows = db_message_get_by_page(page)
+    elif model.lower() == 'event':
+      rows = db_event_get_by_page(page)
+
+  except Exception as e:
+    log_error(e, '/get_db_rows_by_page')
+
+  return {
+    'rows': rows
+  }

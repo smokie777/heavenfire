@@ -146,15 +146,19 @@ class Azure:
     speech_recognition_result = self.SPEECH_RECOGNIZER.recognize_once_async().get()
 
     if speech_recognition_result.reason == speechsdk.ResultReason.RecognizedSpeech:
-      cleaned_mic_input = ' '.join( \
-        speech_recognition_result.text.split(' ') \
-          .map(lambda i: 'Luna' if i.lower() in ['lin', 'lena', 'linda', 'elena', 'lana'] else i) \
-          .map(lambda i: 'Smokie' if i.lower() in ['smoky', 'smokey'] else i) \
+      cleaned_mic_input = ' '.join(
+        map(
+          lambda i: 'Smokie' if i.lower() in ['smoky', 'smokey'] else i,
+          map(
+            lambda i: 'Luna' if i.lower() in ['lin', 'lena', 'linda', 'elena', 'lana'] else i,
+            speech_recognition_result.text.split(' ')
+          )
+        )
       )
       print(f'[STT] Recognized: {cleaned_mic_input}')
       execute_or_enqueue_action(
-        f'Smokie: {cleaned_mic_input}',
-        PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT']
+        prompt=f'Smokie: {cleaned_mic_input}',
+        priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT']
       )
     elif speech_recognition_result.reason == speechsdk.ResultReason.NoMatch:
       print(f'[STT] Could not recognize speech: {speech_recognition_result.no_match_details}')

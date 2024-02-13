@@ -31,7 +31,10 @@ async def remind_me_async_loop():
     now = datetime.now()
     for (reminder_prompt, reminder_datetime) in config.remind_me_prompts_and_datetime_queue:
       if now >= reminder_datetime:
-        execute_or_enqueue_action(reminder_prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_REMIND_ME'])
+        execute_or_enqueue_action(
+          prompt=reminder_prompt,
+          priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_REMIND_ME']
+        )
     config.remind_me_prompts_and_datetime_queue = [
       (rp, rd) for (rp, rd) in config.remind_me_prompts_and_datetime_queue if now < rd
     ]

@@ -54,7 +54,7 @@ export const ControlPanel = () => {
     setIsBusy(true);
     fetch_post('/receive_prompt', {
       prompt: textBoxInput,
-      priority: PRIORITY_QUEUE_PRIORITIES.PRIORITY_TWITCH_CHAT_QUEUE
+      priority: PRIORITY_QUEUE_PRIORITIES.PRIORITY_MIC_INPUT
     });
     setTextBoxInput('');
   };

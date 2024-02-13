@@ -5,7 +5,7 @@ from twitchAPI.chat import Chat, EventData, ChatMessage, ChatSub, ChatCommand
 from twitchAPI.pubsub import PubSub
 from uuid import UUID
 import os
-from enums import AZURE_SPEAKING_STYLE_TAGS, VTS_EXPRESSIONS, PRIORITY_QUEUE_PRIORITIES, TWITCH_EVENTS, TWITCH_EVENT_TYPE
+from enums import AZURE_SPEAKING_STYLE, VTS_EXPRESSIONS, PRIORITY_QUEUE_PRIORITIES, TWITCH_EVENTS, TWITCH_EVENT_TYPE
 from execute_action import execute_or_enqueue_action
 from vts_set_expression import vts_set_expression
 from dotenv import load_dotenv; load_dotenv()
@@ -18,6 +18,7 @@ from time import sleep
 from remind_me import convert_time_hms_string_to_ms
 from datetime import datetime, timedelta
 from db import db_event_insert_one
+from Prompt import Prompt
 
 APP_ID = os.environ['TWITCH_APP_ID']
 APP_SECRET = os.environ['TWITCH_APP_SECRET']
@@ -44,14 +45,18 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
   if title == 'luna whisper':
     vts_set_expression(VTS_EXPRESSIONS['FLUSHED'])
     user_input = data['data']['redemption']['user_input']
-    prompt = f'{AZURE_SPEAKING_STYLE_TAGS["WHISPERING"]}(Luna, please give a longer response than usual!) {display_name}: {user_input}'
+    prompt = f'(respond to this message as if you were whispering. give a longer response than usual.) {display_name}: {user_input}'
     with config.app.app_context():
       db_event_insert_one(
         type=TWITCH_EVENT_TYPE['CHANNEL_POINT_REDEMPTION'],
         event='luna whisper',
         body=user_input
       )
-    execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'])
+    execute_or_enqueue_action(
+      prompt=prompt,
+      priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'],
+      azure_speaking_style=AZURE_SPEAKING_STYLE['WHISPERING']
+    )
   elif title == 'luna rant':
     vts_set_expression(VTS_EXPRESSIONS['ANGRY'])
     user_input = data['data']['redemption']['user_input']
@@ -62,7 +67,10 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
         event='luna rant',
         body=user_input
       )
-    execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'])
+    execute_or_enqueue_action(
+      prompt=prompt,
+      priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE']
+    )
   elif title == 'Luna brown hair':
     with config.app.app_context():
       db_event_insert_one(
@@ -95,7 +103,10 @@ async def pubsub_callback_listen_bits_v1(uuid: UUID, data: dict) -> None:
       'value': str(bits)
     }
   }))
-  execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'])
+  execute_or_enqueue_action(
+    prompt=prompt, 
+    priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE']
+  )
 
 async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -> None:
   print('[PYTWITCHAPI]', data)
@@ -137,7 +148,10 @@ async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -
       'value': ws_message
     }
   }))
-  execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'])
+  execute_or_enqueue_action(
+    prompt=prompt,
+    priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE']
+  )
 
 async def chat_on_ready(ready_event: EventData):
   print('[PYTWITCHAPI] chat module connected')
@@ -160,9 +174,9 @@ async def chat_on_message(msg: ChatMessage):
       args = msg.text.lower().replace('@luna !remindme ', '').split(' ')
       reminder_action = " ".join(args[1:])
       acknowledgement_prompt = (
-        f'say exactly that you will remind {msg.user.name} to "{reminder_action}" in {args[0]}.'
+        f'say, "I will remind {msg.user.name} to "{reminder_action}" in {args[0]}."'
       )
-      reminder_prompt = f'remind {msg.user.name} to {reminder_action}.'
+      reminder_prompt = f'say to {msg.user.name} that this is their reminder to "{reminder_action}".'
       config.remind_me_prompts_and_datetime_queue.append((
         reminder_prompt,
         datetime.now() + timedelta(milliseconds=convert_time_hms_string_to_ms(args[0]))
@@ -173,9 +187,15 @@ async def chat_on_message(msg: ChatMessage):
           event='!remindme',
           body=reminder_action
         )
-      execute_or_enqueue_action(acknowledgement_prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_REMIND_ME'])
+      execute_or_enqueue_action(
+        prompt=acknowledgement_prompt,
+        priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_REMIND_ME']
+      )
     else:
-      execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_TWITCH_CHAT_QUEUE'])
+      execute_or_enqueue_action(
+        prompt=prompt,
+        priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_TWITCH_CHAT_QUEUE']
+      )
 
 async def chat_on_command_discord(cmd: ChatCommand):
   await cmd.reply('https://discord.gg/cxTHwepMTb 🖤✨')
@@ -208,8 +228,11 @@ async def chat_on_command_ban(cmd: ChatCommand):
     if username_to_ban:
       prompt = f'Announce to everyone that {username_to_ban} has just been permanently banned from the channel! Feel free to add some spice :)'
       await ban_user_via_username(username_to_ban, None, 'banned via !ban')
-      execute_or_enqueue_action(f'{username_to_ban}|{prompt}', PRIORITY_QUEUE_PRIORITIES['PRIORITY_BAN_USER'])
-
+      execute_or_enqueue_action(
+        prompt=prompt,
+        priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_BAN_USER'],
+        username_to_ban=username_to_ban
+      )
 async def terminate_pytwitchapi():
   config.chat.stop()
   config.pubsub.stop()

@@ -5,8 +5,9 @@ VTS_EXPRESSIONS = {
   'BROWN_HAIR': 'f11'
 }
 
-AZURE_SPEAKING_STYLE_TAGS = {
-  'WHISPERING': '<WHISPERING>'
+# maps to azure SSML speaking style tags
+AZURE_SPEAKING_STYLE = {
+  'WHISPERING': 'whispering'
 }
 
 TWITCH_EVENTS = {
