@@ -6,8 +6,11 @@ import datetime
 from log_error import log_error
 import asyncio
 from datetime import timedelta
-from tts import gen_audio_file_and_subtitles
 from dotenv import load_dotenv; load_dotenv()
+from Azure import Azure
+
+# we don't want to import the whole config.py for this specific discord bot functionality
+azure = Azure()
 
 def get_current_minute():
   current_time = datetime.datetime.now()
@@ -159,7 +162,7 @@ async def on_message(message):
 
             if vc is not None and (message.channel.name == 'voice-text' or message.channel.name == 'luna-and-smokie-only'):
               await message.reply(edited)
-              (filename, _) = gen_audio_file_and_subtitles(edited, None, True)
+              (filename, _) = azure.gen_audio_file_and_subtitles(edited, None, True)
               try:
                 # todo: in collab mode, do a post request to the flask server
                 vc.play(discord.FFmpegPCMAudio(filename))
@@ -185,7 +188,7 @@ async def on_message(message):
     ):
       prompt = str(message.clean_content.replace('*', ''))
       (_, _, edited) = gen_llm_response(prompt)
-      (filename, _) = gen_audio_file_and_subtitles(edited, None, True)
+      (filename, _) = azure.gen_audio_file_and_subtitles(edited, None, True)
       try:
         vc.play(discord.FFmpegPCMAudio(filename))
       except:

@@ -4,8 +4,11 @@ from flask_marshmallow import Marshmallow
 from PriorityQueue import PriorityQueue
 from LLMShortTermMemory import LLMShortTermMemory
 from websocket import create_connection
+from Azure import Azure
 
 ### INSTANCES
+# azure tts/stt instance
+azure = Azure()
 # initialize the flask server
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///project.db'

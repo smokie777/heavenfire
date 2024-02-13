@@ -10,7 +10,6 @@ from gen_image_captions import take_screenshot, gen_image_captions, gen_image_re
 from time import sleep
 from utils import move_emojis_to_end, conditionally_add_period
 from gen_edited_luna_response import gen_edited_luna_response
-from tts import gen_audio_file_and_subtitles, speak
 from sing import sing
 from enums import PRIORITY_QUEUE_PRIORITIES
 from db import db_message_get_by_page, db_event_get_by_page
@@ -58,9 +57,9 @@ def _speak_text():
     config.is_busy = True
     edited = conditionally_add_period(move_emojis_to_end(gen_edited_luna_response(text)))
     # todo: should we send latency to websocket here?
-    (output_filename, subtitles) = gen_audio_file_and_subtitles(edited)
+    (output_filename, subtitles) = config.azure.gen_audio_file_and_subtitles(edited)
     config.ws.send(json.dumps({ 'edited': edited, 'subtitles': subtitles }))
-    speak(output_filename)
+    config.azure.speak(output_filename)
     config.is_busy = False
   except Exception as e:
     log_error(e, '/speak_text')

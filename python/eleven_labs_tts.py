@@ -1,7 +1,7 @@
 import requests
 from dotenv import load_dotenv; load_dotenv()
 import os
-from tts import gen_output_filename
+from tts_helpers import gen_output_audio_filename
 
 CHUNK_SIZE = 1024
 
@@ -32,7 +32,7 @@ def eleven_labs_tts_speak(text):
 
   response = requests.request('POST', url, json=payload, headers=headers, params=querystring)
 
-  output_file_name = gen_output_filename() + '_elevenlabs.mp3'
+  output_file_name = gen_output_audio_filename() + '_elevenlabs.mp3'
 
   with open(output_file_name, 'wb') as f:
     for chunk in response.iter_content(chunk_size=CHUNK_SIZE):

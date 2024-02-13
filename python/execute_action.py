@@ -1,7 +1,6 @@
 import config
 from time import sleep
 from llm_openai import gen_llm_response
-from tts import gen_audio_file_and_subtitles, speak
 import json
 from enums import AZURE_SPEAKING_STYLE_TAGS
 from time import sleep, time
@@ -47,7 +46,7 @@ async def execute_action():
     }))
 
     start_time = time()
-    (output_filename, subtitles) = gen_audio_file_and_subtitles(edited, speaking_style)
+    (output_filename, subtitles) = config.azure.gen_audio_file_and_subtitles(edited, speaking_style)
     latency_tts = round((time() - start_time), 3)
     with config.app.app_context():
       db_message_insert_one(prompt=prompt, response=edited, latency_llm=latency_llm, latency_tts=latency_tts)
@@ -67,7 +66,7 @@ async def execute_action():
         }
       }))
 
-    speak(output_filename)
+    config.azure.speak(output_filename)
 
     if '!timeout' in edited:
       username_to_timeout = extract_username_to_timeout_from_string(edited)

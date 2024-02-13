@@ -1,5 +1,4 @@
 import os
-from tts import speak
 from time import sleep
 import multiprocessing
 import config
@@ -18,7 +17,7 @@ def play_iv(song):
 
 # example: edamame_v.wav is the vocals only, to be played silently through the virtual cable
 def play_v(song):
-  speak(f'./songs/{song}_v.wav')
+  config.azure.speak(f'./songs/{song}_v.wav')
   config.is_singing = False
 
 def sing(song):
