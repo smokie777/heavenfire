@@ -7,6 +7,7 @@ from prompts import system
 from helpers import obfuscate_prompt_username
 from datetime import datetime
 from Prompt import Prompt
+from pytwitchapi_helpers import is_valid_scrabble_tile
 
 class TestPriorityQueue(unittest.TestCase):
   def runTest(self):
@@ -277,7 +278,7 @@ class TestExtractUsernameToTimeoutFromString(unittest.TestCase):
       'spam_username_333'
     ) for test_case in test_cases]
 
-class TestObfuscatePromptUsername:
+class TestObfuscatePromptUsername(unittest.TestCase):
   def runTest(self):
     test_cases = [
       ('user_name: text here', 'username: text here'),
@@ -292,6 +293,13 @@ class TestObfuscatePromptUsername:
       obfuscate_prompt_username(i[0]),
       i[1]
     ) for i in test_cases]
+
+class TestIsValidScrabbleTile(unittest.TestCase):
+  def runTest(self):
+    valid_test_cases = ['h4', 'a1', 'o15', 'b9']
+    invalid_test_cases = ['015', '4', '115', 'p', 'a0', 'b16', '9b', 'bbb', '33']
+    [self.assertTrue(is_valid_scrabble_tile(i)) for i in valid_test_cases]
+    [self.assertFalse(is_valid_scrabble_tile(i)) for i in invalid_test_cases]
 
 
 if __name__ == '__main__':

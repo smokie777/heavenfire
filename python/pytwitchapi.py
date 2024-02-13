@@ -10,7 +10,7 @@ from execute_action import execute_or_enqueue_action
 from vts_set_expression import vts_set_expression
 from dotenv import load_dotenv; load_dotenv()
 from utils import does_one_word_start_with_at
-from pytwitchapi_helpers import ban_user_via_username
+from pytwitchapi_helpers import ban_user_via_username, is_valid_scrabble_tile
 import json
 import config
 from eleven_labs_tts import eleven_labs_tts_speak
@@ -18,7 +18,6 @@ from time import sleep
 from remind_me import convert_time_hms_string_to_ms
 from datetime import datetime, timedelta
 from db import db_event_insert_one
-from Prompt import Prompt
 
 APP_ID = os.environ['TWITCH_APP_ID']
 APP_SECRET = os.environ['TWITCH_APP_SECRET']
@@ -222,6 +221,30 @@ async def chat_on_command_video(cmd: ChatCommand):
   with config.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!video')
 
+async def chat_on_command_play(cmd: ChatCommand):
+  parameters = cmd.parameter.strip().split(maxsplit=2)
+  word = parameters[0] if len(parameters) > 0 else None
+  start_tile = parameters[1] if len(parameters) > 1 else None
+  play_direction = parameters[2] if len(parameters) > 2 else None
+
+  if (
+    word
+    and (not start_tile or start_tile and is_valid_scrabble_tile(start_tile))
+    and (not play_direction or play_direction and play_direction in ['horizontal', 'vertical', 'h', 'v'])
+  ):
+    is_queue_empty = not len(config.scrabble_chat_commands_queue)
+    command_json = json.dumps({
+      'scrabble_chat_command': {
+        'word': word,
+        'start_tile': start_tile,
+        'play_direction': play_direction,
+        'username': cmd.user.name
+      }
+    })
+    config.scrabble_chat_commands_queue.append(command_json)
+    if is_queue_empty:
+      config.ws.send(command_json)
+
 async def chat_on_command_ban(cmd: ChatCommand):
   if cmd.user.name == 'smokie_777':
     username_to_ban = cmd.text.replace('!ban ', '')
@@ -233,6 +256,7 @@ async def chat_on_command_ban(cmd: ChatCommand):
         priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_BAN_USER'],
         username_to_ban=username_to_ban
       )
+
 async def terminate_pytwitchapi():
   config.chat.stop()
   config.pubsub.stop()
@@ -252,6 +276,7 @@ async def run_pytwitchapi():
   config.chat.register_command('pob', chat_on_command_pob)
   config.chat.register_command('filter', chat_on_command_filter)
   config.chat.register_command('video', chat_on_command_video)
+  config.chat.register_command('play', chat_on_command_play)
   config.chat.register_command('ban', chat_on_command_ban)
   config.chat.start()
 
