@@ -39,7 +39,7 @@ class TestPriorityQueue(unittest.TestCase):
 
     q.enqueue('foo', 'PRIORITY_REMIND_ME')
     q.enqueue('foo1', 'PRIORITY_REMIND_ME')
-    print(q.get_items())
+
     self.assertEqual(
       q.get_items()['PRIORITY_REMIND_ME'][0],
       'foo',
@@ -158,7 +158,7 @@ class TestPriorityQueue(unittest.TestCase):
         'PRIORITY_REMIND_ME',
         f'priority queue cant dequeue PRIORITY_REMIND_ME (incorrect returned priority)'
       )
-    print(q.get_items())
+
     for _item in ['foo1', 'foo2', 'foo3']:
       (item, priority) = q.dequeue()
       self.assertEqual(

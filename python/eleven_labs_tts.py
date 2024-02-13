@@ -18,7 +18,7 @@ def eleven_labs_tts_speak(text):
   if len(text) > 500:
     return
   
-  print('eleven_labs_tts_speak', text)
+  print(f'[TTS] {text}')
   payload = {
     'text': text,
     'voice_settings': {

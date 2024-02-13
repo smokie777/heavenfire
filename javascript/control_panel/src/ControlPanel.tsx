@@ -1,9 +1,8 @@
 import './ControlPanel.scss';
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Spacer } from './Spacer';
 import { fetch_post } from './fetch_functions';
 import { Subtitles } from './Subtitles';
-import { DeepgramSTT } from './DeepgramSTT';
 import { Helmet } from 'react-helmet';
 import { PRIORITY_QUEUE_PRIORITIES } from './enums';
 
@@ -18,10 +17,9 @@ export const ControlPanel = () => {
     text: '',
     subtitles: []
   });
-  const [isSTTActive, setIsSTTActive] = useState(false);
   const [isTwitchChatReactOn, setIsTwitchChatReactOn] = useState(true);
   const [isQuietModeOn, setIsQuietModeOn] = useState(true);
-  const isBusyRef = useRef(false);
+  const [isBusy, setIsBusy] = useState(false);
 
   useEffect(() => {
     const ws = new WebSocket('ws://localhost:4000');
@@ -50,14 +48,6 @@ export const ControlPanel = () => {
       }
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // the deepgram websocket doesn't play well with react state, so we have to use a ref here.
-  const setIsBusy = useCallback((i:boolean) => {
-    isBusyRef.current = i;
-    (document.getElementsByClassName('luna_portrait')[0] as HTMLElement).style.border = (
-      i ? '7px solid red' : '7px solid mediumseagreen'
-    );
   }, []);
 
   const answerTextBox = () => {
@@ -152,10 +142,6 @@ export const ControlPanel = () => {
     <div className='app_container'>
       <Helmet><title>Heavenfire Control Panel</title></Helmet>
 
-      {isSTTActive && (
-        <DeepgramSTT isBusyRef={isBusyRef} setIsBusy={setIsBusy} />
-      )}
-
       <div className='app'>
         <img
           className='luna_portrait'
@@ -163,15 +149,10 @@ export const ControlPanel = () => {
           src='luna_portrait.png'
           width='200px'
           height='200px'
-          style={{ border: '7px solid mediumseagreen' }}
+          style={{ border: isBusy ? '7px solid red' : '7px solid mediumseagreen' }}
         />
 
         <div className='toggles'>
-          <button onClick={() => setIsSTTActive(prevIsSTTActive => !prevIsSTTActive)}>
-            Turn {isSTTActive ? 'off' : 'on'} mic
-          </button>
-          <Spacer height={3} />
-
           <input
             type='checkbox'
             checked={isTwitchChatReactOn}

@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv; load_dotenv()
 
 async def ban_user_via_username(username, seconds = 30, reason = 'unknown reason'):
-  print(f'attempting to ban the user called: {username} for {f"{seconds}s" if seconds is not None else "indefinitely"}')
+  print(f'[PYTWITCHAPI] attempting to ban the user called: {username} for {f"{seconds}s" if seconds is not None else "indefinitely"}')
   user_to_ban = await first(config.twitch.get_users(logins=[username.strip()]))
   if user_to_ban:
     await config.twitch.ban_user(

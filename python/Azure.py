@@ -142,22 +142,27 @@ class Azure:
     if not self.is_listening:
       return
     
-    print('Listening to microphone...')
+    print('[STT] Listening to microphone...')
     speech_recognition_result = self.SPEECH_RECOGNIZER.recognize_once_async().get()
 
     if speech_recognition_result.reason == speechsdk.ResultReason.RecognizedSpeech:
-      print(f'Recognized: {speech_recognition_result.text}')
+      cleaned_mic_input = ' '.join( \
+        speech_recognition_result.text.split(' ') \
+          .map(lambda i: 'Luna' if i.lower() in ['lin', 'lena', 'linda', 'elena', 'lana'] else i) \
+          .map(lambda i: 'Smokie' if i.lower() in ['smoky', 'smokey'] else i) \
+      )
+      print(f'[STT] Recognized: {cleaned_mic_input}')
       execute_or_enqueue_action(
-        f'Smokie: {speech_recognition_result.text}',
+        f'Smokie: {cleaned_mic_input}',
         PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT']
       )
     elif speech_recognition_result.reason == speechsdk.ResultReason.NoMatch:
-      print(f'Could not recognize speech: {speech_recognition_result.no_match_details}')
+      print(f'[STT] Could not recognize speech: {speech_recognition_result.no_match_details}')
     elif speech_recognition_result.reason == speechsdk.ResultReason.Canceled:
       cancellation_details = speech_recognition_result.cancellation_details
-      print('Speech Recognition canceled: {cancellation_details.reason}')
+      print('[STT] Speech Recognition canceled: {cancellation_details.reason}')
       if cancellation_details.reason == speechsdk.CancellationReason.Error:
-        print(f'Error details: {cancellation_details.error_details}')
-        print('Did you set the speech resource key and region values?')
+        print(f'[STT] Error details: {cancellation_details.error_details}')
+        print('[STT] Did you set the speech resource key and region values?')
 
     self.is_listening = False

@@ -37,9 +37,9 @@ def execute_action():
     (prompt, raw, edited) = gen_llm_response(prompt)
     latency_llm = round((time() - start_time), 3)
 
-    print('Prompt: ', prompt)
-    print('Raw: ', raw)
-    print('Edited: ', edited)
+    print('[LLM] Prompt: ', prompt)
+    print('[LLM] Raw: ', raw)
+    print('[LLM] Edited: ', edited)
 
     config.ws.send(json.dumps({
       'prompt': prompt, 'raw': raw, 'edited': edited, 'latency_llm': f'{latency_llm}s'
@@ -51,7 +51,7 @@ def execute_action():
     with config.app.app_context():
       db_message_insert_one(prompt=prompt, response=edited, latency_llm=latency_llm, latency_tts=latency_tts)
 
-    print(f'LLM: {latency_llm}s | TTS: {latency_tts}s')
+    print(f'[LLM] LLM: {latency_llm}s | TTS: {latency_tts}s')
 
     config.ws.send(json.dumps({
       'edited': edited, 'subtitles': subtitles, 'latency_tts': f'{latency_tts}s'
@@ -81,11 +81,9 @@ def execute_action():
             ban_user_via_username(username_to_timeout, 30, 'timed out by luna')
           )
     if (
-      priority == PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT']
-      or priority == PRIORITY_QUEUE_PRIORITIES['PRIORITY_COLLAB_MIC_INPUT']
+      priority != PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT']
+      and priority != PRIORITY_QUEUE_PRIORITIES['PRIORITY_COLLAB_MIC_INPUT']
     ):
-      sleep(config.mic_input_delay)
-    else:
       sleep(config.ai_response_delay)
 
     (prompt, priority) = config.priority_queue.dequeue()

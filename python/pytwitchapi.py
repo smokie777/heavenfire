@@ -37,7 +37,7 @@ USER_SCOPE = [
 TARGET_CHANNEL = 'smokie_777'
 
 async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
-  print(data)
+  print('[PYTWITCHAPI]', data)
   title = data['data']['redemption']['reward']['title']
   display_name = data['data']['redemption']['user']['display_name']
 
@@ -81,7 +81,7 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
     eleven_labs_tts_speak(user_input)
 
 async def pubsub_callback_listen_bits_v1(uuid: UUID, data: dict) -> None:
-  print(data)
+  print('[PYTWITCHAPI]', data)
   data = data.get('data')
   user_name = data.get('user_name')
   bits = data.get('bits_used')
@@ -98,7 +98,7 @@ async def pubsub_callback_listen_bits_v1(uuid: UUID, data: dict) -> None:
   execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'])
 
 async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -> None:
-  print(data)
+  print('[PYTWITCHAPI]', data)
   prompt = ''
   ws_sub_name = ''
   ws_message = ''
@@ -140,7 +140,7 @@ async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -
   execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'])
 
 async def chat_on_ready(ready_event: EventData):
-  print('pytwitchapi chat connected')
+  print('[PYTWITCHAPI] chat module connected')
   await ready_event.chat.join_room(TARGET_CHANNEL)
 
 async def chat_on_message(msg: ChatMessage):

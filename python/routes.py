@@ -73,7 +73,7 @@ def _react_to_screen():
   try:
     take_screenshot()
     image_captions = gen_image_captions()
-    print('Captions: ', image_captions)
+    print('[ROUTES] Captions: ', image_captions)
     prompt = gen_image_react_prompt(image_captions, 'picture')
     execute_or_enqueue_action(prompt, PRIORITY_QUEUE_PRIORITIES['PRIORITY_IMAGE'])
   except Exception as e:
@@ -88,7 +88,7 @@ def _erase_memory():
   try:
     config.llm_short_term_memory.erase_memory()
     setattr(config, 'is_busy', False)
-    print(f'is_busy -> {getattr(config, "is_busy")}')
+    print(f'[ROUTES] is_busy -> {getattr(config, "is_busy")}')
   except Exception as e:
     log_error(e, '/erase_memory')
 
@@ -141,7 +141,7 @@ def _set_config_variable():
 
   try:
     setattr(config, name, value)
-    print(f'{name} -> {getattr(config, name)}')
+    print(f'[ROUTES] {name} -> {getattr(config, name)}')
   except Exception as e:
     log_error(e, '/set_config_variable')
 

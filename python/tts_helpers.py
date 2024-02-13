@@ -44,4 +44,4 @@ def print_wav_length(filename):
     frames = f.getnframes()
     rate = f.getframerate()
     duration = frames / float(rate)
-    print('--> ' + str(duration) + 's')
+    print('[PRINT WAV LENGTH] --> ' + str(duration) + 's')

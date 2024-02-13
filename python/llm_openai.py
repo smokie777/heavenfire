@@ -32,7 +32,7 @@ def gen_llm_response(prompt):
 
   total_tokens = chat.usage.total_tokens
   
-  print('-> TOTAL TOKENS: ', total_tokens)
+  print('[LLM] TOTAL TOKENS: ', total_tokens)
   
   raw, edited = config.llm_short_term_memory.add_assistant_message(reply)
 
@@ -40,7 +40,5 @@ def gen_llm_response(prompt):
 
   if total_tokens > config.llm_fuzzy_token_limit:
     config.llm_short_term_memory.trim()
-
-  # print('-> MESSAGES: ', config.llm_short_term_memory.messages[1:])
-
+    
   return (prompt, raw, edited)

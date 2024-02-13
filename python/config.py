@@ -35,8 +35,6 @@ llm_fuzzy_token_limit = 1000
 tts_green_light = True
 # seconds of delay bewteen ai responses
 ai_response_delay = 2.5
-# seconds of delay after mic input to prevent ai hearing itself on speakers
-mic_input_delay = 1
 # is the vtuber responding to twitch chat?
 is_twitch_chat_react_on = True
 # is the vtuber responding to twitch chat, but only if @ mentioned?
