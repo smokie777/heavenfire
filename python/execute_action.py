@@ -74,6 +74,9 @@ def execute_action():
 
     config.azure.speak(output_filename)
 
+    if Prompt.utterance_id:
+      config.ws.send(json.dumps({ 'utterance_id': Prompt.utterance_id }))
+
     if '!timeout' in edited:
       username_to_timeout = extract_username_to_timeout_from_string(edited)
       if username_to_timeout:
