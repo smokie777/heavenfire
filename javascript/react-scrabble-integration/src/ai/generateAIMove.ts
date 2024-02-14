@@ -144,7 +144,7 @@ const generateAIMoves = (
             combinedNewSequences,
             Object.keys(newTempPlacedTiles).length
           ),
-          AIRemainingTiles: newTiles
+          AIRemainingTiles: newTiles,
         });
       }
 

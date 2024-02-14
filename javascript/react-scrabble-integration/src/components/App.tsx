@@ -15,6 +15,8 @@ import { Spacer } from './Spacer';
 import { ExchangeTilesModal } from './ExchangeTilesModal';
 import { Button } from './Button';
 import { shuffle } from 'lodash';
+import { fetch_post } from '../fetch_functions';
+import { PRIORITY_QUEUE_PRIORITIES } from '../enums';
 
 export const App = () => {
   const [playerTiles, setPlayerTiles] = useState<TilesType>(Array(7).fill(null));
@@ -233,6 +235,11 @@ export const App = () => {
     });
     processedAITiles.sort((a, b) => tileMap[b].points - tileMap[a].points);
     const AIMove = generateAIMove(placedTiles, processedAITiles);
+    const aiMoveFriendlyString = AIMove.words.map(tiles => tiles.map(tile => tile.letter.toLowerCase()).join('')).join(', ');
+    fetch_post('/receive_prompt', {
+      prompt: `(you are currently playing scrabble). Announce that you just played: ${aiMoveFriendlyString}; for a total of ${AIMove.score} points`,
+      priority: PRIORITY_QUEUE_PRIORITIES.PRIORITY_MIC_INPUT
+    });
     if (AIMove) {
       AITotalScoreRef.current += AIMove.score
       const newPlacedTiles = {

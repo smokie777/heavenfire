@@ -40,6 +40,6 @@ export interface Move {
   placedTiles:PlacedTiles, // board state
   words:Tile[][], // all words created by the move
   score:number, // total score of move
-  AIRemainingTiles:string[] // what tiles AI has left after the move
+  AIRemainingTiles:string[] // what tiles AI has left after the move,
 }
 export type Moves = Move[]
