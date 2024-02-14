@@ -13,7 +13,6 @@ from utils import does_one_word_start_with_at
 from pytwitchapi_helpers import is_valid_scrabble_tile
 import json
 import config
-from eleven_labs_tts import eleven_labs_tts_speak
 from remind_me import convert_time_hms_string_to_ms
 from datetime import datetime, timedelta
 from db import db_event_insert_one
@@ -84,7 +83,11 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
         event='smokie tts',
         body=user_input
       )
-    eleven_labs_tts_speak(user_input)
+    execute_or_enqueue_action(
+      prompt=user_input,
+      priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'],
+      is_eleven_labs=True
+    )
 
 async def pubsub_callback_listen_bits_v1(uuid: UUID, data: dict) -> None:
   print('[PYTWITCHAPI]', data)

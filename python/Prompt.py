@@ -5,11 +5,13 @@ class Prompt:
     priority,
     utterance_id = None,
     azure_speaking_style = None,
-    username_to_ban = None
+    username_to_ban = None,
+    is_eleven_labs = False
   ):
     self.prompt = prompt
     self.priority = priority
     self.utterance_id = utterance_id
     self.azure_speaking_style = azure_speaking_style
     self.username_to_ban = username_to_ban
+    self.is_eleven_labs = is_eleven_labs
     
