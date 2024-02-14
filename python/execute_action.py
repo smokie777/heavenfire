@@ -64,6 +64,15 @@ def execute_action():
     }))
 
     if Prompt.username_to_ban:
+      loop = asyncio.new_event_loop()
+      asyncio.set_event_loop(loop)
+      with ThreadPoolExecutor() as pool:
+        # Ensure the loop runs in a new thread
+        loop.run_in_executor(
+          pool,
+          asyncio.run,
+          ban_user_via_username(Prompt.username_to_ban, None, 'banned via !ban')
+        )
       config.ws.send(json.dumps({
         'twitch_event': {
           'event': TWITCH_EVENTS['BAN'],

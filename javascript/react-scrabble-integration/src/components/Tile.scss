@@ -1,0 +1,27 @@
+.tile {
+  background: burlywood;
+  box-shadow: -2px -2px 16px rgba(0, 0, 0, 0.7);
+  border-radius: 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  user-select: none;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+
+  .letter {
+    font-size: 38px;
+  }
+
+  .points {
+    font-size: 16px;
+    margin-top: 23px;
+  }
+
+  &.selected {
+    border: 3px solid yellow;
+    cursor: pointer !important;
+  }
+}

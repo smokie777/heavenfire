@@ -1,0 +1,56 @@
+.app {
+  margin: 20px 20px 0 20px;
+  width: fit-content;
+
+  .game {
+    border: 2px solid black;
+    border-radius: 25px;
+    display: flex;
+    justify-content: center;
+    position: relative;
+
+    .tiles {
+      display: flex;
+      width: fit-content;
+      gap: 0.5px;
+      margin: 3px;
+
+      .tile {
+        margin: 2px 2px 2px 0;
+
+        &:last-child {
+          margin-right: 0;
+        }
+
+        &.hidden {
+          opacity: 0;
+        }
+      }
+    }
+  }
+}
+
+.left_section, .right_section {
+  width: 300px;
+  padding: 40px 20px;
+
+  .tiles {
+    transform: scale(0.75);
+
+    .tile {
+      cursor: default;
+    }
+  }
+}
+
+.scoreboard {
+  width: 100%;
+
+  .score_player_name {
+    font-size: 36px;
+  }
+
+  .score_text {
+    font-size: 48px;
+  }
+}

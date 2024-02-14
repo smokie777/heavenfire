@@ -1,0 +1,28 @@
+.board {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  border: 1px solid black;
+  user-select: none;
+
+  .square {
+    width: 40px; 
+    height: 40px;
+    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 10px;
+    text-align: center;
+    position: relative;
+
+    .tile {
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      top: 0.5px;
+      left: 0.5px;
+      z-index: 1;
+      cursor: default;
+    }    
+  }  
+}

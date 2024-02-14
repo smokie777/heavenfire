@@ -60,8 +60,8 @@ def db_message_insert_one(prompt, response, latency_llm, latency_tts):
   )
   config.db.session.add(row)
   config.db.session.commit()
-def db_message_get_last_three():
-  rows = Message.query.order_by(Message.created_at.desc()).limit(3).all()
+def db_message_get_last_five():
+  rows = Message.query.order_by(Message.created_at.desc()).limit(5).all()
   return messages_schema.dump(rows)
 
 class Event(config.db.Model):

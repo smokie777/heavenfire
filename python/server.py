@@ -1,4 +1,3 @@
-from flask import Flask
 import asyncio
 from threading import Thread
 
@@ -15,7 +14,9 @@ from r_ctrl_stt import r_ctrl_stt_run # this import must happen after Azure
 if __name__ == '__main__':
   # initialization
   with config.app.app_context():
-    config.llm_short_term_memory.load_initial_messages(db.db_message_get_last_three())
+    config.llm_short_term_memory.load_initial_messages(db.db_message_get_last_five())
+
+  print(config.llm_short_term_memory.messages[1:])
   config.azure = Azure()
 
   # run apps individually. should be done for testing purposes only

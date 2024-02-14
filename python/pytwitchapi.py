@@ -1,7 +1,7 @@
 from twitchAPI.twitch import Twitch
 from twitchAPI.oauth import UserAuthenticator
 from twitchAPI.type import AuthScope, ChatEvent
-from twitchAPI.chat import Chat, EventData, ChatMessage, ChatSub, ChatCommand
+from twitchAPI.chat import Chat, EventData, ChatMessage, ChatCommand
 from twitchAPI.pubsub import PubSub
 from uuid import UUID
 import os
@@ -10,11 +10,10 @@ from execute_action import execute_or_enqueue_action
 from vts_set_expression import vts_set_expression
 from dotenv import load_dotenv; load_dotenv()
 from utils import does_one_word_start_with_at
-from pytwitchapi_helpers import ban_user_via_username, is_valid_scrabble_tile
+from pytwitchapi_helpers import is_valid_scrabble_tile
 import json
 import config
 from eleven_labs_tts import eleven_labs_tts_speak
-from time import sleep
 from remind_me import convert_time_hms_string_to_ms
 from datetime import datetime, timedelta
 from db import db_event_insert_one
@@ -169,7 +168,7 @@ async def chat_on_message(msg: ChatMessage):
       or (not config.is_quiet_mode_on and (is_at_luna or not does_one_word_start_with_at(msg.text.lower().split(' '))))
     )
   ):
-    if msg.user.name == 'smokie_777' and '@luna !remindme ' in msg.text.lower():
+    if '@luna !remindme ' in msg.text.lower():
       args = msg.text.lower().replace('@luna !remindme ', '').split(' ')
       reminder_action = " ".join(args[1:])
       acknowledgement_prompt = (
@@ -226,7 +225,6 @@ async def chat_on_command_play(cmd: ChatCommand):
   word = parameters[0] if len(parameters) > 0 else None
   start_tile = parameters[1] if len(parameters) > 1 else None
   play_direction = parameters[2] if len(parameters) > 2 else None
-
   if (
     word
     and (not start_tile or start_tile and is_valid_scrabble_tile(start_tile))
@@ -250,7 +248,6 @@ async def chat_on_command_ban(cmd: ChatCommand):
     username_to_ban = cmd.text.replace('!ban ', '')
     if username_to_ban:
       prompt = f'Announce to everyone that {username_to_ban} has just been permanently banned from the channel! Feel free to add some spice :)'
-      await ban_user_via_username(username_to_ban, None, 'banned via !ban')
       execute_or_enqueue_action(
         prompt=prompt,
         priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_BAN_USER'],

@@ -155,6 +155,8 @@ def gen_edited_luna_response(s):
       replacement_word = 'You'
     elif is_mouth_sound(strip_leading_letters(text, 'h'), 'e', 'y'):
       replacement_word = 'Hey'
+    elif is_mouth_sound(strip_leading_letters(text, 'b'), 'r', 'o'):
+      replacement_word = 'Bro'
     elif is_mouth_sound(text, 'y', 'a'):
       replacement_word = 'Ya'
     elif is_mouth_sound(strip_leading_letters(text, 'p'), 'f', 't'):

@@ -1,0 +1,25 @@
+.letter_distribution {
+  padding: 3px;
+  width: 100%;
+
+  .letter_distribution_container {
+    width: fit-content;
+    font-size: 16px;
+    padding: 13px;
+    border: 2px solid black;
+    box-sizing: border-box;
+
+    .letter_counts {
+      width: 100%;
+
+      .letter_distribution_col {
+        width: 50%;
+        white-space: nowrap;
+
+        .letter_distribution_text {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
