@@ -49,7 +49,7 @@ const fetchDictionaryEntry = async(word:string) => {
 
 const LogPlayerText = ({ player }:{ player:string }) => (
   <span style={{ color: player === 'player' ? 'seagreen' : 'red' }}>
-    {player === 'player' ? 'Player' : 'AI'}
+    {player === 'player' ? 'Player' : 'Luna'}
   </span>
 );
 

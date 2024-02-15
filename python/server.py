@@ -10,6 +10,7 @@ from pytwitchapi import run_pytwitchapi # this import must happen after db
 from remind_me import remind_me_async_loop_run
 from Azure import Azure
 from r_ctrl_stt import r_ctrl_stt_run # this import must happen after Azure
+import sing # this import must happen after Azure
 
 if __name__ == '__main__':
   # initialization
