@@ -54,7 +54,7 @@ export const initialState:State = {
   isExchangeTilesModalOpen: false,
 
   // these below variables were previously refs.
-  bag: generateBag().slice(0, 15),
+  bag: generateBag(),
   playerTotalScore: 0,
   AITotalScore: 0,
   isGameOver: false,

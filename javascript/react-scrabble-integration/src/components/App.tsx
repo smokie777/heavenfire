@@ -107,6 +107,10 @@ export const App = () => {
 
   useEffect(() => {
     if (condition1 || condition2) {
+      fetch_post('/receive_prompt', {
+        prompt: `(you are currently playing scrabble). You just won the game! Announce that you are the scrabble queen.`,
+        priority: PRIORITY_QUEUE_PRIORITIES.PRIORITY_MIC_INPUT
+      });
       dispatch({ type: 'set_game_over', payload: {} });
       return;
     } else if (state.turn % 2 === 0) {
