@@ -297,7 +297,7 @@ class TestObfuscatePromptUsername(unittest.TestCase):
 class TestIsValidScrabbleTile(unittest.TestCase):
   def runTest(self):
     valid_test_cases = ['h4', 'a1', 'o15', 'b9']
-    invalid_test_cases = ['015', '4', '115', 'p', 'a0', 'b16', '9b', 'bbb', '33']
+    invalid_test_cases = ['', ' ', '015', '4', '115', 'p', 'a0', 'b16', '9b', 'bbb', '33']
     [self.assertTrue(is_valid_scrabble_tile(i)) for i in valid_test_cases]
     [self.assertFalse(is_valid_scrabble_tile(i)) for i in invalid_test_cases]
 

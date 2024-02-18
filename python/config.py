@@ -45,5 +45,3 @@ is_singing = False
 ### SERVER IN-MEMORY STORAGE
 # stores tuples like ('remind foo to bar!', datetime)
 remind_me_prompts_and_datetime_queue = []
-# stores json to be dispatched to websocket server
-scrabble_chat_commands_queue = []

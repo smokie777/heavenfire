@@ -9,6 +9,7 @@ type Action =
   | { type: 'continue_ai_play_word', payload: { AIMove: Move } }
   | { type: 'continue_ai_pass', payload: {} }
   | { type: 'player_play_word', payload: { playerMove: Move } }
+  | { type: 'twitch_chat_play_word', payload: { playerMove: Move, letters: string } }
   | { type: 'draw_tiles_at_start_of_game', payload: {} }
   | { type: 'unplace_selected_tiles', payload: { coordinates: string[] } }
   | { type: 'place_selected_tile', payload: { x: number, y: number } }
@@ -63,40 +64,54 @@ export const initialState:State = {
 const commonUpdateFunctions = {
   drawTiles: (state:State, player:string, remainingTiles:TilesType) => {
     const newTiles:TilesType = [...remainingTiles];
+    const newBag = [...state.bag];
     for (let i = 0; i < 7; i++) {
-      if (state.bag.length && newTiles[i] === null) {
-        const tile = state.bag.pop();
+      if (newBag.length && newTiles[i] === null) {
+        const tile = newBag.pop();
         if (tile) {
           newTiles[i] = tile;
         }
       }
     }
     return player === 'player'
-      ? { playerTiles: newTiles }
-      : { AITiles: newTiles }
+      ? { bag: newBag, playerTiles: newTiles }
+      : { bag: newBag, AITiles: newTiles };
   },
   exchangeTiles: (state:State, player:string, selectedIndices:number[]) => {
     // moves a player's selected tiles into bag, then redraws the same amount of tiles.
     if (selectedIndices.length) {
-      const remainingTiles = player === 'player' ? [...state.playerTiles] : [...state.AITiles];
+      let newState = { ...state };
+      newState.bag = [...newState.bag];
+      const remainingTiles = player === 'player' ? [...newState.playerTiles] : [...newState.AITiles];
       selectedIndices.forEach(index => {
-        const letter = player === 'player' ? state.playerTiles[index] : state.AITiles[index];
+        const letter = player === 'player' ? newState.playerTiles[index] : newState.AITiles[index];
         if (letter !== null) {
-          state.bag.push(letter);
+          newState.bag.push(letter);
           remainingTiles[index] = null;
         }
       });
+      newState.bag = shuffle(newState.bag);
+      newState = {
+        ...newState,
+        ...commonUpdateFunctions.drawTiles(newState, player, remainingTiles)
+      };
       const newLog:Log = {
-        turn: state.turn,
+        turn: newState.turn,
         action: 'exchange',
         player
       };
-      return {
-        logs: [...state.logs, newLog],
-        turn: state.turn + 1,
-        bag: shuffle(state.bag),
-        ...commonUpdateFunctions.drawTiles(state, player, remainingTiles)
-      }
+      newState.logs = [...newState.logs, newLog];
+      newState.turn = newState.turn + 1;
+      // draw tiles at start of turn
+      newState = {
+        ...newState,
+        ...(player === 'player' ? {
+          ...commonUpdateFunctions.drawTiles(newState, 'AI', newState.AITiles),
+        } : {
+          ...commonUpdateFunctions.drawTiles(newState, 'player', newState.playerTiles),
+        })
+      };
+      return newState;
     }
     return {};
   },
@@ -120,7 +135,12 @@ const commonUpdateFunctions = {
       logs: [...state.logs, newLog],
       turn: state.turn + 1,
       tempPlacedTiles: {},
-      ...(player === 'player' && { playerTiles: newPlayerTiles }),
+      ...(player === 'player' ? {
+        ...commonUpdateFunctions.drawTiles(state, 'AI', state.AITiles),
+        playerTiles: newPlayerTiles
+      } : {
+        ...commonUpdateFunctions.drawTiles(state, 'player', state.playerTiles),
+      })
     };
   },
   unplaceSelectedTiles: (state:State, coordinates:string[]) => {
@@ -135,6 +155,31 @@ const commonUpdateFunctions = {
       playerTiles: newPlayerTiles,
       tempPlacedTiles: newTempPlacedTiles
     };
+  },
+  playerPlayWord: (state:State, playerMove:Move) => {
+    const newPlacedTiles = {
+      ...state.placedTiles,
+      ...playerMove.placedTiles
+    };
+    const newLog:Log = {
+      turn: state.turn,
+      action: 'move',
+      player: 'player',
+      words: playerMove.words.map(word => ({
+        word: word.map(tile => tile.letter).join(''),
+        score: generateWordScore(state.placedTiles, word)
+      })),
+      score: playerMove.score,
+      isBingo: Object.keys(playerMove.placedTiles).length === 7
+    };
+    return {
+      ...commonUpdateFunctions.drawTiles(state, 'AI', state.AITiles),
+      playerTotalScore: state.playerTotalScore + playerMove.score,
+      placedTiles: newPlacedTiles,
+      tempPlacedTiles: {},
+      logs: [...state.logs, newLog],
+      turn: state.turn + 1
+    }
   }
 };
 
@@ -164,11 +209,12 @@ export const reducer = (state:State, action:Action): State => {
 
       return {
         ...state,
-        ...commonUpdateFunctions.drawTiles(state, 'AI', remainingTiles),
+        ...commonUpdateFunctions.drawTiles(state, 'player', state.playerTiles),
         placedTiles: { ...state.placedTiles, ...AIMove.placedTiles },
         logs: [...state.logs, newLog],
         turn: state.turn + 1,
-        AITotalScore: state.AITotalScore + AIMove.score
+        AITotalScore: state.AITotalScore + AIMove.score,
+        AITiles: remainingTiles
       };
     }
     case 'continue_ai_pass': {
@@ -186,37 +232,34 @@ export const reducer = (state:State, action:Action): State => {
     }
     case 'player_play_word': {
       const { playerMove } = action.payload;
-      const newPlacedTiles = {
-        ...state.placedTiles,
-        ...playerMove.placedTiles
-      };
-      const newLog:Log = {
-        turn: state.turn,
-        action: 'move',
-        player: 'player',
-        words: playerMove.words.map(word => ({
-          word: word.map(tile => tile.letter).join(''),
-          score: generateWordScore(state.placedTiles, word)
-        })),
-        score: playerMove.score,
-        isBingo: Object.keys(playerMove.placedTiles).length === 7
-      };
       return {
         ...state,
-        ...commonUpdateFunctions.drawTiles(state, 'player', state.playerTiles),
-        playerTotalScore: state.playerTotalScore + playerMove.score,
-        placedTiles: newPlacedTiles,
-        tempPlacedTiles: {},
-        logs: [...state.logs, newLog],
-        turn: state.turn + 1
-      }
+        ...commonUpdateFunctions.playerPlayWord(state, playerMove)
+      };
+    }
+    case 'twitch_chat_play_word': {
+      const { playerMove, letters } = action.payload;
+      const newPlayerTiles = [...state.playerTiles];
+      letters.split('').forEach(letter => {
+        newPlayerTiles[newPlayerTiles.indexOf(letter)] = null;
+      });
+      return {
+        ...state,
+        ...commonUpdateFunctions.playerPlayWord(state, playerMove),
+        playerTiles: newPlayerTiles
+      };
     }
     case 'draw_tiles_at_start_of_game': {
-      return {
-        ...state,
-        ...commonUpdateFunctions.drawTiles(state, 'player', state.playerTiles),
-        ...commonUpdateFunctions.drawTiles(state, 'AI', state.AITiles)
-      }
+      let newState = { ...state };
+      newState = {
+        ...newState,
+        ...commonUpdateFunctions.drawTiles(newState, 'player', newState.playerTiles),
+      };
+      newState = {
+        ...newState,
+        ...commonUpdateFunctions.drawTiles(newState, 'AI', newState.AITiles),
+      };
+      return newState;
     }
     case 'unplace_selected_tiles': {
       const { coordinates } = action.payload;
@@ -244,7 +287,7 @@ export const reducer = (state:State, action:Action): State => {
           selectedTileIndex: -1
         };
       }
-      return { ...state };
+      return state;
     }
     case 'open_exchange_tiles_modal': {
       return {
@@ -276,8 +319,8 @@ export const reducer = (state:State, action:Action): State => {
       };
     }
     case 'set_game_over': {
-      const playerTileCount = state.playerTiles.filter(i => i !== null).length
-      const AITileCount = state.AITiles.filter(i => i !== null).length
+      const playerTileCount = state.playerTiles.filter(i => i !== null).length;
+      const AITileCount = state.AITiles.filter(i => i !== null).length;
       // game over ondition #1: bag is empty, and one player's hand is empty.
       const condition1 = !state.bag.length && (!playerTileCount || !AITileCount);
       // game over condition #2: 6 turns have passed without any player gaining score.
@@ -287,6 +330,8 @@ export const reducer = (state:State, action:Action): State => {
       let playerScorePenalty = 0;
       let AIScorePenalty = 0;
       let winner = '';
+      let newPlayerTotalScore = state.playerTotalScore;
+      let newAITotalScore = state.AITotalScore;
       state.playerTiles.forEach(i => {
         if (i !== null) {
           playerScorePenalty += tileMap[i].points;
@@ -297,18 +342,18 @@ export const reducer = (state:State, action:Action): State => {
           AIScorePenalty += tileMap[i].points;
         }
       });
-      state.playerTotalScore -= playerScorePenalty;
-      state.AITotalScore -= AIScorePenalty;
+      newPlayerTotalScore -= playerScorePenalty;
+      newAITotalScore -= AIScorePenalty;
       if (condition1) {
         if (!playerTileCount) {
-          state.playerTotalScore += AIScorePenalty;
+          newPlayerTotalScore += AIScorePenalty;
         } else {
-          state.AITotalScore += playerScorePenalty;
+          newAITotalScore += playerScorePenalty;
         }
       }
-      if (state.playerTotalScore > state.AITotalScore) {
+      if (newPlayerTotalScore > newAITotalScore) {
         winner = 'player';
-      } else if (state.playerTotalScore < state.AITotalScore) {
+      } else if (newPlayerTotalScore < newAITotalScore) {
         winner = 'AI';
       } else if (playerScoreBeforeDeductions > AIScoreBeforeDeductions) {
         winner = 'player';
@@ -363,7 +408,9 @@ export const reducer = (state:State, action:Action): State => {
       return {
         ...state,
         isGameOver: true,
-        logs: newLogs
+        logs: newLogs,
+        playerTotalScore: newPlayerTotalScore,
+        AITotalScore: newAITotalScore
       };
     }
     default:

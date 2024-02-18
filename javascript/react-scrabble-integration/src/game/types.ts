@@ -43,3 +43,16 @@ export interface Move {
   AIRemainingTiles:string[] // what tiles AI has left after the move,
 }
 export type Moves = Move[]
+
+export type ScrabbleChatCommand =
+  | {
+    type: 'play',
+    username: string,
+    letters: string,
+    startTileX: number,
+    startTileY: number,
+    direction: 'horizontal' | 'vertical'
+  }
+  | { type: 'exchange', username: string, letters: string }
+  | { type: 'pass', username: string };
+export type ScrabbleChatCommands = ScrabbleChatCommand[];

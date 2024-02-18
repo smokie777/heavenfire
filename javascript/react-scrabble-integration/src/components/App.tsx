@@ -6,7 +6,7 @@ import { Logs } from './Logs';
 import { LetterDistribution } from './LetterDistribution';
 import { tileMap } from '../game/tiles';
 import { FlexContainer } from './FlexContainer';
-import { Move } from '../game/types';
+import { Move, PlacedTiles, ScrabbleChatCommand, ScrabbleChatCommands } from '../game/types';
 import { generateAIMove } from '../ai/generateAIMove';
 import { generatePlayerMove } from '../ai/generatePlayerMove';
 import { Spacer } from './Spacer';
@@ -23,6 +23,7 @@ export const App = () => {
   
   const utteranceIdRef = useRef('');
   const AIMoveRef = useRef<Move|null>(null);
+  const scrabbleChatCommandsQueueRef = useRef<ScrabbleChatCommands>([]);
 
   const AIPlayWordTimeoutRef = useRef<number | NodeJS.Timer>();
 
@@ -86,6 +87,26 @@ export const App = () => {
     }
   };
 
+  const twitchChatPlayWord = (scrabbleChatCommand:ScrabbleChatCommand) => {
+    if (scrabbleChatCommand.type === 'play') {
+      // check if move can be played given tiles in player's hand
+      if (isActionDisabled) {
+        return;
+      }
+
+      // generatePlayerMove should take care of all game logic validation.
+      const tempPlacedTiles:PlacedTiles = {}; // TODO: generate this 
+      const twitchChatMove = generatePlayerMove(
+        state.placedTiles,
+        tempPlacedTiles
+      )[0];
+      dispatch({
+        type: 'twitch_chat_play_word',
+        payload: { playerMove: twitchChatMove, letters: scrabbleChatCommand.letters }
+      });
+    }
+  };
+
   const dispatchUnplaceSelectedTiles = (coordinates:string[]) => {
     dispatch({
       type: 'unplace_selected_tiles',
@@ -136,6 +157,23 @@ export const App = () => {
       if (data.hasOwnProperty('utterance_id') && data.utterance_id === utteranceIdRef.current) {
         utteranceIdRef.current = '';
         continueAIPlayWordAfterUtteranceIdReceived();
+      } else if (data.hasOwnProperty('scrabble_chat_command')) {
+        const scrabbleChatCommand:ScrabbleChatCommand = data.scrabble_chat_command;
+        switch (scrabbleChatCommand.type) {
+          case 'play':
+            if (scrabbleChatCommandsQueueRef.current.length) {
+              scrabbleChatCommandsQueueRef.current.push(scrabbleChatCommand);
+            } else {
+              twitchChatPlayWord(scrabbleChatCommand);
+            }
+            break;
+          case 'exchange':
+            break;
+          case 'pass':
+            break;
+          default:
+            break;
+        }
       }
     });
 
@@ -197,7 +235,7 @@ export const App = () => {
           justifyContent='center'
           alignItems='center'
         >
-          <Tiles tiles={state.AITiles} areTilesHidden={true} />
+          <Tiles tiles={state.AITiles} areTilesHidden />
           <Board
             placedTiles={state.placedTiles}
             tempPlacedTiles={state.tempPlacedTiles}

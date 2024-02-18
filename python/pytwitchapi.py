@@ -224,27 +224,23 @@ async def chat_on_command_video(cmd: ChatCommand):
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!video')
 
 async def chat_on_command_play(cmd: ChatCommand):
-  parameters = cmd.parameter.strip().split(maxsplit=2)
-  word = parameters[0] if len(parameters) > 0 else None
-  start_tile = parameters[1] if len(parameters) > 1 else None
-  play_direction = parameters[2] if len(parameters) > 2 else None
-  if (
-    word
-    and (not start_tile or start_tile and is_valid_scrabble_tile(start_tile))
-    and (not play_direction or play_direction and play_direction in ['horizontal', 'vertical', 'h', 'v'])
-  ):
-    is_queue_empty = not len(config.scrabble_chat_commands_queue)
-    command_json = json.dumps({
-      'scrabble_chat_command': {
-        'word': word,
-        'start_tile': start_tile,
-        'play_direction': play_direction,
-        'username': cmd.user.name
-      }
-    })
-    config.scrabble_chat_commands_queue.append(command_json)
-    if is_queue_empty:
-      config.ws.send(command_json)
+  parameters = cmd.parameter.strip().lower().split(maxsplit=2)
+  letters = parameters[1].strip() if len(parameters) > 1 else ''
+  start_tile = parameters[2].strip() if len(parameters) > 2 else ''
+  coordinate_str = start_tile[:-1] if start_tile[-1] in ['h', 'v'] else start_tile
+  if not letters.isalpha() or not is_valid_scrabble_tile(coordinate_str):
+    return
+  config.ws.send(json.dumps({
+    'scrabble_chat_command': {
+      'type': 'play',
+      'username': cmd.user.name,
+      'letters': letters,
+      'startTileX': ord(coordinate_str[0]) - ord('a') + 1,
+      'startTileY': int(coordinate_str[1:]),
+      # default direction to 'horizontal'
+      'direction': 'vertical' if start_tile[-1] == 'v' else 'horizontal'
+    }
+  }))
 
 async def chat_on_command_ban(cmd: ChatCommand):
   if cmd.user.name == 'smokie_777':
