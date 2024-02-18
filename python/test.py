@@ -213,21 +213,24 @@ class TestLLMShortTermMemory(unittest.TestCase):
     m.load_initial_messages([
       {
         'created_at': datetime.now(),
-        'prompt': 'foo',
-        'response': 'bar',
+        'prompt': 'newer test prompt.',
+        'response': 'newer test response.',
         'latency_llm': 0.123,
         'latency_tts': 0.456,
       },
       {
         'created_at': datetime.now(),
-        'prompt': 'foo1',
-        'response': 'bar1',
+        'prompt': 'older test prompt.',
+        'response': 'older test response.',
         'latency_llm': 0.123,
         'latency_tts': 0.456,
       },
     ])
-    self.assertEqual(m.messages[-1]['content'], 'bar1.')
-    self.assertEqual(m.messages[-2]['content'], 'foo1')
+    print(m.messages)
+    self.assertEqual(m.messages[-1]['content'], 'newer test response.')
+    self.assertEqual(m.messages[-2]['content'], 'newer test prompt.')
+    self.assertEqual(m.messages[-3]['content'], 'older test response.')
+    self.assertEqual(m.messages[-4]['content'], 'older test prompt.')
     m = LLMShortTermMemory()
     with self.assertRaises(RuntimeError):
       m.load_initial_messages([
@@ -238,7 +241,7 @@ class TestLLMShortTermMemory(unittest.TestCase):
           'latency_llm': 0.123,
           'latency_tts': 0.456,
         },
-      ] * 4)
+      ] * 6)
 
 class TestMoveEmojisToEnd(unittest.TestCase):
   def runTest(self):

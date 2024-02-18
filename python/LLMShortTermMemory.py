@@ -51,6 +51,7 @@ class LLMShortTermMemory:
     # db_messages is a list of MessageSchema dicts
     if len(db_messages) > 5:
       raise RuntimeError('Can\'t load more than 5 messages from memory, as a financial precaution.')
+    # the db query will return newest at index 0. openai needs oldest at index 0, hence reversed().
     for i in reversed(db_messages):
       self.add_user_message(i['prompt'])
       self.add_assistant_message(i['response'])
