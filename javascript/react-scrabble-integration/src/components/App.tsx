@@ -6,7 +6,7 @@ import { Logs } from './Logs';
 import { LetterDistribution } from './LetterDistribution';
 import { tileMap } from '../game/tiles';
 import { FlexContainer } from './FlexContainer';
-import { Move, PlacedTiles, ScrabbleChatCommand, ScrabbleChatCommands } from '../game/types';
+import { Move, ScrabbleChatCommand, ScrabbleChatCommands } from '../game/types';
 import { generateAIMove } from '../ai/generateAIMove';
 import { generatePlayerMove } from '../ai/generatePlayerMove';
 import { Spacer } from './Spacer';
@@ -50,14 +50,13 @@ export const App = () => {
     ).join(', ');
     const utteranceId = nanoid();
     utteranceIdRef.current = utteranceId;
-    // ENABLE BELOW LINE FOR LUNA INTEGRATION
     fetch_post('/receive_prompt', {
       prompt: `(you are currently playing scrabble). Announce that you just played: ${aiMoveFriendlyString}; for a total of ${AIMoveRef.current.score} points`,
       priority: PRIORITY_QUEUE_PRIORITIES.PRIORITY_MIC_INPUT,
       utterance_id: utteranceId
     });
-    // OTHERWISE, ENABLE BELOW LINE
-    // continueAIPlayWordAfterUtteranceIdReceived();
+    // ENABLE BELOW LINE TO TEST GAME FLOW WITHOUT LUNA INTEGRATION
+    continueAIPlayWordAfterUtteranceIdReceived();
   };
 
   const continueAIPlayWordAfterUtteranceIdReceived = () => {
@@ -87,26 +86,6 @@ export const App = () => {
     }
   };
 
-  const twitchChatPlayWord = (scrabbleChatCommand:ScrabbleChatCommand) => {
-    if (scrabbleChatCommand.type === 'play') {
-      // check if move can be played given tiles in player's hand
-      if (isActionDisabled) {
-        return;
-      }
-
-      // generatePlayerMove should take care of all game logic validation.
-      const tempPlacedTiles:PlacedTiles = {}; // TODO: generate this 
-      const twitchChatMove = generatePlayerMove(
-        state.placedTiles,
-        tempPlacedTiles
-      )[0];
-      dispatch({
-        type: 'twitch_chat_play_word',
-        payload: { playerMove: twitchChatMove, letters: scrabbleChatCommand.letters }
-      });
-    }
-  };
-
   const dispatchUnplaceSelectedTiles = (coordinates:string[]) => {
     dispatch({
       type: 'unplace_selected_tiles',
@@ -119,6 +98,38 @@ export const App = () => {
       type: 'place_selected_tile',
       payload: { x, y }
     });
+  };
+
+  const executeOrEnqueueScrabbleChatCommand = (command:ScrabbleChatCommand) => {
+    if (!isActionDisabled) {   
+      scrabbleChatCommandsQueueRef.current.push(command);
+      if (scrabbleChatCommandsQueueRef.current.length === 1) {
+        executeScrabbleChatCommand();
+      }
+    }
+  };
+
+  const executeScrabbleChatCommand = () => {
+    if (!isActionDisabled) {
+      const command = scrabbleChatCommandsQueueRef.current.shift();
+      if (command) {
+        switch (command.type) {
+          case 'play':
+            dispatch({
+              type: 'twitch_chat_play_word',
+              payload: { command }
+            });
+            // TODO: how to call the next command if the current command is invalid?
+            break;
+          case 'exchange':
+            break;
+          case 'pass':
+            break;
+          default:
+            break;
+        }
+      }
+    }
   };
 
   useEffect(() => {
@@ -142,7 +153,7 @@ export const App = () => {
       // if 0, there's a race condition between whether AIPlayWord() is evaluated first, or setState() in playerPlayWord().
       // if not using setTimeout(), AIPlayWord() will always be evaluated before setState() in playerPlayWord(), meaning it would be impossible to set any states until AIPlayWord() finishes calculating.
       // if there was an easy way to utilize multithreading in React here, the setTimeout() would be unnecessary. there are some packages for this, but i didn't really want to download them.
-      // so, for now, we just pray that setState() always finishes in less than 100ms, and just take the loss by having the AI turn be 100ms longer. (in the 0.01% chance setState takes longer than 100ms, the only negative effect would be the game UI would not update until the AI finishes its turn.)
+      // so, for now, we just pray that setState() qalways finishes in less than 100ms, and just take the loss by having the AI turn be 100ms longer. (in the 0.01% chance setState takes longer than 100ms, the only negative effect would be the game UI would not update until the AI finishes its turn.)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.turn, condition1, condition2]);
@@ -158,22 +169,8 @@ export const App = () => {
         utteranceIdRef.current = '';
         continueAIPlayWordAfterUtteranceIdReceived();
       } else if (data.hasOwnProperty('scrabble_chat_command')) {
-        const scrabbleChatCommand:ScrabbleChatCommand = data.scrabble_chat_command;
-        switch (scrabbleChatCommand.type) {
-          case 'play':
-            if (scrabbleChatCommandsQueueRef.current.length) {
-              scrabbleChatCommandsQueueRef.current.push(scrabbleChatCommand);
-            } else {
-              twitchChatPlayWord(scrabbleChatCommand);
-            }
-            break;
-          case 'exchange':
-            break;
-          case 'pass':
-            break;
-          default:
-            break;
-        }
+        console.log(data.scrabble_chat_command);
+        executeOrEnqueueScrabbleChatCommand(data.scrabble_chat_command);
       }
     });
 

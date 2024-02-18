@@ -33,7 +33,10 @@ export const Board = ({
               }
             }}
           >
-            {/* <div style={{ position: 'absolute', top: 0, left: 0 }}>({square.x}, {square.y})</div> */}
+            <div style={{ position: 'absolute', top: 0, left: 0 }}>({square.x}, {square.y})</div>
+            <div style={{ position: 'absolute', top: '12px', left: 0 }}>
+              ({String.fromCharCode('a'.charCodeAt(0) + square.x)}, {15 - square.y})
+            </div>
             <div>{square.text}</div>
             {placedTiles[coordinateString] ? (
               <Tile

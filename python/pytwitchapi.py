@@ -225,8 +225,9 @@ async def chat_on_command_video(cmd: ChatCommand):
 
 async def chat_on_command_play(cmd: ChatCommand):
   parameters = cmd.parameter.strip().lower().split(maxsplit=2)
+  start_tile = parameters[0].strip() if len(parameters) > 0 else ''
   letters = parameters[1].strip() if len(parameters) > 1 else ''
-  start_tile = parameters[2].strip() if len(parameters) > 2 else ''
+  print('[SCRABBLE]', parameters, start_tile, letters)
   coordinate_str = start_tile[:-1] if start_tile[-1] in ['h', 'v'] else start_tile
   if not letters.isalpha() or not is_valid_scrabble_tile(coordinate_str):
     return
@@ -234,9 +235,10 @@ async def chat_on_command_play(cmd: ChatCommand):
     'scrabble_chat_command': {
       'type': 'play',
       'username': cmd.user.name,
-      'letters': letters,
-      'startTileX': ord(coordinate_str[0]) - ord('a') + 1,
-      'startTileY': int(coordinate_str[1:]),
+      'letters': letters.upper(),
+      # "start tile" refers to the leftmost/upmost tile of the primary word created.
+      'startTileX': ord(coordinate_str[0]) - ord('a'), # already accounts for 0 index
+      'startTileY': 14 - (int(coordinate_str[1:]) - 1), # subtract 1 to account for 0 index. invert for UI
       # default direction to 'horizontal'
       'direction': 'vertical' if start_tile[-1] == 'v' else 'horizontal'
     }

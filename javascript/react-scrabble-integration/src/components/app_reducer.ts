@@ -1,15 +1,17 @@
 import { shuffle } from 'lodash';
 import { generateWordScore } from '../ai/generateWordScore';
 import { generateBag } from '../game/tiles';
-import { Log, Move, PlacedTiles, Tiles as TilesType } from '../game/types';
+import { Log, Move, PlacedTiles, ScrabbleChatCommand, Tiles as TilesType } from '../game/types';
 import { generateCoordinateString } from '../game/generateCoordinateString';
 import { tileMap } from '../game/tiles';
+import { generateTempPlacedTilesForChatCommandPlay } from '../ai/generateTempPlacedTilesForChatCommandPlay';
+import { generatePlayerMove } from '../ai/generatePlayerMove';
 
 type Action =
   | { type: 'continue_ai_play_word', payload: { AIMove: Move } }
   | { type: 'continue_ai_pass', payload: {} }
   | { type: 'player_play_word', payload: { playerMove: Move } }
-  | { type: 'twitch_chat_play_word', payload: { playerMove: Move, letters: string } }
+  | { type: 'twitch_chat_play_word', payload: { command: ScrabbleChatCommand } }
   | { type: 'draw_tiles_at_start_of_game', payload: {} }
   | { type: 'unplace_selected_tiles', payload: { coordinates: string[] } }
   | { type: 'place_selected_tile', payload: { x: number, y: number } }
@@ -238,16 +240,51 @@ export const reducer = (state:State, action:Action): State => {
       };
     }
     case 'twitch_chat_play_word': {
-      const { playerMove, letters } = action.payload;
-      const newPlayerTiles = [...state.playerTiles];
-      letters.split('').forEach(letter => {
-        newPlayerTiles[newPlayerTiles.indexOf(letter)] = null;
-      });
-      return {
-        ...state,
-        ...commonUpdateFunctions.playerPlayWord(state, playerMove),
-        playerTiles: newPlayerTiles
-      };
+      const { command } = action.payload;
+      if (command.type === 'play') {  
+        // if it's a valid play, generate a move
+        let twitchChatMove:Move|undefined;
+        // generatePlayerMove should take care of all game logic validation.
+        const tempPlacedTiles:PlacedTiles = generateTempPlacedTilesForChatCommandPlay(
+          command,
+          state.placedTiles
+        );
+        // console.log('1 temp', tempPlacedTiles);
+        twitchChatMove = generatePlayerMove(
+          state.placedTiles,
+          tempPlacedTiles
+        )[0];
+        // console.log('1 move', twitchChatMove);
+        // if invalid move in 1 direction, try to find a valid move in other direction
+        if (!twitchChatMove) {
+          const tempPlacedTiles:PlacedTiles = generateTempPlacedTilesForChatCommandPlay(
+            {
+              ...command,
+              direction: command.direction === 'horizontal' ? 'vertical' : 'horizontal'
+            },
+            state.placedTiles
+          );
+          // console.log('2 temp', tempPlacedTiles);
+          twitchChatMove = generatePlayerMove(
+            state.placedTiles,
+            tempPlacedTiles
+          )[0];
+          // console.log('2 move', twitchChatMove);
+        }
+        if (twitchChatMove) {
+          // take played tiles out of player's hand
+          const newPlayerTiles = [...state.playerTiles];
+          command.letters.split('').forEach(letter => {
+            newPlayerTiles[newPlayerTiles.indexOf(letter)] = null;
+          });
+          return {
+            ...state,
+            ...commonUpdateFunctions.playerPlayWord(state, twitchChatMove),
+            playerTiles: newPlayerTiles
+          };
+        }
+      }
+      return state;
     }
     case 'draw_tiles_at_start_of_game': {
       let newState = { ...state };

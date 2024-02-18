@@ -1,4 +1,5 @@
 export const fetch_post = async(route:string, body = {}) => {
+  return;
   const res = await fetch(route, {
     method: 'post',
     headers: {
