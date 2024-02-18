@@ -229,7 +229,10 @@ async def chat_on_command_play(cmd: ChatCommand):
   letters = parameters[1].strip() if len(parameters) > 1 else ''
   print('[SCRABBLE]', parameters, start_tile, letters)
   coordinate_str = start_tile[:-1] if start_tile[-1] in ['h', 'v'] else start_tile
-  if not letters.isalpha() or not is_valid_scrabble_tile(coordinate_str):
+  if (
+    not letters.replace('_', '').isalpha()
+    or not is_valid_scrabble_tile(coordinate_str)
+  ):
     return
   config.ws.send(json.dumps({
     'scrabble_chat_command': {

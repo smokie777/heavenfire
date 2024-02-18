@@ -41,7 +41,7 @@ interface State {
 
 export const initialState:State = {
   playerTiles: Array(7).fill(null),
-  // playerTiles: ['Q', null, null, null, null, null, null],
+  // playerTiles: ['B', 'A', '_', null, null, null, null],
   AITiles: Array(7).fill(null),
   // AITiles: ['Q', null, null, null, null, null, null],
   placedTiles: {
