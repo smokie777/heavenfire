@@ -1,25 +1,25 @@
 # heavenfire
 Hi, everyone! This is the monorepo codebase for my AI VTuber project. 
 
-I've been working on this project on & off since June 2023. I've set the repo to private for a long while, because I was actually streaming with it and didn't want to reveal all of how it worked. But, recently I've decided to make this repo public, as the AI VTuber hype seems to be dying down a bit, and I want to show off what I've built. And, who knows, maybe someone will be inspired by this project, or learn something from it.
+# about
+I've been working on this little passion project on & off since June 2023. I've set the repo to private for a long while, because I was actually streaming with it and didn't want to reveal all of how it worked. But, recently I've decided to make this repo public, as the AI VTuber hype seems to be dying down a bit, and I want to show off what I've built. And, who knows, maybe someone will be inspired by this project, or learn something from it.
 
-Note that you won't be able to actually run this project if you clone it - there are too many external application dependencies, and also I have gitignored several sensitive files, such as environment files, prompt files, and training datasets. In addition, Luna's LLM is a fine-tuned model linked to my OpenAI account.
+Note that you won't be able to actually run this project if you clone it - there are way too many external application dependencies and complications, and also I have gitignored several sensitive files, such as environment files, prompt files, and training datasets. In addition, Luna's LLM is a fine-tuned model linked to my OpenAI account.
 
 You can see this project live at https://www.twitch.tv/smokie_777
 
-<img src="./readme_assets/image.png" alt="luna" width="350"/>
-<img src="./readme_assets/image-1.png" alt="heavenfire" width="350"/>
+Luna<br />
+<img src="./readme_assets/image.png" alt="luna" width="300"/>
+
+Heavenfire<br />
+<img src="./readme_assets/image-1.png" alt="heavenfire" width="300"/>
 <br />
-Luna (left), Heavenfire (right; in development)
-<br />
-<br />
+
 The repo is called heavenfire because it was originally meant for a new AI VTuber I was making called Heavenfire Phyllis. But, due to difficulties in finding a good enough TTS for her, I have postponed the project indefinitely. Currently, I'm just running Luna out of this repo.
-<br />
-<br />
 
 # demo
 <video width="960" height="540" controls>
-  <sourc src="./readme_assets/sample_video.mp4" type="video/mp4">
+  <source src="./readme_assets/sample_video.mp4" type="video/mp4">
 </video>
 
 # ai vtuber features
@@ -54,12 +54,12 @@ The repo is called heavenfire because it was originally meant for a new AI VTube
   - **TTS integration**
     - Luna uses Microsoft Azure.
     - The main flow involves making API requests to get the TTS sound file and subtitles, playing the sound file through VBCable, and sending the subtitles to the React Subtitle view via websocket.
-    - There's also an Eleven Labs integration, although it's currently only being used for a channel point redemption, which is a TTS based on my voice 😒
+    - There's also an ElevenLabs integration, although it's currently only being used for a channel point redemption, which is a TTS based on my voice 😒
   - **STT integration**
-    - The current STT integration uses Microsoft Azure real-time STT. I press a button, and then I can speak to Luna.
-    - I was also previously using a Deepgram API integration for STT, but discontinued it (and deleted the code for it) once I realized Azure was much much better and easier to use for my use case
+    - The current STT integration uses Microsoft Azure real-time STT. I press a button, and then I can speak to the AI.
+    - I was also previously using a Deepgram API integration for STT, but discontinued it (and deleted the code for it) once I realized Azure was much much better and easier to use, for my use case.
   - **Image recognition integration** (for screen/picture/video react)
-    - I use the Microsoft Azure Dense Captioning service to generate image descriptions, which are then sent to the LLM.
+    - Uses the Microsoft Azure Dense Captioning service to generate image descriptions, which are then sent to the LLM.
   - **Twitch integration using PyTwitchAPI**
     - Uses PubSub, Chat, and Twitch API's for reading twitch chat, new subs/bits/channel point redemptions, !commands, timeout/ban functionality, etc.
   - **Discord bot**
@@ -71,7 +71,7 @@ The repo is called heavenfire because it was originally meant for a new AI VTube
     - I never really managed to implement this, because I was frustrated by VTS's authentication system.
     - For now, the integration is simply using python to trigger hotkeys that trigger VTS actions 🙈
   - **Singing functionality**
-    - The song creation pipeline actually exists outside of this repo. It uses a custom RVC model trained off of samples of Luna's voice, and programs like Ultimate Vocal Remover and Audacity to generate the song files.
+    - The song creation pipeline actually exists outside of this repo. It uses a custom RVC model trained off of samples of Luna's voice, and programs like Ultimate Vocal Remover and Audacity to generate the song files. I haven't invested too much time into this aspect of the project, so the quality of her singing is only mediocre for now
 
 Here is a really outdated diagram of how everything comes together in terms of system design:
 
