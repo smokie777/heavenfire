@@ -59,7 +59,7 @@ export const Subtitles = ({
   return (
     <div className='subtitles subtitle_text'>
       <div>{subtitleText.length < 333 ? '' : '...'}{subtitlePartition}</div>
-      {/* <div>What would I say if doption1 was trolling in my chat? I'd tell doption1 to suck it!</div> */}
+      {/* <div>What would I say if someone was trolling in my chat? I'd tell them to suck it!</div> */}
     </div>
   );
 };
