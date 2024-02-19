@@ -18,9 +18,7 @@ Heavenfire<br />
 The repo is called heavenfire because it was originally meant for a new AI VTuber I was making called Heavenfire Phyllis. But, due to difficulties in finding a good enough TTS for her, I have postponed the project indefinitely. Currently, I'm just running Luna out of this repo.
 
 # demo
-<video width="960" height="540" controls>
-  <source src="./readme_assets/sample_video.mp4" type="video/mp4">
-</video>
+https://github.com/smokie777/heavenfire/assets/31945139/f2281aeb-c332-4695-9ffe-c80fc1346d6f
 
 # ai vtuber features
 - read & respond to twitch chat, with short term memory and some long term memory
