@@ -9,10 +9,10 @@ Note that you won't be able to actually run this project if you clone it - there
 You can see this project live at https://www.twitch.tv/smokie_777
 
 Luna<br />
-<img src="./readme_assets/image.png" alt="luna" width="300"/>
+<img src="./readme_assets/image.png" alt="luna" width="350" />
 
 Heavenfire<br />
-<img src="./readme_assets/image-1.png" alt="heavenfire" width="300"/>
+<img src="./readme_assets/image-1.png" alt="heavenfire" width="350" />
 <br />
 
 The repo is called heavenfire because it was originally meant for a new AI VTuber I was making called Heavenfire Phyllis. But, due to difficulties in finding a good enough TTS for her, I have postponed the project indefinitely. Currently, I'm just running Luna out of this repo.
@@ -73,7 +73,7 @@ https://github.com/smokie777/heavenfire/assets/31945139/f2281aeb-c332-4695-9ffe-
 
 Here is a really outdated diagram of how everything comes together in terms of system design:
 
-<img src="./readme_assets/heavenfire_system_design.png" alt="heavenfire system design" width="1000"/>
+<img src="./readme_assets/heavenfire_system_design.png" alt="heavenfire system design" width="1000" />
 
 # costs
 This project is not free, and can get expensive if I don't pay enough attention to cutting costs as much as possible. Here are some rough estimates of monthly costs:
@@ -127,10 +127,13 @@ python -V
 
 # misc image gallery
 Control panel!<br />
-<img src="./readme_assets/image-2.png" alt="luna" width="500"/>
+<img src="./readme_assets/image-2.png" alt="control panel" width="500" />
+
+Discord bot!<br />
+<img src="./readme_assets/image-5.png" alt="discord bot" width="500" />
 
 Stream overlay!<br />
-<img src="./readme_assets/image-3.png" alt="luna" width="500"/>
+<img src="./readme_assets/image-3.png" alt="luna" width="500" />
 
 Animation layer!<br />
-<img src="./readme_assets/image-4.png" alt="luna" width="500"/>
+<img src="./readme_assets/image-4.png" alt="luna" width="500" />
