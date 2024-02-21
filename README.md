@@ -6,8 +6,6 @@ I've been working on this little passion project on & off since June 2023. I've 
 
 Note that you won't be able to actually run this project if you clone it - there are way too many external application dependencies and complications, and also I have gitignored several sensitive files, such as environment files, prompt files, and training datasets. In addition, Luna's LLM is a fine-tuned model linked to my OpenAI account.
 
-You can see this project live at https://www.twitch.tv/smokie_777
-
 Luna<br />
 <img src="./readme_assets/image.png" alt="luna" width="350" />
 
