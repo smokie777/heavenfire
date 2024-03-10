@@ -7,7 +7,8 @@ CHUNK_SIZE = 1024
 
 url = f'https://api.elevenlabs.io/v1/text-to-speech/{os.environ["ELEVEN_LABS_VOICE_ID_SMOKIE_VOICE_CLONE"]}'
 
-querystring = { 'output_format': 'mp3_44100_192' }
+# 192 requires creator or above tier.
+# querystring = { 'output_format': 'mp3_44100_192' }
 
 headers = {
   'xi-api-key': os.environ['ELEVEN_LABS_API_KEY'],
@@ -30,7 +31,8 @@ def eleven_labs_tts_speak(text):
     'model_id': 'eleven_multilingual_v2'
   }
 
-  response = requests.request('POST', url, json=payload, headers=headers, params=querystring)
+  # response = requests.request('POST', url, json=payload, headers=headers, params=querystring)
+  response = requests.request('POST', url, json=payload, headers=headers)
 
   output_file_name = gen_output_audio_filename() + '_elevenlabs.mp3'
 

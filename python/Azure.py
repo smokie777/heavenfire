@@ -11,7 +11,6 @@ import config
 from dotenv import load_dotenv; load_dotenv()
 from tts_helpers import get_pyaudio_output_audio_index, gen_output_audio_filename
 from enums import PRIORITY_QUEUE_PRIORITIES
-from execute_action import execute_or_enqueue_action
 # https://learn.microsoft.com/en-us/azure/ai-services/speech-service/get-started-speech-to-text?tabs=windows%2Cterminal&pivots=programming-language-python
 
 class Azure:
@@ -156,10 +155,17 @@ class Azure:
         )
       )
       print(f'[STT] Recognized: {cleaned_mic_input}')
-      execute_or_enqueue_action(
-        prompt=f'Smokie: {cleaned_mic_input}',
-        priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT']
+      requests.post(
+        'http://localhost:5001/receive_prompt',
+        json={
+          'prompt': f'Smokie: {cleaned_mic_input}',
+          'priority': PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT']
+        }
       )
+      # execute_or_enqueue_action(
+      #   prompt=f'Smokie: {cleaned_mic_input}',
+      #   priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT']
+      # )
     elif speech_recognition_result.reason == speechsdk.ResultReason.NoMatch:
       print(f'[STT] Could not recognize speech: {speech_recognition_result.no_match_details}')
     elif speech_recognition_result.reason == speechsdk.ResultReason.Canceled:

@@ -34,6 +34,9 @@ USER_SCOPE = [
 ]
 TARGET_CHANNEL = 'smokie_777'
 
+WHISPER_PREFIX_TEXT = '[respond to this message as if you were whispering. give a longer response than usual.]'
+RANT_PREFIX_TEXT = '[please go on a really long and angry rant about the following topic.]'
+
 async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
   print('[PYTWITCHAPI]', data)
   title = data['data']['redemption']['reward']['title']
@@ -42,7 +45,7 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
   if title == 'luna whisper':
     vts_set_expression(VTS_EXPRESSIONS['FLUSHED'])
     user_input = data['data']['redemption']['user_input']
-    prompt = f'(respond to this message as if you were whispering. give a longer response than usual.) {display_name}: {user_input}'
+    prompt = f'{WHISPER_PREFIX_TEXT} {display_name}: {user_input}'
     with config.app.app_context():
       db_event_insert_one(
         type=TWITCH_EVENT_TYPE['CHANNEL_POINT_REDEMPTION'],
@@ -57,7 +60,7 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
   elif title == 'luna rant':
     vts_set_expression(VTS_EXPRESSIONS['ANGRY'])
     user_input = data['data']['redemption']['user_input']
-    prompt = f'Luna, please go on a really long and angry rant about the following topic: {user_input}!'
+    prompt = f'{RANT_PREFIX_TEXT} {user_input}!'
     with config.app.app_context():
       db_event_insert_one(
         type=TWITCH_EVENT_TYPE['CHANNEL_POINT_REDEMPTION'],
@@ -159,6 +162,14 @@ async def chat_on_ready(ready_event: EventData):
   await ready_event.chat.join_room(TARGET_CHANNEL)
 
 async def chat_on_message(msg: ChatMessage):
+  # bits are handled in pubsub, so we ignore bit messages here
+  if (
+    msg.bits
+    or WHISPER_PREFIX_TEXT in msg.text # channel point redemption will send a normal message too
+    or RANT_PREFIX_TEXT in msg.text # channel point redemption will send a normal message too
+  ):
+    return
+
   prompt = f'{msg.user.name}: {msg.text}'
   is_at_luna = '@luna' in msg.text.lower() or '@hellfire' in msg.text.lower()
 
@@ -219,9 +230,14 @@ async def chat_on_command_filter(cmd: ChatCommand):
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!filter')
 
 async def chat_on_command_video(cmd: ChatCommand):
-  await cmd.reply('https://www.youtube.com/watch?v=VBijra3J4zo 🖤✨')
+  await cmd.reply('https://www.youtube.com/watch?v=Qg7yCyOw_nk 🖤✨')
   with config.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!video')
+
+async def chat_on_command_build(cmd: ChatCommand):
+  await cmd.reply('https://www.lastepochtools.com/planner/volrj1GQ 🖤✨')
+  with config.app.app_context():
+    db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!build')
 
 async def chat_on_command_play(cmd: ChatCommand):
   parameters = cmd.parameter.strip().lower().split(maxsplit=2)
@@ -279,6 +295,7 @@ async def run_pytwitchapi():
   config.chat.register_command('video', chat_on_command_video)
   config.chat.register_command('play', chat_on_command_play)
   config.chat.register_command('ban', chat_on_command_ban)
+  config.chat.register_command('build', chat_on_command_build)
   config.chat.start()
 
   config.pubsub = PubSub(config.twitch)

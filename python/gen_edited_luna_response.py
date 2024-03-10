@@ -183,6 +183,8 @@ def gen_edited_luna_response(s):
       replacement_word = 'Ye'
     elif is_mouth_sound(text, 's', 'h', []):
       replacement_word = 'Be quiet'
+    elif is_mouth_sound(strip_leading_letters(strip_leading_letters(text, 'h'), 'e'), 'l', 'o'):
+      replacement_word = 'Hello'
     elif (
       is_mouth_sound(text, 'e', 'w')
       or is_mouth_sound(strip_leading_letters(strip_leading_letters(text, 'u'), 'r'), 'g', 'h')

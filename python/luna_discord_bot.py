@@ -155,8 +155,9 @@ async def on_message(message):
             await target_messsage.reply(edited)
           # general message response function
           else:
-            messages_per_minute_counter += 1
-            messages_per_hour_counter += 1
+            if str(message.author) != 'smokie_777':
+              messages_per_minute_counter += 1
+              messages_per_hour_counter += 1
             prompt = str(message.author.display_name) + ': ' + str(message.clean_content)
             (_, _, edited) = gen_llm_response(prompt)
 

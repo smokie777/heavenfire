@@ -101,7 +101,7 @@ def _sing():
 
   try:
     config.is_busy = True
-    sing(song)
+    sing(song, config.azure)
     config.is_busy = False
   except Exception as e:
     log_error(e, '/sing')
