@@ -23,9 +23,9 @@ def get_current_hour():
 current_minute = get_current_minute()
 current_hour = get_current_hour()
 
-MAX_MESSAGES_PER_MINUTE = 5
-MAX_MESSAGES_PER_HOUR = 15
-MAX_MESSAGES_PER_SESSION = 50
+MAX_MESSAGES_PER_MINUTE = 10
+MAX_MESSAGES_PER_HOUR = 50
+MAX_MESSAGES_PER_SESSION = 100
 
 messages_per_minute_counter = 0
 messages_per_hour_counter = 0

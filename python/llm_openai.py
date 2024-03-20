@@ -30,6 +30,28 @@ def gen_llm_response(prompt):
 
   reply = chat.choices[0].message.content
 
+  # # custom !timeout functionality
+  # if '!timeout' in reply:
+  #   original_reply = reply
+  #   chat = openai.ChatCompletion.create(
+  #     model = os.environ['LUNA_GPT_MODEL_CHEAP'],
+  #     # model = os.environ['LUNA_GPT_MODEL_EXPENSIVE'],
+  #     # model = os.environ['LUNA_GPT_MODEL_FINETUNED'],
+  #     # model = os.environ['LUNA_GPT_MODEL_FINETUNED_2'],
+  #     messages=[
+  #       { 'role': 'system', 'content': 'You are helping an AI VTuber on Twitch generate responses to time people out. You can timeout users by saying, !timeout username. Refactor the given response to utilize the !timeout command.' },
+  #       { 'role': 'user', 'content': reply }
+  #     ],
+  #     temperature=float(os.environ['LUNA_GPT_TEMPERATURE']),
+  #     # temperature=2,
+  #     presence_penalty=float(os.environ['LUNA_GPT_PRESENCE_PENALTY']),
+  #     frequency_penalty=float(os.environ['LUNA_GPT_FREQUENCY_PENALTY']),
+  #     max_tokens=int(os.environ['LUNA_GPT_MAX_TOKENS'])
+  #     # ^parameters explained: https://platform.openai.com/docs/api-reference/chat/create
+  #   )
+  #   reply = chat.choices[0].message.content
+  #   print(f'[LLM] !timeout override used. Original reply: {original_reply}')
+
   total_tokens = chat.usage.total_tokens
   
   print('[LLM] TOTAL TOKENS: ', total_tokens)
