@@ -1,6 +1,5 @@
 from flask import request
 from log_error import log_error
-from execute_action import execute_or_enqueue_action
 from pytwitchapi import terminate_pytwitchapi
 import signal
 import os
@@ -23,7 +22,7 @@ def _receive_prompt():
   azure_speaking_style = data['azure_speaking_style'] if 'azure_speaking_style' in data else None
 
   try:
-    execute_or_enqueue_action(
+    config.priority_queue.enqueue(
       prompt=prompt,
       priority=priority,
       utterance_id=utterance_id,
@@ -62,7 +61,10 @@ def _react_to_screen():
     image_captions = gen_image_captions()
     print('[ROUTES] Captions: ', image_captions)
     prompt = gen_image_react_prompt(image_captions, 'picture')
-    execute_or_enqueue_action(prompt=prompt, priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_IMAGE'])
+    config.priority_queue.enqueue(
+      prompt=prompt,
+      priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_IMAGE']
+    )
   except Exception as e:
     log_error(e, '/react_to_screen')
 

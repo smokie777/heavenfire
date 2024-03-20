@@ -4,11 +4,15 @@ from threading import Thread
 import config
 
 import db # this import must happen after config
+
+from Azure import Azure
+
 import routes # this import must happen after db
+
 from pytwitchapi import run_pytwitchapi # this import must happen after db
 
 from remind_me import remind_me_async_loop_run
-from Azure import Azure
+from priority_queue import priority_queue_loop_run
 from r_ctrl_stt import r_ctrl_stt_run # this import must happen after Azure
 
 if __name__ == '__main__':
@@ -19,19 +23,12 @@ if __name__ == '__main__':
   print(config.llm_short_term_memory.messages[1:])
   config.azure = Azure()
 
-  # run apps individually. should be done for testing purposes only
-  # config.app.run(debug=False, port=5001)
-  # asyncio.run(run_pytwitchapi())
-  # remind_me_async_loop_run(loop,)
-  # r_ctrl_stt_run()
-
   # run apps together. intended usage
-  loop = asyncio.new_event_loop()
-
   threads = [
     Thread(target=lambda: config.app.run(debug=False, port=5001)),
     Thread(target=lambda: asyncio.run(run_pytwitchapi())),
-    Thread(target=remind_me_async_loop_run, args=(loop,)),
+    Thread(target=priority_queue_loop_run),
+    Thread(target=remind_me_async_loop_run),
     Thread(target=r_ctrl_stt_run),
   ]
 

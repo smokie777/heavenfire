@@ -1,8 +1,6 @@
 import re
-from time import sleep
 import config
 from datetime import datetime
-from execute_action import execute_or_enqueue_action
 from enums import PRIORITY_QUEUE_PRIORITIES
 import asyncio
 
@@ -31,7 +29,7 @@ async def remind_me_async_loop():
     now = datetime.now()
     for (reminder_prompt, reminder_datetime) in config.remind_me_prompts_and_datetime_queue:
       if now >= reminder_datetime:
-        execute_or_enqueue_action(
+        config.priority_queue.enqueue(
           prompt=reminder_prompt,
           priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_REMIND_ME']
         )
@@ -39,6 +37,7 @@ async def remind_me_async_loop():
       (rp, rd) for (rp, rd) in config.remind_me_prompts_and_datetime_queue if now < rd
     ]
 
-def remind_me_async_loop_run(loop):
+def remind_me_async_loop_run():
+  loop = asyncio.new_event_loop()
   asyncio.set_event_loop(loop)
   loop.run_until_complete(remind_me_async_loop())

@@ -6,7 +6,6 @@ from twitchAPI.pubsub import PubSub
 from uuid import UUID
 import os
 from enums import AZURE_SPEAKING_STYLE, VTS_EXPRESSIONS, PRIORITY_QUEUE_PRIORITIES, TWITCH_EVENTS, TWITCH_EVENT_TYPE
-from execute_action import execute_or_enqueue_action
 from vts_set_expression import vts_set_expression
 from dotenv import load_dotenv; load_dotenv()
 from utils import does_one_word_start_with_at
@@ -52,7 +51,7 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
         event='luna whisper',
         body=user_input
       )
-    execute_or_enqueue_action(
+    config.priority_queue.enqueue(
       prompt=prompt,
       priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'],
       azure_speaking_style=AZURE_SPEAKING_STYLE['WHISPERING']
@@ -67,7 +66,7 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
         event='luna rant',
         body=user_input
       )
-    execute_or_enqueue_action(
+    config.priority_queue.enqueue(
       prompt=prompt,
       priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE']
     )
@@ -86,7 +85,7 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
         event='smokie tts',
         body=user_input
       )
-    execute_or_enqueue_action(
+    config.priority_queue.enqueue(
       prompt=user_input,
       priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'],
       is_eleven_labs=True
@@ -107,7 +106,7 @@ async def pubsub_callback_listen_bits_v1(uuid: UUID, data: dict) -> None:
       'value': str(bits)
     }
   }))
-  execute_or_enqueue_action(
+  config.priority_queue.enqueue(
     prompt=prompt, 
     priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE']
   )
@@ -152,7 +151,7 @@ async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -
       'value': ws_message
     }
   }))
-  execute_or_enqueue_action(
+  config.priority_queue.enqueue(
     prompt=prompt,
     priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE']
   )
@@ -199,12 +198,12 @@ async def chat_on_message(msg: ChatMessage):
           event='!remindme',
           body=reminder_action
         )
-      execute_or_enqueue_action(
+      config.priority_queue.enqueue(
         prompt=acknowledgement_prompt,
         priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_REMIND_ME']
       )
     else:
-      execute_or_enqueue_action(
+      config.priority_queue.enqueue(
         prompt=prompt,
         priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_TWITCH_CHAT_QUEUE']
       )
@@ -268,7 +267,7 @@ async def chat_on_command_ban(cmd: ChatCommand):
     username_to_ban = cmd.text.replace('!ban ', '')
     if username_to_ban:
       prompt = f'Announce to everyone that {username_to_ban} has just been permanently banned from the channel! Feel free to add some spice :)'
-      execute_or_enqueue_action(
+      config.priority_queue.enqueue(
         prompt=prompt,
         priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_BAN_USER'],
         username_to_ban=username_to_ban

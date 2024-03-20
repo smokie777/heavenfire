@@ -155,17 +155,17 @@ class Azure:
         )
       )
       print(f'[STT] Recognized: {cleaned_mic_input}')
-      requests.post(
-        'http://localhost:5001/receive_prompt',
-        json={
-          'prompt': f'Smokie: {cleaned_mic_input}',
-          'priority': PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT']
-        }
-      )
-      # execute_or_enqueue_action(
-      #   prompt=f'Smokie: {cleaned_mic_input}',
-      #   priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT']
+      # requests.post(
+      #   'http://localhost:5001/receive_prompt',
+      #   json={
+      #     'prompt': f'Smokie: {cleaned_mic_input}',
+      #     'priority': PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT']
+      #   }
       # )
+      config.priority_queue.enqueue(
+        prompt=f'Smokie: {cleaned_mic_input}',
+        priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT']
+      )
     elif speech_recognition_result.reason == speechsdk.ResultReason.NoMatch:
       print(f'[STT] Could not recognize speech: {speech_recognition_result.no_match_details}')
     elif speech_recognition_result.reason == speechsdk.ResultReason.Canceled:

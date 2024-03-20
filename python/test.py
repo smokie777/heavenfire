@@ -6,7 +6,6 @@ from gen_image_captions import gen_image_react_prompt
 from prompts import system
 from helpers import obfuscate_prompt_username
 from datetime import datetime
-from Prompt import Prompt
 from pytwitchapi_helpers import is_valid_scrabble_tile
 
 class TestPriorityQueue(unittest.TestCase):
@@ -22,24 +21,24 @@ class TestPriorityQueue(unittest.TestCase):
       'PRIORITY_MIC_INPUT',
       'PRIORITY_COLLAB_MIC_INPUT'
     ]:
-      q.enqueue(Prompt(prompt='foo', priority=priority))
-      q.enqueue(Prompt(prompt='foo1', priority=priority))
+      q.enqueue(prompt='foo', priority=priority)
+      q.enqueue(prompt='foo1', priority=priority)
       self.assertEqual(
         q.get_items()[priority][0].prompt,
         'foo1',
         f'cant enqueue {priority}'
       )
 
-    q.enqueue(Prompt(prompt='foo', priority='PRIORITY_PUBSUB_EVENTS_QUEUE'))
-    q.enqueue(Prompt(prompt='foo1', priority='PRIORITY_PUBSUB_EVENTS_QUEUE'))
+    q.enqueue(prompt='foo', priority='PRIORITY_PUBSUB_EVENTS_QUEUE')
+    q.enqueue(prompt='foo1', priority='PRIORITY_PUBSUB_EVENTS_QUEUE')
     self.assertEqual(
       q.get_items()['PRIORITY_PUBSUB_EVENTS_QUEUE'][0].prompt,
       'foo foo1',
       'cant enqueue PRIORITY_PUBSUB_EVENTS_QUEUE'
     )
 
-    q.enqueue(Prompt(prompt='foo', priority='PRIORITY_REMIND_ME'))
-    q.enqueue(Prompt(prompt='foo1', priority='PRIORITY_REMIND_ME'))
+    q.enqueue(prompt='foo', priority='PRIORITY_REMIND_ME')
+    q.enqueue(prompt='foo1', priority='PRIORITY_REMIND_ME')
 
     self.assertEqual(
       q.get_items()['PRIORITY_REMIND_ME'][0].prompt,
@@ -52,15 +51,15 @@ class TestPriorityQueue(unittest.TestCase):
       'cant enqueue PRIORITY_REMIND_ME'
     )
 
-    q.enqueue(Prompt(prompt='foo', priority='PRIORITY_TWITCH_CHAT_QUEUE'))
-    q.enqueue(Prompt(prompt='foo1', priority='PRIORITY_TWITCH_CHAT_QUEUE'))
-    q.enqueue(Prompt(prompt='foo2', priority='PRIORITY_TWITCH_CHAT_QUEUE'))
+    q.enqueue(prompt='foo', priority='PRIORITY_TWITCH_CHAT_QUEUE')
+    q.enqueue(prompt='foo1', priority='PRIORITY_TWITCH_CHAT_QUEUE')
+    q.enqueue(prompt='foo2', priority='PRIORITY_TWITCH_CHAT_QUEUE')
     self.assertEqual(
       len(q.get_items()['PRIORITY_TWITCH_CHAT_QUEUE']),
       3,
       'cant enqueue PRIORITY_TWITCH_CHAT_QUEUE'
     )
-    q.enqueue(Prompt(prompt='foo3', priority='PRIORITY_TWITCH_CHAT_QUEUE'))
+    q.enqueue(prompt='foo3', priority='PRIORITY_TWITCH_CHAT_QUEUE')
     self.assertEqual(
       len(q.get_items()['PRIORITY_TWITCH_CHAT_QUEUE']),
       3,
@@ -226,7 +225,6 @@ class TestLLMShortTermMemory(unittest.TestCase):
         'latency_tts': 0.456,
       },
     ])
-    print(m.messages)
     self.assertEqual(m.messages[-1]['content'], 'newer test response.')
     self.assertEqual(m.messages[-2]['content'], 'newer test prompt.')
     self.assertEqual(m.messages[-3]['content'], 'older test response.')
