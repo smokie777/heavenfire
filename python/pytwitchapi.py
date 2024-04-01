@@ -219,17 +219,17 @@ async def chat_on_command_profile(cmd: ChatCommand):
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!profile')
 
 async def chat_on_command_pob(cmd: ChatCommand):
-  await cmd.reply('https://pobb.in/RFuJbFI73eIN 🖤✨')
+  await cmd.reply('https://pobb.in/BgamVOOCQlH7 🖤✨')
   with config.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!pob')
 
 async def chat_on_command_filter(cmd: ChatCommand):
-  await cmd.reply('https://www.filterblade.xyz/?profile=smokie_777 🖤✨')
+  await cmd.reply('BASE FILTER (all gear hidden): https://www.filterblade.xyz/?profile=smokie_777&saveState=LVW1KYSNJXA3XV&platform=pc&isPreset=false\nLEAGUE START FILTER (base filter with semi-strict gear rules): https://www.filterblade.xyz/?profile=smokie_777&saveState=9VFGMVBQ4DK68P&platform=pc&isPreset=false\nBONESHATTER SLAYER FILTER (ILVL84+): https://www.filterblade.xyz/?profile=smokie_777&saveState=YV0J9GVYE6YON4&platform=pc&isPreset=false')
   with config.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!filter')
 
 async def chat_on_command_video(cmd: ChatCommand):
-  await cmd.reply('https://www.youtube.com/watch?v=Qg7yCyOw_nk 🖤✨')
+  await cmd.reply('https://youtu.be/gTxQqJy3J3E 🖤✨')
   with config.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!video')
 

@@ -5,7 +5,8 @@ from tts_helpers import gen_output_audio_filename
 
 CHUNK_SIZE = 1024
 
-url = f'https://api.elevenlabs.io/v1/text-to-speech/{os.environ["ELEVEN_LABS_VOICE_ID_SMOKIE_VOICE_CLONE"]}'
+# url = f'https://api.elevenlabs.io/v1/text-to-speech/{os.environ["ELEVEN_LABS_VOICE_ID_SMOKIE_VOICE_CLONE"]}'
+url = f'https://api.elevenlabs.io/v1/text-to-speech/{os.environ["ELEVEN_LABS_VOICE_ID_SMOKIE_VALLEY_GIRL"]}'
 
 # 192 requires creator or above tier.
 # querystring = { 'output_format': 'mp3_44100_192' }

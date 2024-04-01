@@ -1,7 +1,7 @@
 VTS_EXPRESSIONS = {
-  'FLUSHED': 'f4',
+  'FLUSHED': 'f7',
   'ANGRY': 'f9',
-  'SAD': 'f7',
+  'SAD': 'f4',
   'BROWN_HAIR': 'f11'
 }
 
