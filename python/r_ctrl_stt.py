@@ -1,10 +1,10 @@
 from pynput.keyboard import Key, Listener
-import config
+from InstanceContainer import InstanceContainer
 
 def pynput_on_press(key):
   if key == Key.ctrl_r:
-    config.azure.is_listening = True
-    config.azure.recognize_from_microphone()
+    InstanceContainer.azure.is_listening = True
+    InstanceContainer.azure.recognize_from_microphone()
 
 def pynput_on_release(key):
   if key == Key.pause:

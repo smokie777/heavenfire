@@ -1,10 +1,10 @@
 import asyncio
-import config
 from execute_action import execute_action
+from InstanceContainer import InstanceContainer
 
 async def priority_queue_loop():
   while True:
-    Prompt = config.priority_queue.dequeue() # this dequeue is thread-safe and blocking.
+    Prompt = InstanceContainer.priority_queue.dequeue() # this dequeue is thread-safe and blocking.
     execute_action(Prompt)
 
 def priority_queue_loop_run():

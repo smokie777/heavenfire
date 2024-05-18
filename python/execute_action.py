@@ -1,4 +1,3 @@
-import config
 from llm_openai import gen_llm_response
 import json
 from time import sleep, time
@@ -9,10 +8,12 @@ from db import db_message_insert_one
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from eleven_labs_tts import eleven_labs_tts_speak
+from InstanceContainer import InstanceContainer
+from State import State
 
 def execute_action(Prompt):
-  config.is_busy = True
-  config.ws.send(json.dumps({ 'is_busy': True }))
+  State.is_busy = True
+  InstanceContainer.ws.send(json.dumps({ 'is_busy': True }))
 
   if Prompt.is_eleven_labs:
     # bypass the normal flow to read eleven labs tts
@@ -26,22 +27,22 @@ def execute_action(Prompt):
     print('[LLM] Raw: ', raw)
     print('[LLM] Edited: ', edited)
 
-    config.ws.send(json.dumps({
+    InstanceContainer.ws.send(json.dumps({
       'prompt': prompt, 'raw': raw, 'edited': edited, 'latency_llm': f'{latency_llm}s'
     }))
 
     start_time = time()
-    (output_filename, subtitles) = config.azure.gen_audio_file_and_subtitles(
+    (output_filename, subtitles) = InstanceContainer.azure.gen_audio_file_and_subtitles(
       edited,
       Prompt.azure_speaking_style
     )
     latency_tts = round((time() - start_time), 3)
-    with config.app.app_context():
+    with InstanceContainer.app.app_context():
       db_message_insert_one(prompt=prompt, response=edited, latency_llm=latency_llm, latency_tts=latency_tts)
 
     print(f'[LLM] LLM: {latency_llm}s | TTS: {latency_tts}s')
 
-    config.ws.send(json.dumps({
+    InstanceContainer.ws.send(json.dumps({
       'edited': edited, 'subtitles': subtitles, 'latency_tts': f'{latency_tts}s'
     }))
 
@@ -55,7 +56,7 @@ def execute_action(Prompt):
           asyncio.run,
           ban_user_via_username(Prompt.username_to_ban, None, 'banned via !ban')
         )
-      config.ws.send(json.dumps({
+      InstanceContainer.ws.send(json.dumps({
         'twitch_event': {
           'event': TWITCH_EVENTS['BAN'],
           'username': Prompt.username_to_ban,
@@ -63,10 +64,10 @@ def execute_action(Prompt):
         }
       }))
 
-    config.azure.speak(output_filename)
+    InstanceContainer.azure.speak(output_filename)
 
     if Prompt.utterance_id:
-      config.ws.send(json.dumps({ 'utterance_id': Prompt.utterance_id }))
+      InstanceContainer.ws.send(json.dumps({ 'utterance_id': Prompt.utterance_id }))
 
     if '!timeout' in edited:
       username_to_timeout = extract_username_to_timeout_from_string(edited)
@@ -85,7 +86,7 @@ def execute_action(Prompt):
     Prompt.priority != PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT']
     and Prompt.priority != PRIORITY_QUEUE_PRIORITIES['PRIORITY_COLLAB_MIC_INPUT']
   ):
-    sleep(config.ai_response_delay)
+    sleep(State.ai_response_delay)
 
-  config.ws.send(json.dumps({ 'is_busy': False }))
-  config.is_busy = False
+  InstanceContainer.ws.send(json.dumps({ 'is_busy': False }))
+  State.is_busy = False

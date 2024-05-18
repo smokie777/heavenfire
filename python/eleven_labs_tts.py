@@ -2,6 +2,8 @@ import requests
 from dotenv import load_dotenv; load_dotenv()
 import os
 from tts_helpers import gen_output_audio_filename
+from mutagen.mp3 import MP3
+from time import sleep
 
 CHUNK_SIZE = 1024
 
@@ -41,5 +43,10 @@ def eleven_labs_tts_speak(text):
     for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
       if chunk:
         f.write(chunk)
+
+    # sleep for the duration of the file, to avoid the vtuber speaking over this TTS
+    mutagen_audio = MP3(output_file_name)
+    mutagen_duration = mutagen_audio.info.length
+    sleep(mutagen_duration)
 
     os.startfile(os.path.abspath(output_file_name))

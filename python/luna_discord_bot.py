@@ -1,16 +1,15 @@
+from InstanceContainer import InstanceContainer
 import discord
 import os
-from llm_openai import gen_llm_response
 import random
 import datetime
-from log_error import log_error
 import asyncio
 from datetime import timedelta
 from dotenv import load_dotenv; load_dotenv()
-from Azure import Azure
+from log_error import log_error
+from llm_openai import gen_llm_response
 
-# we don't want to import the whole config.py for this specific discord bot functionality
-azure = Azure()
+InstanceContainer.llm_short_term_memory.set_context('Right now, you are hanging out in your discord server.')
 
 def get_current_minute():
   current_time = datetime.datetime.now()
@@ -34,11 +33,26 @@ is_luna_busy = False
 
 vc = None
 
+GENERAL_CHANNEL_ID = 1139810743471063052
+TRANSCRIPTION_CHANNEL_ID = 1157165876064296980
+LUNA_AND_SMOKIE_ONLY_CHANNEL_ID = 1141547964960079984
+VOICE_TEXT_CHANNEL_ID = 1141966787404124221
+LIVE_ANNOUNCEMENTS_CHANNEL_ID = 1139812500032987166
+
 client = discord.Client(intents=discord.Intents.all())
 
 @client.event
 async def on_ready():
     print('We have logged in as {0.user}'.format(client))
+
+@client.event
+async def on_member_join(member):
+  # (_, _, edited) = gen_llm_response(f'{member.display_name} just joined the discord server! Welcome them with a spicy welcome message!')
+  channel = client.get_channel(GENERAL_CHANNEL_ID)
+  async with channel.typing():
+    await asyncio.sleep(random.uniform(2, 4))
+  # await channel.send(f'{member.mention} :erm:')
+  await channel.send('<:erm:1181683256438046741>')
 
 @client.event
 async def on_message(message):
@@ -109,8 +123,8 @@ async def on_message(message):
         try:
           prompt = ''
           # send specific message to target channel functionality
-          if (str(message.author) == 'smokie_777' and '@Luna send ' in str(message.clean_content)):
-            args = message.clean_content.replace('@Luna send ', '').split(' ')
+          if (str(message.author) == 'smokie_777' and '@Luna !send ' in str(message.clean_content)):
+            args = message.clean_content.replace('@Luna !send ', '').split(' ')
             channel_name = args[0]
             message_to_send = ' '.join(args[1:])
             if channel_name and message_to_send:
@@ -118,6 +132,14 @@ async def on_message(message):
               async with channel.typing():
                 await asyncio.sleep(random.uniform(2, 4))
               await channel.send(message_to_send)
+            return
+          # live-announcements stream alert notif functionality
+          elif (str(message.author) == 'smokie_777' and '@Luna !live' in str(message.clean_content)):
+            (_, _, edited) = gen_llm_response('Smokie: Luna, we\'re about to go live on Twitch! Can you come up a spicy discord alert message to let everyone know we\'re about to go live?')
+            message_to_send = f'@here {edited} https://www.twitch.tv/smokie_777'
+            channel = client.get_channel(LIVE_ANNOUNCEMENTS_CHANNEL_ID)
+            await channel.send(message_to_send)
+            return
           # ban functionality
           elif (str(message.author) == 'smokie_777' and '@Luna !ban ' in str(message.clean_content)):
             await message.mentions[1].ban()
@@ -161,9 +183,9 @@ async def on_message(message):
             prompt = str(message.author.display_name) + ': ' + str(message.clean_content)
             (_, _, edited) = gen_llm_response(prompt)
 
-            if vc is not None and (message.channel.name == 'voice-text' or message.channel.name == 'luna-and-smokie-only'):
+            if vc is not None and (message.channel.id == VOICE_TEXT_CHANNEL_ID or message.channel.id == LUNA_AND_SMOKIE_ONLY_CHANNEL_ID):
               await message.reply(edited)
-              (filename, _) = azure.gen_audio_file_and_subtitles(edited, None, True)
+              (filename, _) = InstanceContainer.azure.gen_audio_file_and_subtitles(edited, None, True)
               try:
                 # todo: in collab mode, do a post request to the flask server
                 vc.play(discord.FFmpegPCMAudio(filename))
@@ -181,15 +203,15 @@ async def on_message(message):
         await message.reply('⌛')
     # luna bot respond to transcription
     elif (
-      message.channel.name == 'transcription'
+      message.channel.id == TRANSCRIPTION_CHANNEL_ID
       and str(message.author) == 'SeaVoice#8208'
       and vc is not None
       and len(str(message.clean_content).split(':  ')[-1].split()) > 1
-      and str(message.clean_content).split(':  ')[0] != '**LUnA**'
+      and str(message.clean_content).split(':  ')[0] != '**Luna**'
     ):
       prompt = str(message.clean_content.replace('*', ''))
       (_, _, edited) = gen_llm_response(prompt)
-      (filename, _) = azure.gen_audio_file_and_subtitles(edited, None, True)
+      (filename, _) = InstanceContainer.azure.gen_audio_file_and_subtitles(edited, None, True)
       try:
         vc.play(discord.FFmpegPCMAudio(filename))
       except:

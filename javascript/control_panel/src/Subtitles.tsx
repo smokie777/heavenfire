@@ -1,10 +1,6 @@
 import './Subtitles.scss';
 import { useEffect, useState } from 'react';
-
-type azureTTSSubtitle = {
-  audio_offset: number;
-  text_offset: number;
-};
+import { azureTTSSubtitle } from './types';
 
 export const Subtitles = ({
   text = '',
@@ -39,7 +35,10 @@ export const Subtitles = ({
         }
         for (let i = 0; i < subtitles.length; i++) {
           if (subtitles[i].audio_offset >= stopwatch) {
-            setSubtitleText(text.slice(0, subtitles[i].text_offset - textOffsetAdjustment));
+            setSubtitleText(
+              (i >= 1 && subtitles[i - 1].text) // custom logic for hardcoded song subtitles
+              || text.slice(0, subtitles[i].text_offset - textOffsetAdjustment) // normal logic
+            );
             stopwatch += 200;
             break;
           }

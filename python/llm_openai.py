@@ -1,5 +1,6 @@
+from State import State
+from InstanceContainer import InstanceContainer
 import os
-import config
 import openai
 from dotenv import load_dotenv; load_dotenv()
 
@@ -12,14 +13,14 @@ def gen_llm_response(prompt):
   if len(prompt) > 1500:
     prompt = 'You\'ve received a message that\'s way too long, and is probably spam! Inform Smokie about it.'
   
-  config.llm_short_term_memory.add_user_message(prompt)
+  InstanceContainer.llm_short_term_memory.add_user_message(prompt)
 
   chat = openai.ChatCompletion.create(
     # model = os.environ['LUNA_GPT_MODEL_CHEAP'],
     # model = os.environ['LUNA_GPT_MODEL_EXPENSIVE'],
     model = os.environ['LUNA_GPT_MODEL_FINETUNED'],
     # model = os.environ['LUNA_GPT_MODEL_FINETUNED_2'],
-    messages=config.llm_short_term_memory.messages,
+    messages=InstanceContainer.llm_short_term_memory.messages,
     temperature=float(os.environ['LUNA_GPT_TEMPERATURE']),
     # temperature=2,
     presence_penalty=float(os.environ['LUNA_GPT_PRESENCE_PENALTY']),
@@ -27,7 +28,7 @@ def gen_llm_response(prompt):
     max_tokens=int(os.environ['LUNA_GPT_MAX_TOKENS'])
     # ^parameters explained: https://platform.openai.com/docs/api-reference/chat/create
   )
-
+# 
   reply = chat.choices[0].message.content
 
   # # custom !timeout functionality
@@ -56,11 +57,11 @@ def gen_llm_response(prompt):
   
   print('[LLM] TOTAL TOKENS: ', total_tokens)
   
-  raw, edited = config.llm_short_term_memory.add_assistant_message(reply)
+  raw, edited = InstanceContainer.llm_short_term_memory.add_assistant_message(reply)
 
-  config.llm_short_term_memory.clean_parentheses()
+  InstanceContainer.llm_short_term_memory.clean_parentheses()
 
-  if total_tokens > config.llm_fuzzy_token_limit:
-    config.llm_short_term_memory.trim()
+  if total_tokens > State.llm_fuzzy_token_limit:
+    InstanceContainer.llm_short_term_memory.trim()
     
   return (prompt, raw, edited)

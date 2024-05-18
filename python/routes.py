@@ -4,7 +4,8 @@ from pytwitchapi import terminate_pytwitchapi
 import signal
 import os
 import json
-import config
+from InstanceContainer import InstanceContainer
+from State import State
 from gen_image_captions import take_screenshot, gen_image_captions, gen_image_react_prompt
 from time import sleep
 from utils import move_emojis_to_end, conditionally_add_period
@@ -13,7 +14,7 @@ from sing import sing
 from enums import PRIORITY_QUEUE_PRIORITIES
 from db import db_message_get_by_page, db_event_get_by_page
 
-@config.app.route('/receive_prompt', methods=['POST'])
+@InstanceContainer.app.route('/receive_prompt', methods=['POST'])
 def _receive_prompt():
   data = request.get_json()
   prompt = data['prompt']
@@ -22,7 +23,7 @@ def _receive_prompt():
   azure_speaking_style = data['azure_speaking_style'] if 'azure_speaking_style' in data else None
 
   try:
-    config.priority_queue.enqueue(
+    InstanceContainer.priority_queue.enqueue(
       prompt=prompt,
       priority=priority,
       utterance_id=utterance_id,
@@ -34,25 +35,25 @@ def _receive_prompt():
   return {}
 
 # speak_text bypasses most of the app flow, so it should be used sparingly
-@config.app.route('/speak_text', methods=['POST'])
+@InstanceContainer.app.route('/speak_text', methods=['POST'])
 def _speak_text():
   data = request.get_json()
   text = data['text']
 
   try:
-    config.is_busy = True
+    State.is_busy = True
     edited = conditionally_add_period(move_emojis_to_end(gen_edited_luna_response(text)))
     # todo: should we send latency to websocket here?
-    (output_filename, subtitles) = config.azure.gen_audio_file_and_subtitles(edited)
-    config.ws.send(json.dumps({ 'edited': edited, 'subtitles': subtitles }))
-    config.azure.speak(output_filename)
-    config.is_busy = False
+    (output_filename, subtitles) = InstanceContainer.azure.gen_audio_file_and_subtitles(edited)
+    InstanceContainer.ws.send(json.dumps({ 'edited': edited, 'subtitles': subtitles }))
+    InstanceContainer.azure.speak(output_filename)
+    State.is_busy = False
   except Exception as e:
     log_error(e, '/speak_text')
 
   return {}
 
-@config.app.route('/react_to_screen', methods=['POST'])
+@InstanceContainer.app.route('/react_to_screen', methods=['POST'])
 def _react_to_screen():
   data = request.get_json()
 
@@ -61,7 +62,7 @@ def _react_to_screen():
     image_captions = gen_image_captions()
     print('[ROUTES] Captions: ', image_captions)
     prompt = gen_image_react_prompt(image_captions, 'picture')
-    config.priority_queue.enqueue(
+    InstanceContainer.priority_queue.enqueue(
       prompt=prompt,
       priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_IMAGE']
     )
@@ -70,73 +71,76 @@ def _react_to_screen():
 
   return {}
 
-@config.app.route('/erase_memory', methods=['POST'])
+@InstanceContainer.app.route('/erase_memory', methods=['POST'])
 def _erase_memory():
   data = request.get_json()
 
   try:
-    config.llm_short_term_memory.erase_memory()
-    setattr(config, 'is_busy', False)
-    print(f'[ROUTES] is_busy -> {getattr(config, "is_busy")}')
+    InstanceContainer.llm_short_term_memory.erase_memory()
+    State.is_busy = False
+    print(f'[ROUTES] is_busy -> {State.is_busy}')
   except Exception as e:
     log_error(e, '/erase_memory')
 
   return {}
 
-@config.app.route('/cancel_speech', methods=['POST'])
+@InstanceContainer.app.route('/cancel_speech', methods=['POST'])
 def _cancel_speech():
   data = request.get_json()
 
   try:
-    config.tts_green_light = False
+    State.tts_green_light = False
     sleep(0.25);
-    config.tts_green_light = True
+    State.tts_green_light = True
   except Exception as e:
     log_error(e, '/cancel_speech')
 
   return {}
 
-@config.app.route('/sing', methods=['POST'])
+@InstanceContainer.app.route('/sing', methods=['POST'])
 def _sing():
   data = request.get_json()
   song = data['song']
 
   try:
-    config.is_busy = True
-    sing(song, config.azure)
-    config.is_busy = False
+    State.is_busy = True
+    sing(song, InstanceContainer.azure)
+    State.is_busy = False
   except Exception as e:
     log_error(e, '/sing')
 
   return {}
 
-@config.app.route('/set_context', methods=['POST'])
+@InstanceContainer.app.route('/set_context', methods=['POST'])
 def _set_context():
   data = request.get_json()
   context = data['context']
 
   try:
-    config.llm_short_term_memory.set_context(context)
+    InstanceContainer.llm_short_term_memory.set_context(context)
   except Exception as e:
     log_error(e, '/set_context')
 
   return {}
 
-@config.app.route('/set_config_variable', methods=['POST'])
-def _set_config_variable():
+@InstanceContainer.app.route('/set_backend_state_variable', methods=['POST'])
+def _set_backend_state_variable():
   data = request.get_json()
   name = data['name']
   value = data['value']
 
   try:
-    setattr(config, name, value)
-    print(f'[ROUTES] {name} -> {getattr(config, name)}')
+    if hasattr(State, name):
+      setattr(State, name, value)
+      print(f'[ROUTES] State.{name} -> {getattr(State, name)}')
+    else:
+      print(f'[ROUTES] No such property: State.{name}')
   except Exception as e:
-    log_error(e, '/set_config_variable')
+    log_error(e, '/set_backend_state_variable')
 
   return {}
 
-@config.app.route('/shut_down_server', methods=['POST'])
+@InstanceContainer.app.route('/shut_down_server', methods=['POST'])
 def _shut_down_server():
   data = request.get_json()
 
@@ -148,7 +152,7 @@ def _shut_down_server():
 
   return {}
 
-@config.app.route('/get_db_rows_by_page', methods=['POST'])
+@InstanceContainer.app.route('/get_db_rows_by_page', methods=['POST'])
 def _get_db_rows_by_page():
   data = request.get_json()
   model = data['model']

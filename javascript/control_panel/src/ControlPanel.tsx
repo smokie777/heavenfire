@@ -5,6 +5,7 @@ import { fetch_post } from './fetch_functions';
 import { Subtitles } from './Subtitles';
 import { Helmet } from 'react-helmet';
 import { PRIORITY_QUEUE_PRIORITIES } from './enums';
+import { song_subtitles } from './song_subtitles';
 
 // make channel point redeem for luna saying "im gonna punch you in the face"
 
@@ -89,17 +90,25 @@ export const ControlPanel = () => {
       text: '',
       subtitles: []
     });
+    fetch_post('/speak_text', {
+      text: 'this speech has been cancelled by smokie_777.',
+      priority: PRIORITY_QUEUE_PRIORITIES.PRIORITY_MIC_INPUT
+    });
   };
 
   const sing = async() => {
     // TODO: implement a dropdown with all possible songs
-    const songs = ['edamame', 'ringer', 'newcrack', 'iwantitthatway', 'yesterday', 'yijianmei', 'consequences'];
+    const songs = ['edamame', 'ringer', 'newcrack', 'iwantitthatway', 'yesterday', 'yijianmei', 'consequences', 'howcouldiever'];
     const song = textBoxInput;
     if (!songs.includes(song)) {
+      alert(`error: cannot find song ${song}!`)
       return;
     }
     setTextBoxInput('');
     setIsBusy(true);
+    if (song_subtitles.hasOwnProperty(song)) {
+      setSubtitlesState(song_subtitles[song])
+    }
     await fetch_post('/sing', {
       song,
     });
@@ -123,7 +132,7 @@ export const ControlPanel = () => {
   const toggleIsTwitchChatReactOn = () => {
     const newValue = !isTwitchChatReactOn;
     setIsTwitchChatReactOn(newValue);
-    fetch_post('/set_config_variable', {
+    fetch_post('/set_backend_state_variable', {
       name: 'is_twitch_chat_react_on',
       value: newValue
     });
@@ -132,7 +141,7 @@ export const ControlPanel = () => {
   const toggleIsQuietModeOn = () => {
     const newValue = !isQuietModeOn;
     setIsQuietModeOn(newValue);
-    fetch_post('/set_config_variable', {
+    fetch_post('/set_backend_state_variable', {
       name: 'is_quiet_mode_on',
       value: newValue
     });

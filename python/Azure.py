@@ -1,3 +1,4 @@
+from State import State
 import os
 import requests
 from pydub import AudioSegment
@@ -7,10 +8,9 @@ import azure.cognitiveservices.speech as speechsdk
 from threading import Thread
 import emoji
 import re
-import config
 from dotenv import load_dotenv; load_dotenv()
-from tts_helpers import get_pyaudio_output_audio_index, gen_output_audio_filename
 from enums import PRIORITY_QUEUE_PRIORITIES
+from tts_helpers import get_pyaudio_output_audio_index, gen_output_audio_filename
 # https://learn.microsoft.com/en-us/azure/ai-services/speech-service/get-started-speech-to-text?tabs=windows%2Cterminal&pivots=programming-language-python
 
 class Azure:
@@ -44,7 +44,8 @@ class Azure:
     audio_config=AUDIO_CONFIG
   )
 
-  def __init__(self):
+  def __init__(self, priority_queue):
+    self.priority_queue = priority_queue # reference to InstanceContainer.priority_queue
     self.word_offsets = []
     self.is_listening = False
 
@@ -129,7 +130,7 @@ class Azure:
     )
     data = wf.readframes(chunk)
     while len(data) > 0:
-      if config.tts_green_light:
+      if State.tts_green_light:
         stream.write(data)
         data = wf.readframes(chunk)
       else:
@@ -162,7 +163,7 @@ class Azure:
       #     'priority': PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT']
       #   }
       # )
-      config.priority_queue.enqueue(
+      self.priority_queue.enqueue(
         prompt=f'Smokie: {cleaned_mic_input}',
         priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT']
       )

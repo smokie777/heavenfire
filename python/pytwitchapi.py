@@ -11,10 +11,11 @@ from dotenv import load_dotenv; load_dotenv()
 from utils import does_one_word_start_with_at
 from pytwitchapi_helpers import is_valid_scrabble_tile
 import json
-import config
 from remind_me import convert_time_hms_string_to_ms
 from datetime import datetime, timedelta
 from db import db_event_insert_one
+from InstanceContainer import InstanceContainer
+from State import State
 
 APP_ID = os.environ['TWITCH_APP_ID']
 APP_SECRET = os.environ['TWITCH_APP_SECRET']
@@ -41,54 +42,67 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
   title = data['data']['redemption']['reward']['title']
   display_name = data['data']['redemption']['user']['display_name']
 
-  if title == 'luna whisper':
+  if title == 'luna whisper' and State.is_twitch_chat_react_on:
     vts_set_expression(VTS_EXPRESSIONS['FLUSHED'])
     user_input = data['data']['redemption']['user_input']
     prompt = f'{WHISPER_PREFIX_TEXT} {display_name}: {user_input}'
-    with config.app.app_context():
+    with InstanceContainer.app.app_context():
       db_event_insert_one(
         type=TWITCH_EVENT_TYPE['CHANNEL_POINT_REDEMPTION'],
         event='luna whisper',
         body=user_input
       )
-    config.priority_queue.enqueue(
+    InstanceContainer.priority_queue.enqueue(
       prompt=prompt,
       priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'],
       azure_speaking_style=AZURE_SPEAKING_STYLE['WHISPERING']
     )
-  elif title == 'luna rant':
+  elif title == 'luna rant' and State.is_twitch_chat_react_on:
     vts_set_expression(VTS_EXPRESSIONS['ANGRY'])
     user_input = data['data']['redemption']['user_input']
     prompt = f'{RANT_PREFIX_TEXT} {user_input}!'
-    with config.app.app_context():
+    with InstanceContainer.app.app_context():
       db_event_insert_one(
         type=TWITCH_EVENT_TYPE['CHANNEL_POINT_REDEMPTION'],
         event='luna rant',
         body=user_input
       )
-    config.priority_queue.enqueue(
+    InstanceContainer.priority_queue.enqueue(
       prompt=prompt,
       priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE']
     )
   elif title == 'Luna brown hair':
-    with config.app.app_context():
+    with InstanceContainer.app.app_context():
       db_event_insert_one(
         type=TWITCH_EVENT_TYPE['CHANNEL_POINT_REDEMPTION'],
         event='Luna brown hair'
       )
     vts_set_expression(VTS_EXPRESSIONS['BROWN_HAIR'])
-  elif title == 'smokie tts' and not config.is_singing:
+  elif title == 'smokie tts' and not State.is_singing:
     user_input = data['data']['redemption']['user_input']
-    with config.app.app_context():
+    with InstanceContainer.app.app_context():
       db_event_insert_one(
         type=TWITCH_EVENT_TYPE['CHANNEL_POINT_REDEMPTION'],
         event='smokie tts',
         body=user_input
       )
-    config.priority_queue.enqueue(
+    InstanceContainer.priority_queue.enqueue(
       prompt=user_input,
       priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE'],
       is_eleven_labs=True
+    )
+  elif title == 'unlock 7tv emote':
+    user_input = data['data']['redemption']['user_input']
+    prompt = f'{display_name} just requested adding the {user_input} 7tv emote!'
+    with InstanceContainer.app.app_context():
+      db_event_insert_one(
+        type=TWITCH_EVENT_TYPE['CHANNEL_POINT_REDEMPTION'],
+        event='unlock 7tv emote',
+        body=user_input
+      )
+    InstanceContainer.priority_queue.enqueue(
+      prompt=prompt,
+      priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE']
     )
 
 async def pubsub_callback_listen_bits_v1(uuid: UUID, data: dict) -> None:
@@ -99,14 +113,14 @@ async def pubsub_callback_listen_bits_v1(uuid: UUID, data: dict) -> None:
   chat_message = data.get('chat_message')
   prompt = f'{user_name} just cheered {bits} bits! Their message: {chat_message}'
   # send bits data to websocket
-  config.ws.send(json.dumps({
+  InstanceContainer.ws.send(json.dumps({
     'twitch_event': {
       'event': TWITCH_EVENTS['BITS'],
       'username': user_name,
       'value': str(bits)
     }
   }))
-  config.priority_queue.enqueue(
+  InstanceContainer.priority_queue.enqueue(
     prompt=prompt, 
     priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE']
   )
@@ -144,14 +158,14 @@ async def pubsub_callback_listen_channel_subscriptions(uuid: UUID, data: dict) -
       prompt = f'{display_name} just subscribed at {tier}!'
       ws_sub_name = display_name
       ws_message = f'{tier} sub'
-  config.ws.send(json.dumps({
+  InstanceContainer.ws.send(json.dumps({
     'twitch_event': {
       'event': TWITCH_EVENTS['SUB'],
       'username': ws_sub_name,
       'value': ws_message
     }
   }))
-  config.priority_queue.enqueue(
+  InstanceContainer.priority_queue.enqueue(
     prompt=prompt,
     priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE']
   )
@@ -173,12 +187,14 @@ async def chat_on_message(msg: ChatMessage):
   is_at_luna = '@luna' in msg.text.lower() or '@hellfire' in msg.text.lower()
 
   if (
-    config.is_twitch_chat_react_on
+    State.is_twitch_chat_react_on
     and msg.text[0] != '!'
     and msg.user.name != 'Streamlabs'
     and (
-      (config.is_quiet_mode_on and is_at_luna)
-      or (not config.is_quiet_mode_on and (is_at_luna or not does_one_word_start_with_at(msg.text.lower().split(' '))))
+      (State.is_quiet_mode_on and is_at_luna)
+      or (not State.is_quiet_mode_on and (
+        is_at_luna or not does_one_word_start_with_at(msg.text.lower().split(' '))
+      ))
     )
   ):
     if '@luna !remindme ' in msg.text.lower():
@@ -188,55 +204,50 @@ async def chat_on_message(msg: ChatMessage):
         f'say, "I will remind {msg.user.name} to "{reminder_action}" in {args[0]}."'
       )
       reminder_prompt = f'say to {msg.user.name} that this is their reminder to "{reminder_action}".'
-      config.remind_me_prompts_and_datetime_queue.append((
+      State.remind_me_prompts_and_datetime_queue.append((
         reminder_prompt,
         datetime.now() + timedelta(milliseconds=convert_time_hms_string_to_ms(args[0]))
       ))
-      with config.app.app_context():
+      with InstanceContainer.app.app_context():
         db_event_insert_one(
           type=TWITCH_EVENT_TYPE['CHAT_COMMAND'],
           event='!remindme',
           body=reminder_action
         )
-      config.priority_queue.enqueue(
+      InstanceContainer.priority_queue.enqueue(
         prompt=acknowledgement_prompt,
         priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_REMIND_ME']
       )
     else:
-      config.priority_queue.enqueue(
+      InstanceContainer.priority_queue.enqueue(
         prompt=prompt,
         priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_TWITCH_CHAT_QUEUE']
       )
 
 async def chat_on_command_discord(cmd: ChatCommand):
-  await cmd.reply('https://discord.gg/cxTHwepMTb 🖤✨')
-  with config.app.app_context():
+  await cmd.reply('https://discord.gg/cxTHwepMTb')
+  with InstanceContainer.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!discord')
 
 async def chat_on_command_profile(cmd: ChatCommand):
-  await cmd.reply('https://www.pathofexile.com/account/view-profile/smokie_777/characters 🖤✨')
-  with config.app.app_context():
+  await cmd.reply('https://www.pathofexile.com/account/view-profile/smokie_777/characters')
+  with InstanceContainer.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!profile')
 
-async def chat_on_command_pob(cmd: ChatCommand):
-  await cmd.reply('https://pobb.in/BgamVOOCQlH7 🖤✨')
-  with config.app.app_context():
-    db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!pob')
-
 async def chat_on_command_filter(cmd: ChatCommand):
-  await cmd.reply('BASE FILTER (all gear hidden): https://www.filterblade.xyz/?profile=smokie_777&saveState=LVW1KYSNJXA3XV&platform=pc&isPreset=false\nLEAGUE START FILTER (base filter with semi-strict gear rules): https://www.filterblade.xyz/?profile=smokie_777&saveState=9VFGMVBQ4DK68P&platform=pc&isPreset=false\nBONESHATTER SLAYER FILTER (ILVL84+): https://www.filterblade.xyz/?profile=smokie_777&saveState=YV0J9GVYE6YON4&platform=pc&isPreset=false')
-  with config.app.app_context():
+  await cmd.reply('https://www.filterblade.xyz/?profile=smokie_777&saveState=LVW1KYSNJXA3XV&platform=pc&isPreset=false ')
+  with InstanceContainer.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!filter')
 
 async def chat_on_command_video(cmd: ChatCommand):
-  await cmd.reply('https://youtu.be/gTxQqJy3J3E 🖤✨')
-  with config.app.app_context():
+  await cmd.reply('https://www.youtube.com/@smokie_777')
+  with InstanceContainer.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!video')
 
-async def chat_on_command_build(cmd: ChatCommand):
-  await cmd.reply('https://www.lastepochtools.com/planner/volrj1GQ 🖤✨')
-  with config.app.app_context():
-    db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!build')
+async def chat_on_command_plan(cmd: ChatCommand):
+  await cmd.reply('https://imgur.com/a/VUtJZEp')
+  with InstanceContainer.app.app_context():
+    db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!plan')
 
 async def chat_on_command_play(cmd: ChatCommand):
   parameters = cmd.parameter.strip().lower().split(maxsplit=2)
@@ -249,7 +260,7 @@ async def chat_on_command_play(cmd: ChatCommand):
     or not is_valid_scrabble_tile(coordinate_str)
   ):
     return
-  config.ws.send(json.dumps({
+  InstanceContainer.ws.send(json.dumps({
     'scrabble_chat_command': {
       'type': 'play',
       'username': cmd.user.name,
@@ -267,47 +278,46 @@ async def chat_on_command_ban(cmd: ChatCommand):
     username_to_ban = cmd.text.replace('!ban ', '')
     if username_to_ban:
       prompt = f'Announce to everyone that {username_to_ban} has just been permanently banned from the channel! Feel free to add some spice :)'
-      config.priority_queue.enqueue(
+      InstanceContainer.priority_queue.enqueue(
         prompt=prompt,
         priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_BAN_USER'],
         username_to_ban=username_to_ban
       )
 
 async def terminate_pytwitchapi():
-  config.chat.stop()
-  config.pubsub.stop()
-  await config.twitch.close()
+  InstanceContainer.chat.stop()
+  InstanceContainer.pubsub.stop()
+  await InstanceContainer.twitch.close()
     
 async def run_pytwitchapi():
-  config.twitch = await Twitch(APP_ID, APP_SECRET)
-  auth = UserAuthenticator(config.twitch, USER_SCOPE, force_verify=False)
+  InstanceContainer.twitch = await Twitch(APP_ID, APP_SECRET)
+  auth = UserAuthenticator(InstanceContainer.twitch, USER_SCOPE, force_verify=False)
   token, refresh_token = await auth.authenticate()
-  await config.twitch.set_user_authentication(token, USER_SCOPE, refresh_token)
+  await InstanceContainer.twitch.set_user_authentication(token, USER_SCOPE, refresh_token)
 
-  config.chat = await Chat(config.twitch)
-  config.chat.register_event(ChatEvent.READY, chat_on_ready)
-  config.chat.register_event(ChatEvent.MESSAGE, chat_on_message)
-  config.chat.register_command('discord', chat_on_command_discord)
-  config.chat.register_command('profile', chat_on_command_profile)
-  config.chat.register_command('pob', chat_on_command_pob)
-  config.chat.register_command('filter', chat_on_command_filter)
-  config.chat.register_command('video', chat_on_command_video)
-  config.chat.register_command('play', chat_on_command_play)
-  config.chat.register_command('ban', chat_on_command_ban)
-  config.chat.register_command('build', chat_on_command_build)
-  config.chat.start()
+  InstanceContainer.chat = await Chat(InstanceContainer.twitch)
+  InstanceContainer.chat.register_event(ChatEvent.READY, chat_on_ready)
+  InstanceContainer.chat.register_event(ChatEvent.MESSAGE, chat_on_message)
+  InstanceContainer.chat.register_command('discord', chat_on_command_discord)
+  InstanceContainer.chat.register_command('profile', chat_on_command_profile)
+  InstanceContainer.chat.register_command('filter', chat_on_command_filter)
+  InstanceContainer.chat.register_command('video', chat_on_command_video)
+  InstanceContainer.chat.register_command('play', chat_on_command_play)
+  InstanceContainer.chat.register_command('ban', chat_on_command_ban)
+  InstanceContainer.chat.register_command('plan', chat_on_command_plan)
+  InstanceContainer.chat.start()
 
-  config.pubsub = PubSub(config.twitch)
-  config.pubsub.start()
-  await config.pubsub.listen_channel_points(
+  InstanceContainer.pubsub = PubSub(InstanceContainer.twitch)
+  InstanceContainer.pubsub.start()
+  await InstanceContainer.pubsub.listen_channel_points(
     str(os.environ['TWITCH_CHANNEL_ID']),
     pubsub_callback_listen_channel_points
   )
-  await config.pubsub.listen_bits_v1(
+  await InstanceContainer.pubsub.listen_bits_v1(
     str(os.environ['TWITCH_CHANNEL_ID']),
     pubsub_callback_listen_bits_v1
   )
-  await config.pubsub.listen_channel_subscriptions(
+  await InstanceContainer.pubsub.listen_channel_subscriptions(
     str(os.environ['TWITCH_CHANNEL_ID']),
     pubsub_callback_listen_channel_subscriptions
   )

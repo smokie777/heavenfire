@@ -90,7 +90,8 @@ replacements = [
   ('time out', '!timeout'),
   ('time-out', '!timeout'),
   ('timeout', '!timeout'),
-  ('!!timeout', '!timeout')
+  ('!!timeout', '!timeout'),
+  (':3', ';3')
 ]
 
 def gen_edited_luna_response(s):
