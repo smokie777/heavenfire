@@ -131,6 +131,8 @@ def gen_edited_luna_response(s):
       replacement_word = 'Aa'
     elif is_mouth_sound(text, 'e', 'e'):
       replacement_word = 'Ee'
+    elif is_mouth_sound(strip_leading_letters(text, 'y'), 'e', 't'):
+      replacement_word = 'Yet'
     elif (
       is_mouth_sound(text, 'e', 'r')
       or is_mouth_sound(text, 'u', 'm')

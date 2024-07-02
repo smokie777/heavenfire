@@ -249,6 +249,11 @@ async def chat_on_command_plan(cmd: ChatCommand):
   with InstanceContainer.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!plan')
 
+async def chat_on_command_rip(cmd: ChatCommand):
+  await cmd.reply('https://clips.twitch.tv/SpotlessImportantTigerNotATK-y8BriY_NBlNwA8a5')
+  with InstanceContainer.app.app_context():
+    db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!rip')
+
 async def chat_on_command_play(cmd: ChatCommand):
   parameters = cmd.parameter.strip().lower().split(maxsplit=2)
   start_tile = parameters[0].strip() if len(parameters) > 0 else ''
@@ -305,6 +310,7 @@ async def run_pytwitchapi():
   InstanceContainer.chat.register_command('play', chat_on_command_play)
   InstanceContainer.chat.register_command('ban', chat_on_command_ban)
   InstanceContainer.chat.register_command('plan', chat_on_command_plan)
+  InstanceContainer.chat.register_command('rip', chat_on_command_rip)
   InstanceContainer.chat.start()
 
   InstanceContainer.pubsub = PubSub(InstanceContainer.twitch)

@@ -52,6 +52,7 @@ is_luna_busy = False
 
 vc = None
 
+GUILD_ID = 1139810741642330152
 GENERAL_CHANNEL_ID = 1139810743471063052
 TRANSCRIPTION_CHANNEL_ID = 1157165876064296980
 LUNA_AND_SMOKIE_ONLY_CHANNEL_ID = 1141547964960079984
@@ -71,7 +72,8 @@ async def on_member_join(member):
   async with channel.typing():
     await asyncio.sleep(random.uniform(2, 4))
   # await channel.send(f'{member.mention} :erm:')
-  await channel.send('<:erm:1181683256438046741>')
+  # await channel.send('<:erm:1181683256438046741>')
+  await channel.send('<:lunaErm:1256725746668404827>')
 
 @client.event
 async def on_message(message):
@@ -89,7 +91,7 @@ async def on_message(message):
   is_luna_busy = True
 
   # only respond to messages if BOTH message is from Alluring Lunar Haven AND @Luna was mentioned
-  if str(message.guild) == 'Alluring Luna Abyss':
+  if message.guild.id == GUILD_ID:
     if int(os.environ['LUNA_DISCORD_BOT_ID']) in [m.id for m in message.mentions]:
       # print('message.activity: ', message.activity)
       # print('message.application: ', message.application)
