@@ -19,6 +19,7 @@ import { useReducer } from 'react';
 import { initialState, reducer } from './app_reducer';
 
 export const App = () => {
+  const wsRef = useRef<WebSocket | null>(null);
   const [state, dispatch] = useReducer(reducer, initialState);
   
   const utteranceIdRef = useRef('');
@@ -159,7 +160,11 @@ export const App = () => {
   }, [state.turn, condition1, condition2]);
 
   useEffect(() => {
+    if (wsRef.current) {
+      wsRef.current.close();
+    }
     const ws = new WebSocket('ws://localhost:4000');
+    wsRef.current = ws;
     ws.addEventListener('open', () => {
       console.log('Connected to WebSocket server!');
     });
@@ -175,6 +180,9 @@ export const App = () => {
     });
 
     return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
       clearTimeout(AIPlayWordTimeoutRef.current);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps

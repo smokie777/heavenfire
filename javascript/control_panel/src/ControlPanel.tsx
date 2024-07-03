@@ -1,15 +1,16 @@
 import './ControlPanel.scss';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Spacer } from './Spacer';
 import { fetch_post } from './fetch_functions';
 import { Subtitles } from './Subtitles';
 import { Helmet } from 'react-helmet';
-import { PRIORITY_QUEUE_PRIORITIES } from './enums';
+import { PRIORITY_QUEUE_PRIORITIES, WEBSOCKET_EVENT_TYPES } from './enums';
 import { song_subtitles } from './song_subtitles';
 
 // make channel point redeem for luna saying "im gonna punch you in the face"
 
 export const ControlPanel = () => {
+  const wsRef = useRef<WebSocket | null>(null);
   const [textBoxInput, setTextBoxInput] = useState('');
   const [prompt, setPrompt] = useState('');
   const [raw, setRaw] = useState('');
@@ -21,9 +22,15 @@ export const ControlPanel = () => {
   const [isTwitchChatReactOn, setIsTwitchChatReactOn] = useState(true);
   const [isQuietModeOn, setIsQuietModeOn] = useState(true);
   const [isBusy, setIsBusy] = useState(false);
+  const [areLiveAnimatedEmotesOn, setAreLiveAnimatedEmotesOn] = useState(false);
+  const [isDVDActive, setIsDVDActive] = useState(false);
 
   useEffect(() => {
+    if (wsRef.current) {
+      wsRef.current.close();
+    }
     const ws = new WebSocket('ws://localhost:4000');
+    wsRef.current = ws;
     ws.addEventListener('open', () => {
       console.log('Connected to WebSocket server!');
     });
@@ -48,6 +55,12 @@ export const ControlPanel = () => {
         setIsBusy(data.is_busy);
       }
     });
+
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -147,6 +160,29 @@ export const ControlPanel = () => {
     });
   };
 
+  const toggleEmoteAnimations = () => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({
+        type: WEBSOCKET_EVENT_TYPES['TOGGLE_LIVE_ANIMATED_EMOTES']
+      }));
+      setAreLiveAnimatedEmotesOn(prevState => !prevState);
+    } else {
+      alert('WebSocket ded');
+    }
+  };
+
+  const toggleDVD = () => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({
+        type: WEBSOCKET_EVENT_TYPES['TOGGLE_DVD'],
+        payload: !isDVDActive
+      }));
+      setIsDVDActive(prevState => !prevState);
+    } else {
+      alert('WebSocket ded');
+    }
+  };
+
   return (
     <div className='app_container'>
       <Helmet><title>Heavenfire Control Panel</title></Helmet>
@@ -203,6 +239,14 @@ export const ControlPanel = () => {
             <button onClick={sing}>Sing</button>
             <Spacer width={20} />
             <button onClick={setContext}>Set context</button>
+            <Spacer width={20} />
+            <button onClick={toggleEmoteAnimations}>
+              Toggle emote animations {areLiveAnimatedEmotesOn ? 'off' : 'on'}
+            </button>
+            <Spacer width={20} />
+            <button onClick={toggleDVD}>
+              Toggle DVD {isDVDActive ? 'off' : 'on'}
+            </button>
             <Spacer width={20} />
             </div>
           <div>

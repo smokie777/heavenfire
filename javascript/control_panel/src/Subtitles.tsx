@@ -1,6 +1,7 @@
 import './Subtitles.scss';
 import { useEffect, useState } from 'react';
 import { azureTTSSubtitle } from './types';
+import { useData } from './DataProvider';
 
 export const Subtitles = ({
   text = '',
@@ -10,6 +11,8 @@ export const Subtitles = ({
   subtitles:azureTTSSubtitle[]
 }) => {
   const [subtitleText, setSubtitleText] = useState('');
+  
+  const { emotesNameToUrlMap } = useData();
 
   useEffect(() => {
     let subtitleInterval:number | NodeJS.Timer;
@@ -55,10 +58,42 @@ export const Subtitles = ({
   const subtitlePartitionNum = ~~(subtitleText.length / 333);
   const subtitlePartition = subtitleText.slice(subtitlePartitionNum * 333);
 
+  const subtitlePartitionsWith7tvEmotes = subtitlePartition.split(' ').map((text, index) => {
+    if (emotesNameToUrlMap.hasOwnProperty(text)) {
+      return (
+        <div key={index} className='subtitle_text_inline_emote_container'>
+          <img src={emotesNameToUrlMap[text]} alt={text} />&nbsp;
+        </div>
+      );
+    } else {
+      const commonPunctuationCharacters = ['.', '..', '...', '....', '?!', '!?', '!', '!!', '!!!', '!!!!', '?', '??', '???', '????'];
+      for (let i = 0; i < commonPunctuationCharacters.length; i++) {
+        const punc = commonPunctuationCharacters[i];
+        const textSplit = text.split(punc);
+        if (
+          text.endsWith(punc)
+          && (textSplit.length - 1) === 1
+          && emotesNameToUrlMap.hasOwnProperty(textSplit[0])
+        ) {
+          return <>
+            <div key={index} className='subtitle_text_inline_emote_container'>
+              <img src={emotesNameToUrlMap[textSplit[0]]} alt={textSplit[0]} />&nbsp;
+            </div>
+            <div key={`${index}_${i}`}>{punc}&nbsp;</div>
+          </>;
+        }
+      }
+      return <div key={index}>{text}&nbsp;</div>;
+    }
+  });
+
   return (
-    <div className='subtitles subtitle_text'>
-      <div>{subtitleText.length < 333 ? '' : '...'}{subtitlePartition}</div>
-      {/* <div>What would I say if someone was trolling in my chat? I'd tell them to suck it!</div> */}
+    <div className='subtitles'>
+      <div className='subtitle_text'>
+        {subtitleText.length < 333 ? '' : '...'}
+        {subtitlePartitionsWith7tvEmotes}
+        {/* <div>What would I say if someone was trolling in my chat? I'd tell them to suck it!</div> */}
+      </div>
     </div>
   );
 };

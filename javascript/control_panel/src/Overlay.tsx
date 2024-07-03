@@ -54,11 +54,16 @@ export const Overlay = ({
 }:{
   timerMs?: number
 }) => {
+  const wsRef = useRef<WebSocket | null>(null);
   const [latencyLLM, setLatencyLLM] = useState('');
   const [latencyTTS, setLatencyTTS] = useState('');
 
   useEffect(() => {
+    if (wsRef.current) {
+      wsRef.current.close();
+    }
     const ws = new WebSocket('ws://localhost:4000');
+    wsRef.current = ws;
     ws.addEventListener('open', () => {
       console.log('Connected to WebSocket server!');
     });
@@ -71,6 +76,12 @@ export const Overlay = ({
         setLatencyTTS(data.latency_tts);
       }
     });
+
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
   }, []);
 
   return (

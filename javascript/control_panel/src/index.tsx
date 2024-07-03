@@ -8,6 +8,7 @@ import { ControlPanel } from './ControlPanel';
 import { Overlay } from './Overlay';
 import { Animations } from './Animations';
 import { convertTimeHmsStringToMs } from './utils';
+import { DataProvider } from './DataProvider';
 
 const router = createBrowserRouter([
   {
@@ -30,5 +31,7 @@ const router = createBrowserRouter([
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
-  <RouterProvider router={router} />
+  <DataProvider>
+    <RouterProvider router={router} />
+  </DataProvider>
 );

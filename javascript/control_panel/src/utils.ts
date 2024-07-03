@@ -37,3 +37,15 @@ export const convertMsToHms = (ms: number) => {
 
   return { h: hours, m: minutes, s: seconds };
 };
+
+export const getRandomNumberBetween = (min: number, max: number) => Math.random() * (max - min) + min;
+
+export const extractFirst7tvEmote = (s:string, emotesNameToUrlMap: Record<string, string>) => {
+  const words = s.split(' ');
+  for (let i = 0; i < words.length; i++) {
+    if (emotesNameToUrlMap.hasOwnProperty(words[i])) {
+      return words[i];
+    }
+  }
+  return '';
+};

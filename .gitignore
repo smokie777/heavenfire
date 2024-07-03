@@ -4,6 +4,8 @@ node_modules
 
 .DS_Store
 
+javascript/control_panel/public/emotes/*
+
 __pycache__
 python/heavenfire_venv
 python/.venv

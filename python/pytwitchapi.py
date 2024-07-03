@@ -182,6 +182,14 @@ async def chat_on_message(msg: ChatMessage):
     or RANT_PREFIX_TEXT in msg.text # channel point redemption will send a normal message too
   ):
     return
+  
+  InstanceContainer.ws.send(json.dumps({
+    'twitch_event': {
+      'event': TWITCH_EVENTS['MESSAGE'],
+      'username': msg.user.name,
+      'value': msg.text
+    }
+  }))
 
   prompt = f'{msg.user.name}: {msg.text}'
   is_at_luna = '@luna' in msg.text.lower() or '@hellfire' in msg.text.lower()
