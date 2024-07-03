@@ -161,7 +161,7 @@ export const ControlPanel = () => {
   const toggleEmoteAnimations = () => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({
-        type: WEBSOCKET_EVENT_TYPES['toggle_live_animated_emotes']
+        type: WEBSOCKET_EVENT_TYPES['TOGGLE_LIVE_ANIMATED_EMOTES']
       }));
     } else {
       alert('WebSocket ded');

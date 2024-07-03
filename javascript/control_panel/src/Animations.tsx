@@ -5,7 +5,7 @@ import { AnimationCascadingFadeInOut } from './AnimationCascadingFadeInOut';
 import { useData } from './DataProvider';
 import { v4 as uuidv4 } from 'uuid';
 import { extractFirst7tvEmote, getRandomNumberBetween } from './utils';
-import { WEBSOCKET_EVENT_TYPES } from './enums';
+import { CUSTOM_EMOTES, WEBSOCKET_EVENT_TYPES } from './enums';
 
 enum ANIMATION_EVENTS {
   SUB = 'SUB',
@@ -103,7 +103,7 @@ export const Animations = () => {
             // TODO: should also probably fix the bug that happens when you send the same emote twice in a row
             // TODO: should probably have this be in a separate component than the one that handles alerts
             // hooray, tech debt...
-            img.style.animation = `moveX ${getRandomNumberBetween(2, 3)}s linear 0s infinite alternate, moveY ${getRandomNumberBetween(4, 5)}s linear 0s infinite alternate, vanish 10s linear 0s 1 forwards`;
+            img.style.animation = `moveX ${getRandomNumberBetween(1, 4)}s linear 0s infinite alternate, moveY ${getRandomNumberBetween(3, 6)}s linear 0s infinite alternate, vanish 10s linear 0s 1 forwards`;
             img.style.top = `${getRandomNumberBetween(0, 97)}%`;
             img.style.left = `${getRandomNumberBetween(0, 97)}%`;
             if (container) {
@@ -111,7 +111,7 @@ export const Animations = () => {
             }
           }
         }
-      } else if (data.type === WEBSOCKET_EVENT_TYPES['toggle_live_animated_emotes']) {
+      } else if (data.type === WEBSOCKET_EVENT_TYPES['TOGGLE_LIVE_ANIMATED_EMOTES']) {
         if (areLiveAnimatedEmotesOnRef.current) {
           liveAnimatedEmotes.forEach(emote => {
             const el = document.getElementById(emote.id);

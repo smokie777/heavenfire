@@ -12,5 +12,20 @@ export enum PRIORITY_QUEUE_PRIORITIES {
 }
 
 export enum WEBSOCKET_EVENT_TYPES {
-  'toggle_live_animated_emotes' = 'toggle_live_animated_emotes'
+  'TOGGLE_LIVE_ANIMATED_EMOTES' = 'TOGGLE_LIVE_ANIMATED_EMOTES'
+}
+
+export enum CUSTOM_EMOTES {
+  'smokie40LunaBlush' = 'smokie40LunaBlush',
+  'smokie40LunaCozy' = 'smokie40LunaCozy',
+  'smokie40LunaDeadge' = 'smokie40LunaDeadge',
+  'smokie40LunaEyeRoll' = 'smokie40LunaEyeRoll',
+  'smokie40LunaGasm' = 'smokie40LunaGasm',
+  'smokie40LunaMiddleFinger' = 'smokie40LunaMiddleFinger',
+  'smokie40LunaPog' = 'smokie40LunaPog',
+  'smokie40LunaPossessed' = 'smokie40LunaPossessed',
+  'smokie40LunaRave' = 'smokie40LunaRave',
+  'smokie40LunaSmoge' = 'smokie40LunaSmoge',
+  'smokie40LunaThink' = 'smokie40LunaThink',
+  'smokie40LunaWave' = 'smokie40LunaWave',
 }

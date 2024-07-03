@@ -1,4 +1,5 @@
-import React, { useContext, useState, useEffect, createContext, ReactNode } from "react";
+import React, { useContext, useState, useEffect, createContext, ReactNode } from 'react';
+import { CUSTOM_EMOTES } from './enums';
 
 interface DataContextType {
   emotesNameToUrlMap: Record<string, string>;
@@ -27,10 +28,17 @@ export const DataProvider = ({ children }:{ children: ReactNode }) => {
         throw new Error ('use7tvEmotes: data fetch failed');
       }
       const data7tv:ApiResponse7tv = await response.json();
+      // load 7tv emotes
       const emotesNameToUrlMap:Record<string, string> = {};
       data7tv.emotes.forEach(emote => {
         const emoteSrc = `https://cdn.7tv.app/emote/${emote.id}/4x.webp`;
         emotesNameToUrlMap[emote.name] = emoteSrc;
+        (new Image()).src = emoteSrc; // preload the images for performance
+      });
+      // load custom emotes
+      Object.keys(CUSTOM_EMOTES).forEach(emote => {
+        const emoteSrc = `${process.env.PUBLIC_URL}/emotes/${emote}.png`;
+        emotesNameToUrlMap[emote] = emoteSrc;
         (new Image()).src = emoteSrc; // preload the images for performance
       });
       setEmotesNameToUrlMap(emotesNameToUrlMap);
