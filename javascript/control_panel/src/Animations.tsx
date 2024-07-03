@@ -5,6 +5,7 @@ import { AnimationCascadingFadeInOut } from './AnimationCascadingFadeInOut';
 import { useData } from './DataProvider';
 import { v4 as uuidv4 } from 'uuid';
 import { extractFirst7tvEmote, getRandomNumberBetween } from './utils';
+import { WEBSOCKET_EVENT_TYPES } from './enums';
 
 enum ANIMATION_EVENTS {
   SUB = 'SUB',
@@ -28,6 +29,8 @@ interface Emote {
 let liveAnimatedEmotes:Emote[] = [];
 
 export const Animations = () => {
+  const wsRef = useRef<WebSocket | null>(null);
+  const areLiveAnimatedEmotesOnRef = useRef(false);
   const clearEmotesIntervalRef = useRef<number | NodeJS.Timer>();
   const clearAnimationTimeoutRef = useRef<number | NodeJS.Timer>();
   const isAnimationInProgressRef = useRef(false);
@@ -48,7 +51,8 @@ export const Animations = () => {
   //   username: 'test-username-for-ban',
   //   value: ''
   // });
-  const { data } = useData();
+
+  const { emotesNameToUrlMap } = useData();
 
   const runTwitchEventQueue = () => {
     isAnimationInProgressRef.current = true;
@@ -64,28 +68,35 @@ export const Animations = () => {
   };
 
   useEffect(() => {
+    if (wsRef.current) {
+      wsRef.current.close();
+    }
     const ws = new WebSocket('ws://localhost:4000');
+    wsRef.current = ws;
     ws.addEventListener('open', () => {
       console.log('Connected to WebSocket server!');
     });
     ws.addEventListener('message', (_data) => {
-      const wsData = JSON.parse(_data.data);
-      if (wsData.hasOwnProperty('twitch_event')) {
-        const shouldUseTwitchEventQueue = wsData.twitch_event.event !== ANIMATION_EVENTS.MESSAGE;
+      const data = JSON.parse(_data.data);
+      if (data.hasOwnProperty('twitch_event')) {
+        const shouldUseTwitchEventQueue = data.twitch_event.event !== ANIMATION_EVENTS.MESSAGE;
         if (shouldUseTwitchEventQueue) {
-          twitchEventQueueRef.current.push(wsData.twitch_event);
+          twitchEventQueueRef.current.push(data.twitch_event);
           if (!isAnimationInProgressRef.current) {
             runTwitchEventQueue();
           }
-        } else {
-          const maybeFirst7tvEmote = extractFirst7tvEmote(wsData.twitch_event.value, data.emotesNameToUrlMap);
+        } else if (areLiveAnimatedEmotesOnRef.current) {
+          const maybeFirst7tvEmote = extractFirst7tvEmote(
+            data.twitch_event.value,
+            emotesNameToUrlMap
+          );
           if (maybeFirst7tvEmote) {
             liveAnimatedEmotes.push({ id: uuidv4(), text: maybeFirst7tvEmote, createdAt: new Date() });
             // add to dom
             const container = document.getElementById('emotes_container');
             const img = document.createElement('img');
             img.setAttribute('class', 'emote');
-            img.setAttribute('src', data.emotesNameToUrlMap[maybeFirst7tvEmote]);
+            img.setAttribute('src', emotesNameToUrlMap[maybeFirst7tvEmote]);
             img.setAttribute('alt', maybeFirst7tvEmote);
             // original css animation: moveX 2.25s linear 0s infinite alternate, moveY 4s linear 0s infinite alternate, vanish 15s linear 0s 1 forwards;
             // TODO: should probably refactor this to use requestAnimationFrame()
@@ -100,6 +111,15 @@ export const Animations = () => {
             }
           }
         }
+      } else if (data.type === WEBSOCKET_EVENT_TYPES['toggle_live_animated_emotes']) {
+        if (areLiveAnimatedEmotesOnRef.current) {
+          liveAnimatedEmotes.forEach(emote => {
+            const el = document.getElementById(emote.id);
+            el?.remove();
+          });
+          liveAnimatedEmotes = [];
+        }
+        areLiveAnimatedEmotesOnRef.current = !areLiveAnimatedEmotesOnRef.current;
       }
     });
     clearEmotesIntervalRef.current = setInterval(() => {
@@ -117,11 +137,14 @@ export const Animations = () => {
     }, 1000);
 
     return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
       clearTimeout(clearAnimationTimeoutRef.current);
       clearInterval(clearAnimationTimeoutRef.current);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
+  }, [emotesNameToUrlMap]);
   
   let event;
   switch (twitchEvent?.event) {

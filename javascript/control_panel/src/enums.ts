@@ -10,3 +10,7 @@ export enum PRIORITY_QUEUE_PRIORITIES {
   'PRIORITY_TWITCH_CHAT_QUEUE' = 'PRIORITY_TWITCH_CHAT_QUEUE',
   // lowest priority
 }
+
+export enum WEBSOCKET_EVENT_TYPES {
+  'toggle_live_animated_emotes' = 'toggle_live_animated_emotes'
+}

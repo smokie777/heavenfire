@@ -1,12 +1,12 @@
-import { useContext, useState, useEffect, createContext, ReactNode } from "react";
+import React, { useContext, useState, useEffect, createContext, ReactNode } from "react";
 
 interface DataContextType {
-  data: {
-    emotesNameToUrlMap: Record<string, string>;
-  };
+  emotesNameToUrlMap: Record<string, string>;
 }
 
-const DataContext = createContext<DataContextType>({ data: { emotesNameToUrlMap: {} }});
+export const DataContext = createContext<DataContextType>({
+  emotesNameToUrlMap: {}
+});
 
 interface Emote {
   id: string;
@@ -18,7 +18,7 @@ interface ApiResponse7tv {
 }
 
 export const DataProvider = ({ children }:{ children: ReactNode }) => {
-  const [data, setData] = useState({ emotesNameToUrlMap: {} });
+  const [emotesNameToUrlMap, setEmotesNameToUrlMap] = useState({});
 
   useEffect(() => {
     (async() => {
@@ -33,13 +33,15 @@ export const DataProvider = ({ children }:{ children: ReactNode }) => {
         emotesNameToUrlMap[emote.name] = emoteSrc;
         (new Image()).src = emoteSrc; // preload the images for performance
       });
-      setData({ ...data, emotesNameToUrlMap });
+      setEmotesNameToUrlMap(emotesNameToUrlMap);
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <DataContext.Provider value={{ data }}>
+    <DataContext.Provider value={{
+      emotesNameToUrlMap
+    }}>
       {children}
     </DataContext.Provider>
   );
