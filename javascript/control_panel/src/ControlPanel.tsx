@@ -22,6 +22,8 @@ export const ControlPanel = () => {
   const [isTwitchChatReactOn, setIsTwitchChatReactOn] = useState(true);
   const [isQuietModeOn, setIsQuietModeOn] = useState(true);
   const [isBusy, setIsBusy] = useState(false);
+  const [areLiveAnimatedEmotesOn, setAreLiveAnimatedEmotesOn] = useState(false);
+  const [isDVDActive, setIsDVDActive] = useState(false);
 
   useEffect(() => {
     if (wsRef.current) {
@@ -163,6 +165,19 @@ export const ControlPanel = () => {
       wsRef.current.send(JSON.stringify({
         type: WEBSOCKET_EVENT_TYPES['TOGGLE_LIVE_ANIMATED_EMOTES']
       }));
+      setAreLiveAnimatedEmotesOn(prevState => !prevState);
+    } else {
+      alert('WebSocket ded');
+    }
+  };
+
+  const toggleDVD = () => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({
+        type: WEBSOCKET_EVENT_TYPES['TOGGLE_DVD'],
+        payload: !isDVDActive
+      }));
+      setIsDVDActive(prevState => !prevState);
     } else {
       alert('WebSocket ded');
     }
@@ -225,7 +240,13 @@ export const ControlPanel = () => {
             <Spacer width={20} />
             <button onClick={setContext}>Set context</button>
             <Spacer width={20} />
-            <button onClick={toggleEmoteAnimations}>Toggle emote animations</button>
+            <button onClick={toggleEmoteAnimations}>
+              Toggle emote animations {areLiveAnimatedEmotesOn ? 'off' : 'on'}
+            </button>
+            <Spacer width={20} />
+            <button onClick={toggleDVD}>
+              Toggle DVD {isDVDActive ? 'off' : 'on'}
+            </button>
             <Spacer width={20} />
             </div>
           <div>

@@ -26,6 +26,7 @@ interface Emote {
   createdAt: Date;
 }
 
+// this is handled outside of React to avoid animation jank
 let liveAnimatedEmotes:Emote[] = [];
 
 export const Animations = () => {
@@ -92,7 +93,6 @@ export const Animations = () => {
           );
           if (maybeFirst7tvEmote) {
             liveAnimatedEmotes.push({ id: uuidv4(), text: maybeFirst7tvEmote, createdAt: new Date() });
-            // add to dom
             const container = document.getElementById('emotes_container');
             const img = document.createElement('img');
             img.setAttribute('class', 'emote');
@@ -104,8 +104,6 @@ export const Animations = () => {
             // TODO: should probably have this be in a separate component than the one that handles alerts
             // hooray, tech debt...
             img.style.animation = `moveX ${getRandomNumberBetween(1, 4)}s linear 0s infinite alternate, moveY ${getRandomNumberBetween(3, 6)}s linear 0s infinite alternate, vanish 10s linear 0s 1 forwards`;
-            img.style.top = `${getRandomNumberBetween(0, 97)}%`;
-            img.style.left = `${getRandomNumberBetween(0, 97)}%`;
             if (container) {
               container.appendChild(img);
             }
@@ -120,20 +118,38 @@ export const Animations = () => {
           liveAnimatedEmotes = [];
         }
         areLiveAnimatedEmotesOnRef.current = !areLiveAnimatedEmotesOnRef.current;
+      } else if (data.type === WEBSOCKET_EVENT_TYPES['TOGGLE_DVD']) {
+        if (data.payload) {
+          const container = document.getElementById('emotes_container');
+          const img = document.createElement('img');
+          img.setAttribute('class', 'emote');
+          img.setAttribute('id', 'dvd');
+          img.setAttribute('src', emotesNameToUrlMap['smokie40LunaPossessed']);
+          img.setAttribute('alt', 'smokie40LunaPossessed');
+          img.style.animation = 'moveX 4.5s linear 0s infinite alternate, moveY 8s linear 0s infinite alternate';
+          if (container) {
+            container.appendChild(img);
+          }
+        } else {
+          const el = document.getElementById('dvd');
+          el?.remove();
+        }
       }
     });
     clearEmotesIntervalRef.current = setInterval(() => {
-      const threshold = Date.now() - 10000;
-      const newLiveAnimatedEmotes:Emote[] = [];
-      liveAnimatedEmotes.forEach(emote => {
-        if (emote.createdAt.getTime() >= threshold) {
-          const el = document.getElementById(emote.id);
-          el?.remove();
-        } else {
-          newLiveAnimatedEmotes.push(emote);
-        }
-      });
-      liveAnimatedEmotes = newLiveAnimatedEmotes;
+      if (liveAnimatedEmotes.length) {
+        const threshold = Date.now() - 10000;
+        const newLiveAnimatedEmotes:Emote[] = [];
+        liveAnimatedEmotes.forEach(emote => {
+          if (emote.createdAt.getTime() >= threshold) {
+            const el = document.getElementById(emote.id);
+            el?.remove();
+          } else {
+            newLiveAnimatedEmotes.push(emote);
+          }
+        });
+        liveAnimatedEmotes = newLiveAnimatedEmotes;
+      }
     }, 1000);
 
     return () => {

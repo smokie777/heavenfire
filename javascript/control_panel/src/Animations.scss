@@ -12,6 +12,8 @@
 
     .emote {
       position: absolute;
+      top: 0;
+      left: 0;
     }
   }
 
@@ -142,11 +144,11 @@
 }
 
 @keyframes moveX {
-  from { left: 0%; } to { left: 97%; }
+  from { left: 0%; } to { left: 96%; }
 }
 
 @keyframes moveY {
-  from { top: 0%; } to { top: 97%; }
+  from { top: 0%; } to { top: 96%; }
 }
 
 @keyframes vanish {
