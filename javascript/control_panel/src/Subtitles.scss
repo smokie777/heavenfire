@@ -4,10 +4,8 @@
 }
 
 .subtitles {
-  height: 100%;
   width: 50%;
   display: flex;
-  justify-content: center;
   align-items: flex-end;
   background: #00b140;
   box-sizing: border-box;
@@ -15,12 +13,25 @@
 }
 
 .subtitle_text {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
   font-family: 'BubblegumSans-Regular';
   font-weight: bold;
   color: hotpink;
   text-shadow: 8px 8px 16px black;
   -webkit-text-stroke: 1px black;
-  text-align: center;
   font-size: 72px;
   line-height: 88px;
+
+  .subtitle_text_inline_emote_container {
+    height: 88px; /* the container height is .subtitle_text line-height. */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    img {
+      max-height: 72px; /* the image nax-height is the .subtitle_text font size. */
+    }
+  }
 }

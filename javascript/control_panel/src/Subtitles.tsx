@@ -1,6 +1,7 @@
 import './Subtitles.scss';
 import { useEffect, useState } from 'react';
 import { azureTTSSubtitle } from './types';
+import { useData } from './DataProvider';
 
 export const Subtitles = ({
   text = '',
@@ -10,6 +11,7 @@ export const Subtitles = ({
   subtitles:azureTTSSubtitle[]
 }) => {
   const [subtitleText, setSubtitleText] = useState('');
+  const { data } = useData();
 
   useEffect(() => {
     let subtitleInterval:number | NodeJS.Timer;
@@ -55,10 +57,23 @@ export const Subtitles = ({
   const subtitlePartitionNum = ~~(subtitleText.length / 333);
   const subtitlePartition = subtitleText.slice(subtitlePartitionNum * 333);
 
+  const subtitlePartitionsWith7tvEmotes = subtitlePartition.split(' ').map((text, index) => (
+    data.emotesNameToUrlMap.hasOwnProperty(text)
+      ? (
+        <div key={index} className='subtitle_text_inline_emote_container'>
+          <img src={data.emotesNameToUrlMap[text]} alt={text} />&nbsp;
+        </div>
+      )
+      : <div key={index}>{text}&nbsp;</div>
+  ));
+
   return (
-    <div className='subtitles subtitle_text'>
-      <div>{subtitleText.length < 333 ? '' : '...'}{subtitlePartition}</div>
-      {/* <div>What would I say if someone was trolling in my chat? I'd tell them to suck it!</div> */}
+    <div className='subtitles'>
+      <div className='subtitle_text'>
+        {subtitleText.length < 333 ? '' : '...'}
+        {subtitlePartitionsWith7tvEmotes}
+        {/* <div>What would I say if someone was trolling in my chat? I'd tell them to suck it!</div> */}
+      </div>
     </div>
   );
 };
