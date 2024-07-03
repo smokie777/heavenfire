@@ -66,7 +66,7 @@ export const Subtitles = ({
         </div>
       );
     } else {
-      const commonPunctuationCharacters = ['.', '..', '...', '....', '?!', '!?', '!', '!!', '!!!', '!!!!', '?', '??', '???', '????'];
+      const commonPunctuationCharacters = ['....', '...', '..', '.', '?!', '!?', '!!!!', '!!!', '!!', '!', '????', '???', '??', '?'];
       for (let i = 0; i < commonPunctuationCharacters.length; i++) {
         const punc = commonPunctuationCharacters[i];
         const textSplit = text.split(punc);
