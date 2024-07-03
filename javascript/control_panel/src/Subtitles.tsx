@@ -57,15 +57,34 @@ export const Subtitles = ({
   const subtitlePartitionNum = ~~(subtitleText.length / 333);
   const subtitlePartition = subtitleText.slice(subtitlePartitionNum * 333);
 
-  const subtitlePartitionsWith7tvEmotes = subtitlePartition.split(' ').map((text, index) => (
-    data.emotesNameToUrlMap.hasOwnProperty(text)
-      ? (
+  const subtitlePartitionsWith7tvEmotes = subtitlePartition.split(' ').map((text, index) => {
+    if (data.emotesNameToUrlMap.hasOwnProperty(text)) {
+      return (
         <div key={index} className='subtitle_text_inline_emote_container'>
           <img src={data.emotesNameToUrlMap[text]} alt={text} />&nbsp;
         </div>
-      )
-      : <div key={index}>{text}&nbsp;</div>
-  ));
+      );
+    } else {
+      const commonPunctuationCharacters = ['.', '..', '...', '....', '?!', '!?', '!', '!!', '!!!', '!!!!', '?', '??', '???', '????'];
+      for (let i = 0; i < commonPunctuationCharacters.length; i++) {
+        const punc = commonPunctuationCharacters[i];
+        const textSplit = text.split(punc);
+        if (
+          text.endsWith(punc)
+          && (textSplit.length - 1) === 1
+          && data.emotesNameToUrlMap.hasOwnProperty(textSplit[0])
+        ) {
+          return <>
+            <div key={index} className='subtitle_text_inline_emote_container'>
+              <img src={data.emotesNameToUrlMap[textSplit[0]]} alt={textSplit[0]} />&nbsp;
+            </div>
+            <div key={`${index}_${i}`}>{punc}&nbsp;</div>
+          </>;
+        }
+      }
+      return <div key={index}>{text}&nbsp;</div>;
+    }
+  });
 
   return (
     <div className='subtitles'>
