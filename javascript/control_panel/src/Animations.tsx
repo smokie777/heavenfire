@@ -98,7 +98,7 @@ export const Animations = () => {
             img.setAttribute('class', 'emote');
             img.setAttribute('src', emotesNameToUrlMap[maybeFirst7tvEmote]);
             img.setAttribute('alt', maybeFirst7tvEmote);
-            // original css animation: moveX 2.25s linear 0s infinite alternate, moveY 4s linear 0s infinite alternate, vanish 15s linear 0s 1 forwards;
+            // original css animation for 1440p monitor: moveX 2.25s linear 0s infinite alternate, moveY 4s linear 0s infinite alternate, vanish 15s linear 0s 1 forwards;
             // TODO: should probably refactor this to use requestAnimationFrame()
             // TODO: should also probably fix the bug that happens when you send the same emote twice in a row
             // TODO: should probably have this be in a separate component than the one that handles alerts
