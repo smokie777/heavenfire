@@ -5,7 +5,7 @@ import { AnimationCascadingFadeInOut } from './AnimationCascadingFadeInOut';
 import { useData } from './DataProvider';
 import { v4 as uuidv4 } from 'uuid';
 import { extractFirst7tvEmote, getRandomNumberBetween } from './utils';
-import { CUSTOM_EMOTES, WEBSOCKET_EVENT_TYPES } from './enums';
+import { WEBSOCKET_EVENT_TYPES } from './enums';
 
 enum ANIMATION_EVENTS {
   SUB = 'SUB',
@@ -26,12 +26,10 @@ interface Emote {
   createdAt: Date;
 }
 
-// this is handled outside of React to avoid animation jank
-let liveAnimatedEmotes:Emote[] = [];
-
 export const Animations = () => {
   const wsRef = useRef<WebSocket | null>(null);
   const areLiveAnimatedEmotesOnRef = useRef(false);
+  const liveAnimatedEmotes = useRef<Emote[]>([]);
   const clearEmotesIntervalRef = useRef<number | NodeJS.Timer>();
   const clearAnimationTimeoutRef = useRef<number | NodeJS.Timer>();
   const isAnimationInProgressRef = useRef(false);
@@ -92,10 +90,12 @@ export const Animations = () => {
             emotesNameToUrlMap
           );
           if (maybeFirst7tvEmote) {
-            liveAnimatedEmotes.push({ id: uuidv4(), text: maybeFirst7tvEmote, createdAt: new Date() });
+            const emote = { id: uuidv4(), text: maybeFirst7tvEmote, createdAt: new Date() };
+            liveAnimatedEmotes.current.push(emote);
             const container = document.getElementById('emotes_container');
             const img = document.createElement('img');
             img.setAttribute('class', 'emote');
+            img.setAttribute('id', emote.id);
             img.setAttribute('src', emotesNameToUrlMap[maybeFirst7tvEmote]);
             img.setAttribute('alt', maybeFirst7tvEmote);
             // original css animation for 1440p monitor: moveX 2.25s linear 0s infinite alternate, moveY 4s linear 0s infinite alternate, vanish 15s linear 0s 1 forwards;
@@ -111,11 +111,11 @@ export const Animations = () => {
         }
       } else if (data.type === WEBSOCKET_EVENT_TYPES['TOGGLE_LIVE_ANIMATED_EMOTES']) {
         if (areLiveAnimatedEmotesOnRef.current) {
-          liveAnimatedEmotes.forEach(emote => {
+          liveAnimatedEmotes.current.forEach(emote => {
             const el = document.getElementById(emote.id);
             el?.remove();
           });
-          liveAnimatedEmotes = [];
+          liveAnimatedEmotes.current = [];
         }
         areLiveAnimatedEmotesOnRef.current = !areLiveAnimatedEmotesOnRef.current;
       } else if (data.type === WEBSOCKET_EVENT_TYPES['TOGGLE_DVD']) {
@@ -136,31 +136,38 @@ export const Animations = () => {
         }
       }
     });
-    clearEmotesIntervalRef.current = setInterval(() => {
-      if (liveAnimatedEmotes.length) {
-        const threshold = Date.now() - 10000;
-        const newLiveAnimatedEmotes:Emote[] = [];
-        liveAnimatedEmotes.forEach(emote => {
-          if (emote.createdAt.getTime() >= threshold) {
-            const el = document.getElementById(emote.id);
-            el?.remove();
-          } else {
-            newLiveAnimatedEmotes.push(emote);
-          }
-        });
-        liveAnimatedEmotes = newLiveAnimatedEmotes;
-      }
-    }, 1000);
 
     return () => {
       if (wsRef.current) {
         wsRef.current.close();
       }
       clearTimeout(clearAnimationTimeoutRef.current);
-      clearInterval(clearAnimationTimeoutRef.current);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [emotesNameToUrlMap]);
+
+  useEffect(() => {
+    clearEmotesIntervalRef.current = setInterval(() => {
+      if (liveAnimatedEmotes.current.length) {
+        const currentTime = new Date();
+        const tenSecondsAgo = new Date(currentTime.getTime() - 10000);
+        const newLiveAnimatedEmotes:Emote[] = [];
+        liveAnimatedEmotes.current.forEach(emote => {
+          if (emote.createdAt < tenSecondsAgo) {
+            const el = document.getElementById(emote.id);
+            el?.remove();
+          } else {
+            newLiveAnimatedEmotes.push(emote);
+          }
+        });
+        liveAnimatedEmotes.current = newLiveAnimatedEmotes;
+      }
+
+      return () => {
+        clearInterval(clearAnimationTimeoutRef.current);
+      };
+    }, 1000);
+  }, []);
   
   let event;
   switch (twitchEvent?.event) {

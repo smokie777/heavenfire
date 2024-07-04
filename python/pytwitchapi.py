@@ -243,7 +243,8 @@ async def chat_on_command_profile(cmd: ChatCommand):
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!profile')
 
 async def chat_on_command_filter(cmd: ChatCommand):
-  await cmd.reply('https://www.filterblade.xyz/?profile=smokie_777&saveState=LVW1KYSNJXA3XV&platform=pc&isPreset=false ')
+  # await cmd.reply('https://www.filterblade.xyz/?profile=smokie_777&saveState=LVW1KYSNJXA3XV&platform=pc&isPreset=false')
+  await cmd.reply('https://pastebin.com/XRCCuqhK')
   with InstanceContainer.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!filter')
 
