@@ -58,6 +58,7 @@ TRANSCRIPTION_CHANNEL_ID = 1157165876064296980
 LUNA_AND_SMOKIE_ONLY_CHANNEL_ID = 1141547964960079984
 VOICE_TEXT_CHANNEL_ID = 1141966787404124221
 LIVE_ANNOUNCEMENTS_CHANNEL_ID = 1139812500032987166
+SELF_PROMO_CHANNEL_ID = 1142501340459839488
 
 client = discord.Client(intents=discord.Intents.all())
 
@@ -153,14 +154,22 @@ async def on_message(message):
               async with channel.typing():
                 await asyncio.sleep(random.uniform(2, 4))
               await channel.send(message_to_send)
-            return
           # live-announcements stream alert notif functionality
           elif (str(message.author) == 'smokie_777' and '@Luna !live' in str(message.clean_content)):
             (_, _, edited) = gen_llm_response('Smokie: Luna, we\'re about to go live on Twitch! Can you come up a spicy discord alert message to let everyone know we\'re about to go live?')
             message_to_send = f'@here {edited} https://www.twitch.tv/smokie_777'
             channel = client.get_channel(LIVE_ANNOUNCEMENTS_CHANNEL_ID)
             await channel.send(message_to_send)
-            return
+          # youtube video promo functionality (experimental)
+          elif (str(message.author) == 'smokie_777' and '@Luna !video ' in str(message.clean_content)):
+            # example usage: @Luna !video | title | url
+            s = str(message.clean_content)
+            title = s.split('|')[1].strip()
+            url = s.split('|')[2].strip()
+            (_, _, edited) = gen_llm_response(f'Smokie: Luna, you just published a new video on your luna_777 youtube channel! Can you promote it to your discord server? The title is: {title}')
+            message_to_send = f'{edited} {url}'
+            channel = client.get_channel(SELF_PROMO_CHANNEL_ID)
+            await channel.send(message_to_send)
           # ban functionality
           elif (str(message.author) == 'smokie_777' and '@Luna !ban ' in str(message.clean_content)):
             await message.mentions[1].ban()

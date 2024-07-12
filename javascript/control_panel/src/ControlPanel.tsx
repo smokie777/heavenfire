@@ -22,7 +22,7 @@ export const ControlPanel = () => {
   const [isTwitchChatReactOn, setIsTwitchChatReactOn] = useState(true);
   const [isQuietModeOn, setIsQuietModeOn] = useState(true);
   const [isBusy, setIsBusy] = useState(false);
-  const [areLiveAnimatedEmotesOn, setAreLiveAnimatedEmotesOn] = useState(false);
+  const [areLiveAnimatedEmotesOn, setAreLiveAnimatedEmotesOn] = useState(true);
   const [isDVDActive, setIsDVDActive] = useState(false);
 
   useEffect(() => {

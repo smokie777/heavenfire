@@ -28,7 +28,7 @@ interface Emote {
 
 export const Animations = () => {
   const wsRef = useRef<WebSocket | null>(null);
-  const areLiveAnimatedEmotesOnRef = useRef(false);
+  const areLiveAnimatedEmotesOnRef = useRef(true);
   const liveAnimatedEmotes = useRef<Emote[]>([]);
   const clearEmotesIntervalRef = useRef<number | NodeJS.Timer>();
   const clearAnimationTimeoutRef = useRef<number | NodeJS.Timer>();
