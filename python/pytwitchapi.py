@@ -258,6 +258,14 @@ async def chat_on_command_plan(cmd: ChatCommand):
   with InstanceContainer.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!plan')
 
+async def chat_on_command_build(cmd: ChatCommand):
+  await cmd.reply('https://poe.ninja/pob/5ba46')
+  with InstanceContainer.app.app_context():
+    db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!build')
+
+async def chat_on_command_pob(cmd: ChatCommand):
+  await chat_on_command_build(cmd)
+
 async def chat_on_command_rip(cmd: ChatCommand):
   await cmd.reply('https://clips.twitch.tv/SpotlessImportantTigerNotATK-y8BriY_NBlNwA8a5')
   with InstanceContainer.app.app_context():
@@ -320,6 +328,8 @@ async def run_pytwitchapi():
   InstanceContainer.chat.register_command('ban', chat_on_command_ban)
   InstanceContainer.chat.register_command('plan', chat_on_command_plan)
   InstanceContainer.chat.register_command('rip', chat_on_command_rip)
+  InstanceContainer.chat.register_command('rip', chat_on_command_build)
+  InstanceContainer.chat.register_command('rip', chat_on_command_pob)
   InstanceContainer.chat.start()
 
   InstanceContainer.pubsub = PubSub(InstanceContainer.twitch)

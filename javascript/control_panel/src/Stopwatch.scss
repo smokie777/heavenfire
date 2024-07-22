@@ -1,0 +1,28 @@
+.stopwatch {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+
+  .stopwatch_container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 20px;
+
+    .stopwatch_text_container {
+      padding: 20px;
+      background: black;
+
+      .stopwatch_text {
+        font-family: 'FiraMono-Medium';
+        font-size: 60px;
+        color: mediumaquamarine;
+      }
+      #stopwatch_text--ms {
+        font-size: 40px;
+      }
+    }
+  }
+}

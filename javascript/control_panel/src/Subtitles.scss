@@ -3,6 +3,11 @@
   src: URL('../public/BubblegumSans-Regular.ttf') format('truetype');
 }
 
+@font-face {
+  font-family: 'FiraMono-Medium';
+  src: URL('../public/FiraMono-Medium.ttf') format('truetype');
+}
+
 .subtitles {
   width: 50%;
   display: flex;
