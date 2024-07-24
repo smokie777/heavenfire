@@ -6,7 +6,7 @@ from gen_image_captions import gen_image_react_prompt
 from prompts import system
 from helpers import obfuscate_prompt_username
 from datetime import datetime
-from pytwitchapi_helpers import is_valid_scrabble_tile
+from pytwitchapi_helpers import is_valid_scrabble_tile, is_twitch_message_bot_spam
 
 class TestPriorityQueue(unittest.TestCase):
   def runTest(self):
@@ -301,6 +301,13 @@ class TestIsValidScrabbleTile(unittest.TestCase):
     invalid_test_cases = ['', ' ', '015', '4', '115', 'p', 'a0', 'b16', '9b', 'bbb', '33']
     [self.assertTrue(is_valid_scrabble_tile(i)) for i in valid_test_cases]
     [self.assertFalse(is_valid_scrabble_tile(i)) for i in invalid_test_cases]
+
+class TestIsTwitchMessageBotSpam(unittest.TestCase):
+  def runTest(self):
+    valid_test_cases = ['Hello, sorry for bothering you. I want to offer promotion of your channel, viewers, followers, views, chat bots, etc...The price is lower than any competitor, the quality is guaranteed to be the best. Flexible and convenient order management panel, chat panel, everything is in your hands, a huge number of custom settings. Go to streamrise', 'Cheap Viewers and Followers on StreamBoo .com ( cutt.ly/Dw5v2Z5u )']
+    invalid_test_cases = ['hi!', 'hey! how goes the league?', 'Erm']
+    [self.assertTrue(is_twitch_message_bot_spam(i)) for i in valid_test_cases]
+    [self.assertFalse(is_twitch_message_bot_spam(i)) for i in invalid_test_cases]
 
 
 if __name__ == '__main__':

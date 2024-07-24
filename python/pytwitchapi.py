@@ -9,7 +9,7 @@ from enums import AZURE_SPEAKING_STYLE, VTS_EXPRESSIONS, PRIORITY_QUEUE_PRIORITI
 from vts_set_expression import vts_set_expression
 from dotenv import load_dotenv; load_dotenv()
 from utils import does_one_word_start_with_at
-from pytwitchapi_helpers import is_valid_scrabble_tile
+from pytwitchapi_helpers import is_valid_scrabble_tile, send_ban_user_via_username_event_to_priority_queue, is_twitch_message_bot_spam
 import json
 from remind_me import convert_time_hms_string_to_ms
 from datetime import datetime, timedelta
@@ -175,6 +175,15 @@ async def chat_on_ready(ready_event: EventData):
   await ready_event.chat.join_room(TARGET_CHANNEL)
 
 async def chat_on_message(msg: ChatMessage):
+  # print(msg.__dict__)
+
+  if (
+    msg._parsed['tags']['first-msg'] == '1'
+    and is_twitch_message_bot_spam(msg.text)
+  ):
+    print(f'[PYTWITCHAPI] {msg.user.name} was detected as a spam bot, and was banned! Their message: {msg.text}')
+    send_ban_user_via_username_event_to_priority_queue(msg.user.name)
+
   # bits are handled in pubsub, so we ignore bit messages here
   if (
     msg.bits
@@ -296,12 +305,7 @@ async def chat_on_command_ban(cmd: ChatCommand):
   if cmd.user.name == 'smokie_777':
     username_to_ban = cmd.text.replace('!ban ', '')
     if username_to_ban:
-      prompt = f'Announce to everyone that {username_to_ban} has just been permanently banned from the channel! Feel free to add some spice :)'
-      InstanceContainer.priority_queue.enqueue(
-        prompt=prompt,
-        priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_BAN_USER'],
-        username_to_ban=username_to_ban
-      )
+      ban_twitch_user_by_username(username_to_ban)
 
 async def terminate_pytwitchapi():
   InstanceContainer.chat.stop()

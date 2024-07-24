@@ -3,6 +3,7 @@ from InstanceContainer import InstanceContainer
 import os
 from dotenv import load_dotenv; load_dotenv()
 import re
+from enums import PRIORITY_QUEUE_PRIORITIES
 
 async def ban_user_via_username(username, seconds = 30, reason = 'unknown reason'):
   print(f'[PYTWITCHAPI] attempting to ban the user called: {username} for {f"{seconds}s" if seconds is not None else "indefinitely"}')
@@ -28,3 +29,16 @@ def is_valid_scrabble_tile(s):
   
   # Return True if the string matches the pattern, False otherwise
   return bool(match)
+
+bot_phrases = ['dotcom', '.com', 'promo', 'channel', 'view', 'follow', 'competit', 'streamrise', 'http']
+def is_twitch_message_bot_spam(s):
+  processed_s = s.lower().replace(' ', '')
+  return any(i in processed_s for i in bot_phrases)
+
+def send_ban_user_via_username_event_to_priority_queue(username):
+  prompt = f'Announce to everyone that {username} has just been permanently banned from the channel! Feel free to add some spice :)'
+  InstanceContainer.priority_queue.enqueue(
+    prompt=prompt,
+    priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_BAN_USER'],
+    username_to_ban=username
+)
