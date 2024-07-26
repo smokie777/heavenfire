@@ -20,6 +20,7 @@ class PriorityQueue:
     azure_speaking_style = None,
     username_to_ban = None,
     is_eleven_labs = False,
+    should_generate_audio_file_only = False,
     pytwitchapi_args = {},
   ):
     with self.lock:
@@ -30,6 +31,7 @@ class PriorityQueue:
         azure_speaking_style=azure_speaking_style,
         username_to_ban=username_to_ban,
         is_eleven_labs=is_eleven_labs,
+        should_generate_audio_file_only=should_generate_audio_file_only,
         pytwitchapi_args=pytwitchapi_args
       )
 

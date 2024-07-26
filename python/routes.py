@@ -34,6 +34,22 @@ def _receive_prompt():
 
   return {}
 
+@InstanceContainer.app.route('/generate_audio_file', methods=['POST'])
+def generate_audio_file():
+  data = request.get_json()
+  prompt = data['prompt']
+
+  try:
+    InstanceContainer.priority_queue.enqueue(
+      prompt=prompt,
+      priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_MIC_INPUT'],
+      should_generate_audio_file_only=True
+    )
+  except Exception as e:
+    log_error(e, '/receive_prompt')
+
+  return {}
+
 # speak_text bypasses most of the app flow, so it should be used sparingly
 @InstanceContainer.app.route('/speak_text', methods=['POST'])
 def _speak_text():

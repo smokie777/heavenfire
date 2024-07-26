@@ -65,27 +65,33 @@ export const ControlPanel = () => {
   }, []);
 
   const answerTextBox = () => {
-    setIsBusy(true);
-    fetch_post('/receive_prompt', {
-      prompt: textBoxInput,
-      priority: PRIORITY_QUEUE_PRIORITIES.PRIORITY_MIC_INPUT
-    });
-    setTextBoxInput('');
+    if (textBoxInput) {
+      setIsBusy(true);
+      fetch_post('/receive_prompt', {
+        prompt: textBoxInput,
+        priority: PRIORITY_QUEUE_PRIORITIES.PRIORITY_MIC_INPUT
+      });
+      setTextBoxInput('');
+    }
   };
 
   const lunaReadTextBox = () => {
-    fetch_post('/speak_text', {
-      text: textBoxInput,
-      priority: PRIORITY_QUEUE_PRIORITIES.PRIORITY_MIC_INPUT
-    });
-    setTextBoxInput('');
+    if (textBoxInput) {
+      fetch_post('/speak_text', {
+        text: textBoxInput,
+        priority: PRIORITY_QUEUE_PRIORITIES.PRIORITY_MIC_INPUT
+      });
+      setTextBoxInput('');
+    }
   };
 
   const setContext = () => {
-    fetch_post('/set_context', {
-      context: textBoxInput,
-    });
-    setTextBoxInput('');
+    if (textBoxInput) {
+      fetch_post('/set_context', {
+        context: textBoxInput,
+      });
+      setTextBoxInput('');
+    }
   };
 
   const reactToScreen = () => {
@@ -129,12 +135,14 @@ export const ControlPanel = () => {
   };
 
   const getDbRowsByPage = async() => {
-    const rows = await fetch_post('/get_db_rows_by_page', {
-      model: textBoxInput,
-      page: 1
-    });
-    console.log(rows);
-    setTextBoxInput('');
+    if (textBoxInput) {
+      const rows = await fetch_post('/get_db_rows_by_page', {
+        model: textBoxInput,
+        page: 1
+      });
+      console.log(rows);
+      setTextBoxInput('');
+    }
   };
 
   const shutDownServer = () => {
@@ -180,6 +188,16 @@ export const ControlPanel = () => {
       setIsDVDActive(prevState => !prevState);
     } else {
       alert('WebSocket ded');
+    }
+  };
+
+  const generateAudioFile = () => {
+    if (textBoxInput) {
+      setIsBusy(true);
+      fetch_post('/generate_audio_file', {
+        prompt: textBoxInput,
+      });
+      setTextBoxInput('');
     }
   };
 
@@ -250,6 +268,8 @@ export const ControlPanel = () => {
             <Spacer width={20} />
             </div>
           <div>
+            <button onClick={generateAudioFile}>Generate audio file</button>
+            <Spacer width={20} />
             <button onClick={getDbRowsByPage}>Get DB Rows By Page</button>
             <Spacer width={20} />
             <button onClick={shutDownServer}>Shut down server</button>
