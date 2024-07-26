@@ -54,7 +54,11 @@ def execute_action(Prompt):
         loop.run_in_executor(
           pool,
           asyncio.run,
-          ban_user_via_username(Prompt.username_to_ban, None, 'banned by the moderation ai')
+          ban_user_via_username(
+            Prompt.username_to_ban,
+            None,
+            Prompt.pytwitchapi_args.get('reason', '')
+          )
         )
       InstanceContainer.ws.send(json.dumps({
         'twitch_event': {

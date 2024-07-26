@@ -181,8 +181,12 @@ async def chat_on_message(msg: ChatMessage):
     msg._parsed['tags']['first-msg'] == '1'
     and is_twitch_message_bot_spam(msg.text)
   ):
-    print(f'[PYTWITCHAPI] {msg.user.name} was detected as a spam bot, and was banned! Their message: {msg.text}')
-    send_ban_user_via_username_event_to_priority_queue(msg.user.name)
+    print(f'[PYTWITCHAPI] {msg.user.name} was detected as a spam bot, is about to be banned! Their message: {msg.text}')
+    send_ban_user_via_username_event_to_priority_queue(
+      msg.user.name,
+      msg.text,
+      'banned by the moderation ai for being a spam bot'
+    )
 
   # bits are handled in pubsub, so we ignore bit messages here
   if (
@@ -303,9 +307,17 @@ async def chat_on_command_play(cmd: ChatCommand):
 
 async def chat_on_command_ban(cmd: ChatCommand):
   if cmd.user.name == 'smokie_777':
-    username_to_ban = cmd.text.replace('!ban ', '')
+    args = cmd.text.replace('!ban ', '').split(' ')
+    username_to_ban = args[0].strip()
+    reason = ''
+    if len(args) > 1:
+      reason = args[1].strip()
     if username_to_ban:
-      ban_twitch_user_by_username(username_to_ban)
+      send_ban_user_via_username_event_to_priority_queue(
+        username_to_ban,
+        '',
+        reason
+      )
 
 async def terminate_pytwitchapi():
   InstanceContainer.chat.stop()

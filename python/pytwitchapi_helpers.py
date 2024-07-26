@@ -35,10 +35,17 @@ def is_twitch_message_bot_spam(s):
   processed_s = s.lower().replace(' ', '')
   return any(i in processed_s for i in bot_phrases)
 
-def send_ban_user_via_username_event_to_priority_queue(username):
-  prompt = f'Announce to everyone that {username} has just been permanently banned from the channel! Feel free to add some spice :)'
+def send_ban_user_via_username_event_to_priority_queue(username, message = '', reason = ''):
+  rationale = ''
+  if message:
+    rationale = f'saying: "{message}"'
+  elif reason:
+    rationale = f'reason: "{reason}"'
+
+  prompt = f'You have just banned {username} from the channel for {rationale}. Make an announcement to chat! Feel free to add some spice :)'
   InstanceContainer.priority_queue.enqueue(
     prompt=prompt,
     priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_BAN_USER'],
-    username_to_ban=username
-)
+    username_to_ban=username,
+    pytwitchapi_args={ 'ban_reason': reason }
+  )

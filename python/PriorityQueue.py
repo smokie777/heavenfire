@@ -19,7 +19,8 @@ class PriorityQueue:
     utterance_id = None,
     azure_speaking_style = None,
     username_to_ban = None,
-    is_eleven_labs = False
+    is_eleven_labs = False,
+    pytwitchapi_args = {},
   ):
     with self.lock:
       Prompt = PromptClass(
@@ -28,7 +29,8 @@ class PriorityQueue:
         utterance_id=utterance_id,
         azure_speaking_style=azure_speaking_style,
         username_to_ban=username_to_ban,
-        is_eleven_labs=is_eleven_labs
+        is_eleven_labs=is_eleven_labs,
+        pytwitchapi_args=pytwitchapi_args
       )
 
       if priority in [
