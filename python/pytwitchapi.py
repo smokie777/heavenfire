@@ -184,7 +184,6 @@ async def chat_on_message(msg: ChatMessage):
     print(f'[PYTWITCHAPI] {msg.user.name} was detected as a spam bot, is about to be banned! Their message: {msg.text}')
     send_ban_user_via_username_event_to_priority_queue(
       msg.user.name,
-      msg.text,
       'banned by the moderation ai for being a spam bot'
     )
 
@@ -256,8 +255,8 @@ async def chat_on_command_profile(cmd: ChatCommand):
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!profile')
 
 async def chat_on_command_filter(cmd: ChatCommand):
-  # await cmd.reply('https://www.filterblade.xyz/?profile=smokie_777&saveState=LVW1KYSNJXA3XV&platform=pc&isPreset=false')
-  await cmd.reply('https://pastebin.com/XRCCuqhK')
+  await cmd.reply('https://www.filterblade.xyz/Profile?name=smokie_777&platform=pc')
+  # await cmd.reply('https://pastebin.com/XRCCuqhK')
   with InstanceContainer.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!filter')
 
@@ -266,13 +265,8 @@ async def chat_on_command_video(cmd: ChatCommand):
   with InstanceContainer.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!video')
 
-async def chat_on_command_plan(cmd: ChatCommand):
-  await cmd.reply('https://imgur.com/a/VUtJZEp')
-  with InstanceContainer.app.app_context():
-    db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!plan')
-
 async def chat_on_command_build(cmd: ChatCommand):
-  await cmd.reply('https://poe.ninja/pob/5ba46')
+  await cmd.reply('https://poe.ninja/pob/5d214')
   with InstanceContainer.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!build')
 
@@ -313,11 +307,7 @@ async def chat_on_command_ban(cmd: ChatCommand):
     if len(args) > 1:
       reason = args[1].strip()
     if username_to_ban:
-      send_ban_user_via_username_event_to_priority_queue(
-        username_to_ban,
-        '',
-        reason
-      )
+      send_ban_user_via_username_event_to_priority_queue(username_to_ban, reason)
 
 async def terminate_pytwitchapi():
   InstanceContainer.chat.stop()
@@ -339,7 +329,6 @@ async def run_pytwitchapi():
   InstanceContainer.chat.register_command('video', chat_on_command_video)
   InstanceContainer.chat.register_command('play', chat_on_command_play)
   InstanceContainer.chat.register_command('ban', chat_on_command_ban)
-  InstanceContainer.chat.register_command('plan', chat_on_command_plan)
   InstanceContainer.chat.register_command('rip', chat_on_command_rip)
   InstanceContainer.chat.register_command('build', chat_on_command_build)
   InstanceContainer.chat.register_command('pob', chat_on_command_build)

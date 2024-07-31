@@ -59,7 +59,7 @@ def execute_action(Prompt):
             ban_user_via_username(
               Prompt.username_to_ban,
               None,
-              Prompt.pytwitchapi_args.get('reason', '')
+              Prompt.pytwitchapi_args.get('ban_reason', '')
             )
           )
         InstanceContainer.ws.send(json.dumps({
