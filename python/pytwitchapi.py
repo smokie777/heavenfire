@@ -9,7 +9,7 @@ from enums import AZURE_SPEAKING_STYLE, VTS_EXPRESSIONS, PRIORITY_QUEUE_PRIORITI
 from vts_set_expression import vts_set_expression
 from dotenv import load_dotenv; load_dotenv()
 from utils import does_one_word_start_with_at
-from pytwitchapi_helpers import is_valid_scrabble_tile, send_ban_user_via_username_event_to_priority_queue, is_twitch_message_bot_spam
+from pytwitchapi_helpers import is_valid_scrabble_tile, send_ban_user_via_username_event_to_priority_queue, is_twitch_message_bot_spam, find_banned_words
 import json
 from remind_me import convert_time_hms_string_to_ms
 from datetime import datetime, timedelta
@@ -184,8 +184,20 @@ async def chat_on_message(msg: ChatMessage):
     print(f'[PYTWITCHAPI] {msg.user.name} was detected as a spam bot, is about to be banned! Their message: {msg.text}')
     send_ban_user_via_username_event_to_priority_queue(
       msg.user.name,
-      'banned by the moderation ai for being a spam bot'
+      None,
+      'being a spam bot'
     )
+    return
+  
+  banned_words_in_message = find_banned_words(msg.text)
+  if len(banned_words_in_message):
+    print(f'[PYTWITCHAPI] {msg.user.name} said a banned word, is about to be timed out! Their message: {msg.text}')
+    send_ban_user_via_username_event_to_priority_queue(
+      msg.user.name,
+      10,
+      f'saying a banned word in chat: {banned_words_in_message[0]} (mention the banned word in your response!)'
+    )
+    return
 
   # bits are handled in pubsub, so we ignore bit messages here
   if (
@@ -307,7 +319,7 @@ async def chat_on_command_ban(cmd: ChatCommand):
     if len(args) > 1:
       reason = args[1].strip()
     if username_to_ban:
-      send_ban_user_via_username_event_to_priority_queue(username_to_ban, reason)
+      send_ban_user_via_username_event_to_priority_queue(username_to_ban, None, reason)
 
 async def terminate_pytwitchapi():
   InstanceContainer.chat.stop()

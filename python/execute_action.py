@@ -58,7 +58,7 @@ def execute_action(Prompt):
             asyncio.run,
             ban_user_via_username(
               Prompt.username_to_ban,
-              None,
+              Prompt.pytwitchapi_args.get('ban_seconds', None),
               Prompt.pytwitchapi_args.get('ban_reason', '')
             )
           )
