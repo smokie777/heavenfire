@@ -9,3 +9,21 @@ banned_twitch_keywords = [
   'bazaar',
   'reynad',
 ]
+
+booba_emotes = [
+  'POGGIES',
+  'booba',
+  'THESE',
+  'OppaiBounce',
+  'caught',
+  'Earthquake',
+  'Programming',
+  'POGMILFKERS',
+  'Running',
+  'BOINGIES',
+  'BouncyBoobies',
+  'whycantthisfuckingbemegoddamnit',
+  'BeachTime',
+  'MOOO',
+  'mathil',
+]

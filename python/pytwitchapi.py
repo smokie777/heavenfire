@@ -14,6 +14,7 @@ import json
 from remind_me import convert_time_hms_string_to_ms
 from datetime import datetime, timedelta
 from db import db_event_insert_one
+from constants import booba_emotes
 from InstanceContainer import InstanceContainer
 from State import State
 
@@ -287,6 +288,11 @@ async def chat_on_command_rip(cmd: ChatCommand):
   with InstanceContainer.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!rip')
 
+async def chat_on_command_booba(cmd: ChatCommand):
+  await cmd.reply(' '.join(booba_emotes))
+  with InstanceContainer.app.app_context():
+    db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!booba')
+
 async def chat_on_command_play(cmd: ChatCommand):
   parameters = cmd.parameter.strip().lower().split(maxsplit=2)
   start_tile = parameters[0].strip() if len(parameters) > 0 else ''
@@ -344,6 +350,7 @@ async def run_pytwitchapi():
   InstanceContainer.chat.register_command('rip', chat_on_command_rip)
   InstanceContainer.chat.register_command('build', chat_on_command_build)
   InstanceContainer.chat.register_command('pob', chat_on_command_build)
+  InstanceContainer.chat.register_command('booba', chat_on_command_booba)
   InstanceContainer.chat.start()
 
   InstanceContainer.pubsub = PubSub(InstanceContainer.twitch)
