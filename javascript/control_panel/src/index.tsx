@@ -10,6 +10,7 @@ import { Animations } from './Animations';
 import { convertTimeHmsStringToMs } from './utils';
 import { DataProvider } from './DataProvider';
 import { Stopwatch } from './Stopwatch';
+import { Wheel } from './Wheel';
 
 const router = createBrowserRouter([
   {
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
   {
     path: '/stopwatch',
     element: <Stopwatch />
+  },
+  {
+    path: '/wheel',
+    element: <Wheel />
   }
 ]);
 
