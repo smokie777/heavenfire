@@ -124,6 +124,15 @@ export const Wheel = () => {
     }, 0);
   };
 
+  const handleClickTriangle = () => {
+    const inputItemsCSV = prompt('Input wheel items CSV: ') || '';
+    const colors = generateRainbowColors(inputItemsCSV.split(',').length);
+    setItems(inputItemsCSV.split(',').map((item, index) => ({
+      text: item,
+      color: colors[index]
+    })));
+  };
+
   useEffect(() => {
     const items = ['Zany', 'Bamboozle', 'Snazzy', 'Whimsy', 'Kerfuffle', 'Giggle', 'Hullabaloo', 'Quizzical'];
     const colors = generateRainbowColors(items.length);
@@ -152,7 +161,9 @@ export const Wheel = () => {
         <div className='wheel_center' onClick={initiateSpinning}>
           {isSpinning ? <div className='lunaspin-gif' /> : <div className='lunaspin-still' />}
         </div>
-        <div className='wheel_triangle' onClick={() => setItems([...items, items[0]])} />
+        <div className='wheel_triangle_container' onClick={handleClickTriangle}>
+          <div className='wheel_triangle' />
+        </div>
         {winnerItem && (
           <div className='wheel_winner_text' style={{ color: winnerItem.color }}>
             <u>{winnerItem.text}</u> WINS!!!

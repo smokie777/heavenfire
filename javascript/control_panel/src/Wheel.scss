@@ -10,17 +10,25 @@
     width: 1000px;
     height: 1000px;
 
-    .wheel_triangle {
+    .wheel_triangle_container {
       position: absolute;
-      width: 0;
-      height: 0;
-      border-left: 50px solid transparent;
-      border-right: 50px solid transparent;
-      border-bottom: 100px solid rgba(221, 221, 238, 0.75);
-      transform: scale(1, -1);
+      top: -20px;
       left: 50%;
       margin-left: -50px;
-      top: -20px;
+      cursor: pointer;
+
+      &:hover {
+        animation: waxAndWane 1.25s infinite ease-in-out;
+      }
+
+      .wheel_triangle {
+        width: 0;
+        height: 0;
+        border-left: 50px solid transparent;
+        border-right: 50px solid transparent;
+        border-bottom: 100px solid rgba(221, 221, 238, 0.75);
+        transform: scale(1, -1);
+      }
     }
 
     .wheel_border {
@@ -59,14 +67,8 @@
         height: 150px;
         cursor: pointer;
 
-        @keyframes waxAndWane {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.25); }
-          100% { transform: scale(1); }
-        }
-
         &:hover {
-          animation: waxAndWane 1.5s infinite ease-in-out;
+          animation: waxAndWane 1.25s infinite ease-in-out;
         }
       }
     }
@@ -104,4 +106,10 @@
       }
     }
   }
+}
+
+@keyframes waxAndWane {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
