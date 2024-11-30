@@ -8,6 +8,8 @@ banned_twitch_keywords = [
   'bgs',
   'bazaar',
   'reynad',
+  'osrs',
+  'runescape',
 ]
 
 booba_emotes = [
@@ -26,4 +28,5 @@ booba_emotes = [
   'BeachTime',
   'MOOO',
   'mathil',
+  'WELCUM'
 ]
