@@ -187,3 +187,11 @@ def _get_db_rows_by_page():
   return {
     'rows': rows
   }
+
+@InstanceContainer.app.route('/print_raffle_entries', methods=['POST'])
+def _print_raffle_entries():
+  data = request.get_json()
+
+  return {
+    'entries': list(State.raffle_entries_set)
+  }

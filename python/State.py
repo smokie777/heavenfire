@@ -28,6 +28,8 @@ class StateClass:
 
     # stores tuples like ('remind foo to bar!', datetime)
     self.remind_me_prompts_and_datetime_queue = []
+    # stores raffle entries
+    self.raffle_entries_set = set()
     
     print('[CONFIG] Initialized State.')
 

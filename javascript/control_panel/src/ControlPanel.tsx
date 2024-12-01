@@ -201,6 +201,11 @@ export const ControlPanel = () => {
     }
   };
 
+  const printRaffleEntries = async() => {
+    const { entries } = await fetch_post('/print_raffle_entries');
+    console.log(entries.join(','));
+  };
+
   return (
     <div className='app_container'>
       <Helmet><title>Heavenfire Control Panel</title></Helmet>
@@ -265,6 +270,8 @@ export const ControlPanel = () => {
             <button onClick={toggleDVD}>
               Toggle DVD {isDVDActive ? 'off' : 'on'}
             </button>
+            <Spacer width={20} />
+            <button onClick={printRaffleEntries}>Print raffle entries</button>
             <Spacer width={20} />
             </div>
           <div>

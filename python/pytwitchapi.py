@@ -293,6 +293,13 @@ async def chat_on_command_booba(cmd: ChatCommand):
   with InstanceContainer.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!booba')
 
+async def chat_on_command_join(cmd: ChatCommand):
+  if not cmd.user.name in State.raffle_entries_set:
+    State.raffle_entries_set.add(cmd.user.name)
+    await cmd.reply(f'successfully joined the giveaway! ({len(State.raffle_entries_set)} people have joined so far.)')
+    with InstanceContainer.app.app_context():
+      db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!join')
+
 async def chat_on_command_play(cmd: ChatCommand):
   parameters = cmd.parameter.strip().lower().split(maxsplit=2)
   start_tile = parameters[0].strip() if len(parameters) > 0 else ''
@@ -351,6 +358,7 @@ async def run_pytwitchapi():
   InstanceContainer.chat.register_command('build', chat_on_command_build)
   InstanceContainer.chat.register_command('pob', chat_on_command_build)
   InstanceContainer.chat.register_command('booba', chat_on_command_booba)
+  InstanceContainer.chat.register_command('join', chat_on_command_join)
   InstanceContainer.chat.start()
 
   InstanceContainer.pubsub = PubSub(InstanceContainer.twitch)
