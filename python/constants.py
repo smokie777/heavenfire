@@ -10,6 +10,7 @@ banned_twitch_keywords = [
   'reynad',
   'osrs',
   'runescape',
+  'fextralife',
 ]
 
 booba_emotes = [

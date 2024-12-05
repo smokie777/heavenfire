@@ -296,7 +296,11 @@ async def chat_on_command_booba(cmd: ChatCommand):
 async def chat_on_command_join(cmd: ChatCommand):
   if not cmd.user.name in State.raffle_entries_set:
     State.raffle_entries_set.add(cmd.user.name)
-    await cmd.reply(f'successfully joined the giveaway! ({len(State.raffle_entries_set)} people have joined so far.)')
+    # await cmd.reply(f'successfully joined the giveaway! ({len(State.raffle_entries_set)} people have joined so far.)')
+    InstanceContainer.ws.send(json.dumps({
+      'type': 'SET_TOAST',
+      'payload': f'{cmd.user.name} joined the giveaway!'
+    }))
     with InstanceContainer.app.app_context():
       db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!join')
 

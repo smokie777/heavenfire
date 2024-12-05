@@ -191,6 +191,17 @@ export const ControlPanel = () => {
     }
   };
 
+  const sendTestToast = () => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({
+        type: WEBSOCKET_EVENT_TYPES['SET_TOAST'],
+        payload: 'test toast!!!!'
+      }));
+    } else {
+      alert('WebSocket ded');
+    }
+  };
+
   const generateAudioFile = () => {
     if (textBoxInput) {
       setIsBusy(true);
@@ -262,7 +273,8 @@ export const ControlPanel = () => {
             <button onClick={sing}>Sing</button>
             <Spacer width={20} />
             <button onClick={setContext}>Set context</button>
-            <Spacer width={20} />
+          </div>
+          <div>
             <button onClick={toggleEmoteAnimations}>
               Toggle emote animations {areLiveAnimatedEmotesOn ? 'off' : 'on'}
             </button>
@@ -271,9 +283,11 @@ export const ControlPanel = () => {
               Toggle DVD {isDVDActive ? 'off' : 'on'}
             </button>
             <Spacer width={20} />
+            <button onClick={sendTestToast}>Send test toast</button>
+            <Spacer width={20} />
             <button onClick={printRaffleEntries}>Print raffle entries</button>
             <Spacer width={20} />
-            </div>
+          </div>
           <div>
             <button onClick={generateAudioFile}>Generate audio file</button>
             <Spacer width={20} />

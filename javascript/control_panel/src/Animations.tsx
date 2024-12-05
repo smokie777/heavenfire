@@ -6,6 +6,7 @@ import { useData } from './DataProvider';
 import { v4 as uuidv4 } from 'uuid';
 import { extractFirst7tvEmote, getRandomNumberBetween } from './utils';
 import { WEBSOCKET_EVENT_TYPES } from './enums';
+import { Toast } from './Toast';
 
 enum ANIMATION_EVENTS {
   SUB = 'SUB',
@@ -50,6 +51,8 @@ export const Animations = () => {
   //   username: 'test-username-for-ban',
   //   value: ''
   // });
+  const [toast, setToast] = useState('');
+  const [rerenderIdenticalToastFlipper, setRerenderIdenticalToastFlipper] = useState(false);
 
   const { emotesNameToUrlMap } = useData();
 
@@ -134,6 +137,11 @@ export const Animations = () => {
           const el = document.getElementById('dvd');
           el?.remove();
         }
+      } else if (data.type === WEBSOCKET_EVENT_TYPES['SET_TOAST']) {
+        if (data.payload) {
+          setToast(data.payload);
+          setRerenderIdenticalToastFlipper(prevState => !prevState);
+        }
       }
     });
 
@@ -179,7 +187,8 @@ export const Animations = () => {
           items={[
             <div className='subtitle_text event_text_top'>{twitchEvent.username}</div>,
             <div className='subtitle_text event_text_bottom'>{twitchEvent.value}</div>,
-            <div className='ratsenteringhole-gif' />
+            // <div className='ratsenteringhole-gif' />,
+            <div className='lunaspin-gif' />
           ]}
         />
       );
@@ -207,7 +216,7 @@ export const Animations = () => {
           items={[
             <div className='subtitle_text event_text_top'>{twitchEvent.username}</div>,
             <div className='subtitle_text event_text_bottom'>
-              has been <b>ejected</b> into outer space!
+              has been&nbsp;<b>ejected</b>&nbsp;into outer space!
             </div>,
             <div className='ejection-gif' />
           ]}
@@ -227,6 +236,8 @@ export const Animations = () => {
       <div className='event_container'>
         {event}
       </div>
+
+      <Toast toast={toast} rerenderIdenticalToastFlipper={rerenderIdenticalToastFlipper} />
     </div>
   );
 };

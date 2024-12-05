@@ -60,6 +60,13 @@
     flex-direction: column;
     align-items: center;
 
+    .lunaspin-gif {
+      background: url('../public/lunaspin.gif') no-repeat center center / contain;
+      margin-top: 25px;
+      width: 200px;
+      height: 200px;
+    }
+
     .ratsenteringhole-gif {
       margin-top: -15px;
       background: url('../public/ratsenteringhole.gif') no-repeat center center / contain;

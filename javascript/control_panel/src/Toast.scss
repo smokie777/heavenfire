@@ -1,0 +1,32 @@
+.toast {
+  height: 60px;
+  border: 3px solid black;
+  border-radius: 30px;
+  background: white;
+  box-shadow: 4px 4px 8px black;
+  position: absolute;
+  bottom: 50px;
+  right: 50px;
+  display: flex;
+  align-items: center;
+
+  .toast_text {
+    font-family: 'BubblegumSans-Regular';
+    text-align: center;
+    text-shadow: none;
+    font-size: 24px;
+  }
+
+  &.toast_animation {
+    animation: fadeOut 4s;
+    animation-fill-mode: forwards;
+  }
+
+  @keyframes fadeOut {
+    0% { opacity: 1; }
+    12% { opacity: 1; }
+    25% { opacity: 1; }
+    75% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+}
