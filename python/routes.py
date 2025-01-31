@@ -202,3 +202,17 @@ def _toggle_is_speaking_fast():
   State.is_speaking_fast = not State.is_speaking_fast
 
   return {}
+
+@InstanceContainer.app.route('/process_luna_wheel_queue', methods=['POST'])
+def _process_luna_wheel_queue():
+  data = request.get_json()
+  if len(State.luna_wheel_queue):
+    del State.luna_wheel_queue[0]
+  if len(State.luna_wheel_queue):
+    InstanceContainer.ws.send(json.dumps({
+      'luna_wheel': {
+        'user_input': State.luna_wheel_queue[0]
+      }
+    }))
+
+  return {}

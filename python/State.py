@@ -32,6 +32,8 @@ class StateClass:
     self.remind_me_prompts_and_datetime_queue = []
     # stores raffle entries
     self.raffle_entries_set = set()
+    # stores comma-separated strings
+    self.luna_wheel_queue = []
     
     print('[CONFIG] Initialized State.')
 

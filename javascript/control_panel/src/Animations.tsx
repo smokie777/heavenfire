@@ -1,4 +1,5 @@
 import './Animations.scss';
+import './Wheel.scss';
 import { Helmet } from 'react-helmet';
 import { useEffect, useState, useRef } from 'react';
 import { AnimationCascadingFadeInOut } from './AnimationCascadingFadeInOut';
@@ -7,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { extractFirst7tvEmote, getRandomNumberBetween } from './utils';
 import { WEBSOCKET_EVENT_TYPES } from './enums';
 import { Toast } from './Toast';
+import { Wheel } from './Wheel';
 
 enum ANIMATION_EVENTS {
   SUB = 'SUB',
@@ -53,6 +55,7 @@ export const Animations = () => {
   // });
   const [toast, setToast] = useState('');
   const [rerenderIdenticalToastFlipper, setRerenderIdenticalToastFlipper] = useState(false);
+  const [userInputWheelItems, setUserInputWheelItems] = useState('');
 
   const { emotesNameToUrlMap } = useData();
 
@@ -141,6 +144,10 @@ export const Animations = () => {
         if (data.payload) {
           setToast(data.payload);
           setRerenderIdenticalToastFlipper(prevState => !prevState);
+        }
+      } else if (data.type === WEBSOCKET_EVENT_TYPES['LUNA_WHEEL']) {
+        if (data.payload) {
+          setUserInputWheelItems(data.payload);
         }
       }
     });
@@ -232,6 +239,10 @@ export const Animations = () => {
       <Helmet><title>Heavenfire Animations</title></Helmet>
 
       <div className='emotes_container' id='emotes_container' />
+
+      <div className='animation_wheel_container'>
+        <Wheel userInputWheelItems={userInputWheelItems} />
+      </div>
 
       <div className='event_container'>
         {event}

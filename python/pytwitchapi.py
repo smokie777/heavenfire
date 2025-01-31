@@ -43,10 +43,10 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
   print('[PYTWITCHAPI]', data)
   title = data['data']['redemption']['reward']['title']
   display_name = data['data']['redemption']['user']['display_name']
+  user_input = data['data']['redemption']['user_input']
 
   if title == 'luna whisper' and State.is_twitch_chat_react_on:
     vts_set_expression(VTS_EXPRESSIONS['FLUSHED'])
-    user_input = data['data']['redemption']['user_input']
     prompt = f'{WHISPER_PREFIX_TEXT} {display_name}: {user_input}'
     with InstanceContainer.app.app_context():
       db_event_insert_one(
@@ -61,7 +61,6 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
     )
   elif title == 'luna rant' and State.is_twitch_chat_react_on:
     vts_set_expression(VTS_EXPRESSIONS['ANGRY'])
-    user_input = data['data']['redemption']['user_input']
     prompt = f'{RANT_PREFIX_TEXT} {user_input}!'
     with InstanceContainer.app.app_context():
       db_event_insert_one(
@@ -81,7 +80,6 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
       )
     vts_set_expression(VTS_EXPRESSIONS['BROWN_HAIR'])
   elif title == 'smokie tts' and not State.is_singing:
-    user_input = data['data']['redemption']['user_input']
     with InstanceContainer.app.app_context():
       db_event_insert_one(
         type=TWITCH_EVENT_TYPE['CHANNEL_POINT_REDEMPTION'],
@@ -94,7 +92,6 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
       is_eleven_labs=True
     )
   elif title == 'unlock 7tv emote':
-    user_input = data['data']['redemption']['user_input']
     prompt = f'{display_name} just requested adding the {user_input} 7tv emote!'
     with InstanceContainer.app.app_context():
       db_event_insert_one(
@@ -106,6 +103,12 @@ async def pubsub_callback_listen_channel_points(uuid: UUID, data: dict) -> None:
       prompt=prompt,
       priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_PUBSUB_EVENTS_QUEUE']
     )
+  elif title == 'luna wheel' and user_input.count(',') > 0:
+    State.luna_wheel_queue.append(user_input)
+    InstanceContainer.ws.send(json.dumps({
+      'type': 'LUNA_WHEEL',
+      'payload': user_input
+    }))
 
 async def pubsub_callback_listen_bits_v1(uuid: UUID, data: dict) -> None:
   print('[PYTWITCHAPI]', data)

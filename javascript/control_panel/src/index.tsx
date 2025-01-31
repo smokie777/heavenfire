@@ -10,7 +10,7 @@ import { Animations } from './Animations';
 import { convertTimeHmsStringToMs } from './utils';
 import { DataProvider } from './DataProvider';
 import { Stopwatch } from './Stopwatch';
-import { Wheel } from './Wheel';
+import { WheelPage } from './Wheel';
 
 const router = createBrowserRouter([
   {
@@ -35,7 +35,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/wheel',
-    element: <Wheel />
+    element: <WheelPage />
   }
 ]);
 

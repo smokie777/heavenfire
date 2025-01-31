@@ -19,6 +19,13 @@
     }
   }
 
+  .animation_wheel_container {
+    transform: scale(0.5);
+    position: absolute;
+    bottom: -100px; // why does this have to be -100? i have no idea what's happening here
+    left: -100px;
+  }
+
   .event_container {
     position: absolute;
     z-index: 1;

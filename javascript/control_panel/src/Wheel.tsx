@@ -1,6 +1,8 @@
 import './Wheel.scss';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet';
+import { fetch_post } from './fetch_functions';
+import { WEBSOCKET_EVENT_TYPES } from './enums';
 
 interface WheelItem {
   text: string;
@@ -18,7 +20,7 @@ const generateRainbowColors = (n: number) => {
   return colors;
 };
 
-export const WheelComponent = ({
+const WheelComponent = ({
   items = [],
 }:{
   items: WheelItem[],
@@ -84,9 +86,11 @@ const defaultSpinningStyle = {
   transform: 'rotate(-90deg)',
   transition: 'none'
 };
-export const Wheel = () => {
+export const Wheel = ({ userInputWheelItems = '' }) => {
+  const wsRef = useRef<WebSocket | null>(null);
   const stopSpinningTimeoutRef = useRef<number | NodeJS.Timer>();
   const [items, setItems] = useState<WheelItem[]>([]);
+  const itemsRef = useRef<WheelItem[]>([]);
   const [winnerItem, setWinnerItem] = useState<WheelItem | null>(null);
   const [isSpinning, setIsSpinning] = useState(false);
   const [spinningStyle, setSpinningStyle] = useState(defaultSpinningStyle);
@@ -118,7 +122,7 @@ export const Wheel = () => {
           }
           counter -= sliceDegrees;
         }
-        setWinnerItem(items[newWinnerIndex]);
+        setWinnerItem(itemsRef.current[newWinnerIndex]);
         setIsSpinning(false);
       }, randomAnimationDuration * 1000);
     }, 0);
@@ -127,49 +131,87 @@ export const Wheel = () => {
   const handleClickTriangle = () => {
     const inputItemsCSV = prompt('Input wheel items CSV: ') || '';
     const colors = generateRainbowColors(inputItemsCSV.split(',').length);
-    setItems(inputItemsCSV.split(',').map((item, index) => ({
+    const newItems = inputItemsCSV.split(',').map((item, index) => ({
       text: item,
       color: colors[index]
-    })));
+    }));
+    setItems(newItems);
+    itemsRef.current = newItems;
   };
 
   useEffect(() => {
-    const items = ['Zany', 'Bamboozle', 'Snazzy', 'Whimsy', 'Kerfuffle', 'Giggle', 'Hullabaloo', 'Quizzical'];
-    const colors = generateRainbowColors(items.length);
-    setItems(items.map((item, index) => ({
-      text: item,
-      color: colors[index]
-    })));
+    // const items = ['Zany', 'Bamboozle', 'Snazzy', 'Whimsy', 'Kerfuffle', 'Giggle', 'Hullabaloo', 'Quizzical'];
+    // const colors = generateRainbowColors(items.length);
+    // const newItems = items.map((item, index) => ({
+    //   text: item,
+    //   color: colors[index]
+    // }));
+    // setItems(newItems);
+    // itemsRef.current = newItems;
+    if (wsRef.current) {
+      wsRef.current.close();
+    }
+    const ws = new WebSocket('ws://localhost:4000');
+    wsRef.current = ws;
+    ws.addEventListener('open', () => {
+      console.log('Connected to WebSocket server!');
+    });
+    ws.addEventListener('message', (_data) => {
+      const data = JSON.parse(_data.data);
+      if (data.type === WEBSOCKET_EVENT_TYPES['LUNA_WHEEL']) {
+        if (data.payload) {
+          const items:string[] = data.payload.split(',');
+          const colors = generateRainbowColors(items.length);
+          const newItems = items.map((item, index) => ({
+            text: item,
+            color: colors[index]
+          }));
+          setItems(newItems);
+          itemsRef.current = newItems;
+          setTimeout(() => initiateSpinning(), 2000);
+        }
+      }
+    });
 
     return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
       clearTimeout(stopSpinningTimeoutRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  return (
+    <div className='wheel_container'>
+      <div
+        className='wheel_rotation_container'
+        style={spinningStyle}
+      >
+        <WheelComponent items={items} />
+      </div>
+      <div className='wheel_border' />
+      <div className='wheel_center' onClick={initiateSpinning}>
+        {isSpinning ? <div className='lunaspin-gif' /> : <div className='lunaspin-still' />}
+      </div>
+      <div className='wheel_triangle_container' onClick={handleClickTriangle}>
+        <div className='wheel_triangle' />
+      </div>
+      {winnerItem && (
+        <div className='wheel_winner_text' style={{ color: winnerItem.color }}>
+          <u>{winnerItem.text}</u> WINS!!!
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const WheelPage = () => {
   return (
     <div className='wheel_page'>
       <Helmet><title>Luna Wheel</title></Helmet>
 
-      <div className='wheel_container'>
-        <div
-          className='wheel_rotation_container'
-          style={spinningStyle}
-        >
-          <WheelComponent items={items} />
-        </div>
-        <div className='wheel_border' />
-        <div className='wheel_center' onClick={initiateSpinning}>
-          {isSpinning ? <div className='lunaspin-gif' /> : <div className='lunaspin-still' />}
-        </div>
-        <div className='wheel_triangle_container' onClick={handleClickTriangle}>
-          <div className='wheel_triangle' />
-        </div>
-        {winnerItem && (
-          <div className='wheel_winner_text' style={{ color: winnerItem.color }}>
-            <u>{winnerItem.text}</u> WINS!!!
-          </div>
-        )}
-      </div>
+      <Wheel />
     </div>
   );
 };
