@@ -35,7 +35,8 @@ def execute_action(Prompt):
     (output_filename, subtitles) = InstanceContainer.azure.gen_audio_file_and_subtitles(
       edited,
       Prompt.azure_speaking_style,
-      Prompt.should_generate_audio_file_only
+      Prompt.should_generate_audio_file_only,
+      Prompt.is_speaking_fast
     )
     if not Prompt.should_generate_audio_file_only:
       latency_tts = round((time() - start_time), 3)

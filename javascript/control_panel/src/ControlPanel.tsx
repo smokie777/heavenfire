@@ -24,6 +24,7 @@ export const ControlPanel = () => {
   const [isBusy, setIsBusy] = useState(false);
   const [areLiveAnimatedEmotesOn, setAreLiveAnimatedEmotesOn] = useState(true);
   const [isDVDActive, setIsDVDActive] = useState(false);
+  const [isSpeakingFast, setIsSpeakingFast] = useState(false);
 
   useEffect(() => {
     if (wsRef.current) {
@@ -191,6 +192,11 @@ export const ControlPanel = () => {
     }
   };
 
+  const toggleIsSpeakingFast = () => {
+    setIsSpeakingFast(prevState => !prevState);
+    fetch_post('/toggle_is_speaking_fast');
+  };
+
   const sendTestToast = () => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({
@@ -273,6 +279,10 @@ export const ControlPanel = () => {
             <button onClick={sing}>Sing</button>
             <Spacer width={20} />
             <button onClick={setContext}>Set context</button>
+            <Spacer width={20} />
+            <button onClick={toggleIsSpeakingFast}>
+              Toggle speaking speed: {isSpeakingFast ? 2 : 1}
+            </button>
           </div>
           <div>
             <button onClick={toggleEmoteAnimations}>

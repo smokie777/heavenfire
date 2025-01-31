@@ -31,10 +31,10 @@ def is_valid_scrabble_tile(s):
   # Return True if the string matches the pattern, False otherwise
   return bool(match)
 
-bot_phrases = ['dotcom', '.com', 'promo', 'channel', 'view', 'follow', 'competit', 'streamrise', 'http']
+bot_phrases = ['dotcom', '.com', 'promo', 'channel', 'view', 'follow', 'competit', 'streamrise', 'http', 'discord']
 def is_twitch_message_bot_spam(s):
   processed_s = s.lower().replace(' ', '')
-  return any(i in processed_s for i in bot_phrases)
+  return any(i in processed_s for i in bot_phrases) and not '!discord' in processed_s
 
 def send_ban_user_via_username_event_to_priority_queue(username, seconds, reason = ''):
   prompt = f'Announce that you\'ve just {"timed out" if seconds else "banned"} {username} for {f"{seconds} seconds" if seconds else ""} for: {reason}'

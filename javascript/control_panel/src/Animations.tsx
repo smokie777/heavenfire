@@ -237,7 +237,7 @@ export const Animations = () => {
         {event}
       </div>
 
-      <Toast toast={toast} rerenderIdenticalToastFlipper={rerenderIdenticalToastFlipper} />
+      {/* <Toast toast={toast} rerenderIdenticalToastFlipper={rerenderIdenticalToastFlipper} /> */}
     </div>
   );
 };

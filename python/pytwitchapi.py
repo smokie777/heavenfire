@@ -17,6 +17,7 @@ from db import db_event_insert_one
 from constants import booba_emotes
 from InstanceContainer import InstanceContainer
 from State import State
+import random
 
 APP_ID = os.environ['TWITCH_APP_ID']
 APP_SECRET = os.environ['TWITCH_APP_SECRET']
@@ -252,9 +253,11 @@ async def chat_on_message(msg: ChatMessage):
         priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_REMIND_ME']
       )
     else:
+      is_speaking_fast = random.random() > 0.75
       InstanceContainer.priority_queue.enqueue(
         prompt=prompt,
-        priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_TWITCH_CHAT_QUEUE']
+        priority=PRIORITY_QUEUE_PRIORITIES['PRIORITY_TWITCH_CHAT_QUEUE'],
+        is_speaking_fast=is_speaking_fast
       )
 
 async def chat_on_command_discord(cmd: ChatCommand):
@@ -299,7 +302,7 @@ async def chat_on_command_join(cmd: ChatCommand):
     # await cmd.reply(f'successfully joined the giveaway! ({len(State.raffle_entries_set)} people have joined so far.)')
     InstanceContainer.ws.send(json.dumps({
       'type': 'SET_TOAST',
-      'payload': f'{cmd.user.name} joined the giveaway!'
+      'payload': f'{cmd.user.name} joined the giveaway! ({len(State.raffle_entries_set)} joined so far)'
     }))
     with InstanceContainer.app.app_context():
       db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!join')
@@ -362,7 +365,7 @@ async def run_pytwitchapi():
   InstanceContainer.chat.register_command('build', chat_on_command_build)
   InstanceContainer.chat.register_command('pob', chat_on_command_build)
   InstanceContainer.chat.register_command('booba', chat_on_command_booba)
-  InstanceContainer.chat.register_command('join', chat_on_command_join)
+  # InstanceContainer.chat.register_command('join', chat_on_command_join)
   InstanceContainer.chat.start()
 
   InstanceContainer.pubsub = PubSub(InstanceContainer.twitch)

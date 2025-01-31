@@ -75,7 +75,7 @@ class Azure:
     self.SPEECHSDK_SPEECH_SYNTHESIZER.speak_ssml_async(ssml).get()
     store['subtitles'] = self.word_offsets
 
-  def gen_audio_file_and_subtitles(self, text, speaking_style = '', skipGeneratingSubtitles = False):
+  def gen_audio_file_and_subtitles(self, text, speaking_style = '', skipGeneratingSubtitles = False, is_speaking_fast = False):
     # note: this function calls the speech API twice, once using REST, and once using speechsdk.
     # this is necessary because only speechsdk can give word timestamps, but unfortunately
     # speechsdk only allows saving ssml generated audio as a converted wav,
@@ -95,7 +95,7 @@ class Azure:
     # 2. replace <prosody /> with %PROSODY_SSML% 
     # 3. refactor it to be one line
     # 4. wrap it in single quotes '', and put it in .env
-    prosody_ssml = '<prosody pitch="+10.00%">' + emoji_processed_text + '</prosody>'
+    prosody_ssml = ('<prosody rate="+150.00%" pitch="+10.00%">' + emoji_processed_text + '</prosody>') if (State.is_speaking_fast or is_speaking_fast) else ('<prosody pitch="+10.00%">' + emoji_processed_text + '</prosody>') 
     # prosody_ssml = '<prosody pitch="+10.00%"><say-as interpret-as="message">' + emoji_processed_text + '</say-as></prosody>'
     if speaking_style:
       prosody_ssml = '<mstts:express-as style="' + speaking_style + '">' + prosody_ssml + '</mstts:express-as>'

@@ -25,6 +25,8 @@ class StateClass:
     self.is_quiet_mode_on = True
     # is singing in action
     self.is_singing = False
+    # speaking speed
+    self.is_speaking_fast = False
 
     # stores tuples like ('remind foo to bar!', datetime)
     self.remind_me_prompts_and_datetime_queue = []

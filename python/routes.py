@@ -195,3 +195,10 @@ def _print_raffle_entries():
   return {
     'entries': list(State.raffle_entries_set)
   }
+
+@InstanceContainer.app.route('/toggle_is_speaking_fast', methods=['POST'])
+def _toggle_is_speaking_fast():
+  data = request.get_json()
+  State.is_speaking_fast = not State.is_speaking_fast
+
+  return {}
