@@ -59,8 +59,14 @@ LUNA_AND_SMOKIE_ONLY_CHANNEL_ID = 1141547964960079984
 VOICE_TEXT_CHANNEL_ID = 1141966787404124221
 LIVE_ANNOUNCEMENTS_CHANNEL_ID = 1139812500032987166
 SELF_PROMO_CHANNEL_ID = 1142501340459839488
+SCHEDULE_CHANNEL_ID = 1168991964201484338
 
 client = discord.Client(intents=discord.Intents.all())
+
+@client.event
+async def delayed_message(channel, message):
+  await asyncio.sleep(12 * 60 * 60)  # 12 hours in seconds
+  await channel.send(message)
 
 @client.event
 async def on_ready():
@@ -160,6 +166,11 @@ async def on_message(message):
             message_to_send = f'@here {edited} https://www.twitch.tv/smokie_777'
             channel = client.get_channel(LIVE_ANNOUNCEMENTS_CHANNEL_ID)
             await channel.send(message_to_send)
+          # send message after delay functionality
+          elif (str(message.author) == 'smokie_777' and '@Luna !beep' in str(message.clean_content)):
+            message_to_send = f'Beep! This is a test mesage sent by Luna after a 12 hour delay.'
+            channel = client.get_channel(SCHEDULE_CHANNEL_ID)
+            asyncio.create_task(delayed_message(channel, message_to_send))
           # youtube video promo functionality (experimental)
           elif (str(message.author) == 'smokie_777' and '@Luna !video ' in str(message.clean_content)):
             # example usage: @Luna !video | title | url

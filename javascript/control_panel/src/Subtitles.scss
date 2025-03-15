@@ -25,9 +25,11 @@
   text-align: center;
   font-family: 'BubblegumSans-Regular';
   font-weight: bold;
-  color: hotpink;
-  text-shadow: 2px 2px 4px black;
-  -webkit-text-stroke: 1px black;
+  color: black;
+  text-shadow: 3px 3px 6px black;
+  text-shadow: 2px 2px 4px white;
+  -webkit-text-stroke-width: .4px;
+  -webkit-text-stroke-color: white;
   font-size: 72px;
   line-height: 88px;
 

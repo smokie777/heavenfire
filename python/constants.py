@@ -11,7 +11,12 @@ banned_twitch_keywords = [
   'fextralife',
   'talkative',
   'tri',
-  'talkativetri'
+  'talkativetri',
+  'elon',
+  'musk',
+  'trump',
+  'biden',
+  'poe2'
 ]
 
 booba_emotes = [

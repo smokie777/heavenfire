@@ -2,6 +2,7 @@ import os
 from time import sleep
 import multiprocessing
 from State import State
+from InstanceContainer import InstanceContainer
 
 # STEPS TO MAKE A SONG
 # 1. Obtain high quality instrumental track & acapella
@@ -16,15 +17,15 @@ def play_iv(song):
   os.startfile(os.path.abspath(f'./songs/{song}_iv.wav'))
 
 # example: edamame_v.wav is the vocals only, to be played silently through the virtual cable
-def play_v(song, azure_instance):
-  azure_instance.speak(f'./songs/{song}_v.wav')
+def play_v(song):
+  InstanceContainer.azure.speak(f'./songs/{song}_v.wav')
   State.is_singing = False
 
-def sing(song, azure_instance):
+def sing(song):
   State.is_singing = True
 
   p1 = multiprocessing.Process(target=play_iv, args=(song,))
-  p2 = multiprocessing.Process(target=play_v, args=(song, azure_instance,))
+  p2 = multiprocessing.Process(target=play_v, args=(song,))
 
   p1.start()
   p2.start()

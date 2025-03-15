@@ -285,7 +285,7 @@ async def chat_on_command_video(cmd: ChatCommand):
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!video')
 
 async def chat_on_command_build(cmd: ChatCommand):
-  await cmd.reply('https://poe.ninja/pob/5d214')
+  await cmd.reply('https://pobb.in/mNxCKLr5UVYE')
   with InstanceContainer.app.app_context():
     db_event_insert_one(type=TWITCH_EVENT_TYPE['CHAT_COMMAND'], event='!build')
 

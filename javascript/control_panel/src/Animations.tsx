@@ -240,9 +240,9 @@ export const Animations = () => {
 
       <div className='emotes_container' id='emotes_container' />
 
-      <div className='animation_wheel_container'>
+      {/* <div className='animation_wheel_container'>
         <Wheel userInputWheelItems={userInputWheelItems} />
-      </div>
+      </div> */}
 
       <div className='event_container'>
         {event}

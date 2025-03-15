@@ -120,7 +120,7 @@ def _sing():
 
   try:
     State.is_busy = True
-    sing(song, InstanceContainer.azure)
+    sing(song)
     State.is_busy = False
   except Exception as e:
     log_error(e, '/sing')
