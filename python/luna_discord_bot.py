@@ -10,6 +10,7 @@ from log_error import log_error
 from llm_openai import gen_llm_response
 from datetime import timedelta
 import re
+from find_banned_words import find_banned_words
 
 InstanceContainer.llm_short_term_memory.set_context('Right now, you are hanging out in your discord server.')
 
@@ -97,9 +98,22 @@ async def on_message(message):
 
   is_luna_busy = True
 
-  # only respond to messages if BOTH message is from Alluring Lunar Haven AND @Luna was mentioned
+
   if message.guild.id == GUILD_ID:
-    if int(os.environ['LUNA_DISCORD_BOT_ID']) in [m.id for m in message.mentions]:
+    # moderation flow: runs on every message in the discord server
+    if len(find_banned_words(str(message.clean_content))):
+      banned_words_in_message = find_banned_words(str(message.clean_content))
+      prompt = f'Announce that you\'ve just timed out {str(message.author)} for 30 seconds for saying a banned word: {banned_words_in_message[0]} (mention the banned word in your response)'
+      try:
+        timedelta = gen_timeout_timedelta('30s')
+        await message.author.timeout(timedelta, reason='timed out by luna')
+        (_, _, edited) = gen_llm_response(prompt)
+        await message.reply(edited)
+      except Exception as e:
+        log_error(e, '(discord bot)')
+        await message.reply('Someone tell @smokie_777 there is a problem with my AI.')
+    # main flow: only respond to messages if BOTH message is in the server AND @Luna was mentioned
+    elif int(os.environ['LUNA_DISCORD_BOT_ID']) in [m.id for m in message.mentions]:
       # print('message.activity: ', message.activity)
       # print('message.application: ', message.application)
       # print('message.application_id: ', message.application_id)
