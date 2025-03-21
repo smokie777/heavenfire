@@ -16,7 +16,8 @@ banned_twitch_keywords = [
   'musk',
   'trump',
   'biden',
-  'poe2'
+  'poe2',
+  'hots'
 ]
 
 booba_emotes = [

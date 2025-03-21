@@ -98,12 +98,11 @@ async def on_message(message):
 
   is_luna_busy = True
 
-
   if message.guild.id == GUILD_ID:
     # moderation flow: runs on every message in the discord server
     if len(find_banned_words(str(message.clean_content))):
       banned_words_in_message = find_banned_words(str(message.clean_content))
-      prompt = f'Announce that you\'ve just timed out {str(message.author)} for 30 seconds for saying a banned word: {banned_words_in_message[0]} (mention the banned word in your response)'
+      prompt = f'Announce that you\'ve just timed out {str(message.author.display_name)} for 30 seconds for saying a banned word: {banned_words_in_message[0]} (mention the banned word in your response)'
       try:
         timedelta = gen_timeout_timedelta('30s')
         await message.author.timeout(timedelta, reason='timed out by luna')
